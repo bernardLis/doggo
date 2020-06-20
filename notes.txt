@@ -1,0 +1,44 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------Getting all breeds and pushing them to a list ----------------------------------
+allBreeds = []
+
+response = requests.get("https://dog.ceo/api/breeds/list/all")
+json_response = response.json()
+breedsDict = json_response["message"]
+print(breedsDict)
+
+print(list(breedsDict.values()))
+
+for item in breedsDict:
+    if not breedsDict[item]:
+        #print(item)
+        allBreeds.append(item.capitalize())
+    else:
+        #print(breedsDict[item])
+        for value in breedsDict[item]:
+            #print(value)
+            str = item.capitalize() + " " + value.capitalize()
+            #print(str)
+            allBreeds.append(str)
+
+
+
+print(allBreeds)

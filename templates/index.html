@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    index
+{% endblock %}
+
+{% block main %}
+  <div id="game">
+    <p class="my-0">score:</p>
+    <p class="my-0" id="scoreDisplay">0</p>
+
+    <p class="my-0">timer:</p>
+    <p class="my-0" id="timerDisplay">0</p>
+
+
+    {% for id in dogDict: %}
+      {% if id == 0: %}
+        <div id="doggo-number-{{id}}" data-breed="{{ dogDict[id][1] }}" class="currentDoggo">
+          <img src="{{ dogDict[id][0] }}" />
+          <p>{{ dogDict[id][1] }}</p>
+        </div>
+      {% else %}
+        <div id="doggo-number-{{id}}" data-breed="{{ dogDict[id][1] }}" class="hidden">
+          <img src="{{ dogDict[id][0] }}" />
+          <p>{{ dogDict[id][1] }}</p>
+        </div>
+      {% endif %}
+    {% endfor %}
+    <h4 id="message"></h4>
+    <div class="row">
+      <button class="mx-2 my-2" id="button1">1</button>
+      <button class="mx-2 my-2" id="button2">2</button>
+      <button class="mx-2 my-2" id="button3">3</button>
+    </div>
+    <div class="row">
+      <button class="mx-2 my-2" id="button4">4</button>
+      <button class="mx-2 my-2" id="button5">5</button>
+      <button class="mx-2 my-2" id="button6">6</button>
+    </div>
+
+    <button id="skip"> Skip </button>
+
+  </div>
+  <div id="hscoreEntry" class="hidden">
+    <form>
+      <p>Your score: </p>
+      <div id="db_score"></div>
+      <p>Add your score to highscores: </p>
+      <input maxlength="3" id="db_user"></input>
+    </form>
+  </div>
+
+  <a href="/highscores">highscores</a>
+
+  <script>
+  </script>
+
+  <script src="/static/scripts.js"></script>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    highscores
+{% endblock %}
+
+{% block main %}
+  {% for score in hscores: %}
+    <div class="row">
+      {{loop.index}} <span>. </span> {{score["user"]}} <span> - </span> {{score["score"]}}
+    </div>
+  {% endfor %}
+  <a href="/">restart</a>
+
+{% endblock %}
