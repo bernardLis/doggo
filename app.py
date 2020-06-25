@@ -20,7 +20,6 @@ from helpers import apology
 app = Flask(__name__)
 application = app # our hosting requires application in passenger_wsgi
 
-
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -41,10 +40,32 @@ Session(app)
 @app.route("/", methods=["GET"])
 def index():
     """Doggo App"""
-    dogDict = {}
 
-    # Creating a dict with random dogs
-    for i in range(0,10):
+    dogDict = loadDogs(15)
+    return render_template("index.html", dogDict=dogDict)
+
+@app.route("/hscoreEntry", methods=["POST"])
+def hscoreEntry():
+    # getting form info
+    username = request.form.get("username")
+    score = request.form.get("score")
+    favbreed = "pekinczyk"
+
+    # insering hscore of the user to the databse
+    db.execute("INSERT INTO highscores (username, score, favbreed) VALUES (?, ?, ?)",
+                (username, score, favbreed))
+
+    return redirect("/highscores")
+
+@app.route("/loadDogs", methods=["POST"])
+def loadDogs(n):
+
+    # dictionary with dogs
+    doggos = {}
+
+    # populating the dictionary
+    for i in range(0, n):
+        # api call
         response = requests.get("https://dog.ceo/api/breeds/image/random")
         json_response = response.json()
 
@@ -57,20 +78,26 @@ def index():
             breed = breedStr[0].capitalize()
 
         # Creating a list with a doggo img src and breed
-        dogDict[i] = []
-        dogDict[i].append(json_response["message"])
-        dogDict[i].append(breed)
+        doggos[i] = []
+        doggos[i].append(json_response["message"])
+        doggos[i].append(breed)
 
-    return render_template("index.html", dogDict = dogDict)
+    return doggos
 
-@app.route("/highscores", methods=["GET"])
+@app.route("/loadDogsCall", methods=["POST"])
+def loadDogsCall():
+    dogs = loadDogs(10);
+    print(dogs)
+    
+    return jsonify(dogs)
+
+@app.route("/highscores", methods=["GET", "POST"])
 def highscores():
 
+    # getting highscores from the database
     hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
-    print(hscores)
 
     return render_template("highscores.html", hscores=hscores)
-
 
 def errorhandler(e):
     """Handle error"""

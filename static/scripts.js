@@ -4,13 +4,12 @@ game.currentDoggo = 0;
 game.currentDoggoBreed = null;
 game.score = 0;
 
+
 // setting up the game on window load
 window.onload = function()
 {
   setBreedButtons();
 };
-
-
 
 function setBreedButtons()
 {
@@ -57,63 +56,88 @@ function doggoBreedCheck()
     game.score += 100
     document.getElementById("scoreDisplay").innerHTML = game.score;
 
-    console.log("yes");
-    console.log(this.value);
-    console.log(game.currentDoggoBreed);
-
     // displaying congratz
     var message = CONGRATZ[Math.floor(Math.random() * CONGRATZ.length)];
     document.getElementById("message").innerHTML = message;
 
-    nextDoggo();
+    // 0 for success
+    nextDoggo(0);
     return;
   }
   else
   {
-    console.log("no");
-    console.log(this.value);
-    console.log(game.currentDoggoBreed);
-
     // displaying negative congratz
     var message = WRONG[Math.floor(Math.random() * WRONG.length)];
     document.getElementById("message").innerHTML = message;
 
-    nextDoggo();
+    // 1 for failure
+    nextDoggo(1);
     return;
   }
 }
 
-// skips a doggo
-document.getElementById("skip").addEventListener("click", nextDoggo);
-
 // showing next doggo
-function nextDoggo()
+function nextDoggo(success)
 {
-  console.log("in next dogoo");
+  var dogContainer = document.getElementById("dog-container");
+  var correctCheck = document.getElementById("correctCheck");
+  var wrongCheck = document.getElementById("wrongCheck");
+
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var nextDoggo = "doggo-number-" + (game.currentDoggo + 1);
 
   var doggoElement = document.getElementById(doggoNumber);
-  doggoElement.classList.add("hidden");
+
+  // giving player feedback to his answer
+  if (success == 0)
+  {
+    correctDoggos.push(doggoElement);
+    correctCheck.classList.remove("hidden");
+    wrongCheck.classList.add("hidden");
+  }
+  else
+  {
+    incorrectDoggos.push(doggoElement);
+    wrongCheck.classList.remove("hidden");
+    correctCheck.classList.add("hidden");
+  }
+
   doggoElement.classList.remove("currentDoggo");
+  doggoElement.classList.add("hidden");
 
   var nextDoggoElement = document.getElementById(nextDoggo);
-  doggoElement.classList.add("currentDoggo");
   nextDoggoElement.classList.remove("hidden");
+  nextDoggoElement.classList.add("currentDoggo");
 
   game.currentDoggo++;
+
+  game.doggosRemaining--;
+  if (game.doggosRemaining < 15)
+  {
+    flaskLoadDoggos();
+    game.doggosRemaining += 10;
+  }
 
   setBreedButtons();
 }
 
 
 // start the timer only when the page loads
-window.addEventListener("load", function(){
+window.addEventListener("load", function()
+{
+
+  // keep track of how many doggos I have loaded
+  game.doggosRemaining = 15;
+
 
   // Timer variables
   var timerValue = 15 * 1000;
   var n = 0;
   var isTimerOver = false;
+
+  // arrays for storing doggos
+  correctDoggos = [];
+  incorrectDoggos = [];
 
   // Update the count down every second
   var timer = new Timer(function()
@@ -145,21 +169,106 @@ window.addEventListener("load", function(){
       timer.stop();
 
       // hide the game, show the hscore entry
-      var game = document.getElementById("game");
-      game.classList.add("hidden");
+      var gameContainer = document.getElementById("game");
+      gameContainer.classList.add("hidden");
 
-      var hscoreEntry = document.getElementById("hscoreEntry");
-      hscoreEntry.classList.remove("hidden");
+      var hscoreEntryState = document.getElementById("hscoreEntryState");
+      hscoreEntryState.classList.remove("hidden");
 
-      var dbScore = document.getElementById("db_score");
-      //dbScore.value = game.score;
-      dbScore.innerHTML = toString(game.score);
+      var dbScore = document.getElementById("db-score");
+      var formScore = document.getElementById("form-score");
+
+      dbScore.innerHTML = game.score;
+      formScore.value = game.score;
+
+      // show correct and incorrect doggos
+      var correctDoggoPile = document.getElementById("correctDoggoPile");
+      var incorrectDoggoPile = document.getElementById("incorrectDoggoPile");
+      len = correctDoggos.length
+      for (var i = 0; i < len; i++)
+      {
+        var breed = correctDoggos[i].getAttribute("data-breed");
+        var para = document.createElement("p");
+        para.innerHTML = breed;
+        para.classList.add("doggoPileText");
+
+        correctDoggos[i].appendChild(para);
+
+        correctDoggos[i].classList.remove("hidden");
+        correctDoggos[i].classList.add("doggoPile");
+
+        correctDoggoPile.appendChild(correctDoggos[i]);
+      }
+      len = incorrectDoggos.length
+      for (var i = 0; i < len; i++)
+      {
+        var breed = incorrectDoggos[i].getAttribute("data-breed");
+        var para = document.createElement("p");
+        para.innerHTML = breed;
+        para.classList.add("doggoPileText");
+
+        incorrectDoggos[i].appendChild(para);
+
+        incorrectDoggos[i].classList.remove("hidden");
+        incorrectDoggos[i].classList.add("doggoPile");
+
+        incorrectDoggoPile.appendChild(incorrectDoggos[i]);
+      }
+
 
     }
   }, 1000);
 });
 
 
+// flask call
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+// https://stackoverflow.com/questions/5316697/jquery-return-data-after-ajax-call-success
+async function flaskLoadDoggos()
+{
+  $.ajax({
+  	type : "POST",
+  	url : '/loadDogsCall',
+  	dataType: "json",
+  	contentType: 'application/json;charset=UTF-8',
+  	success: function (data)
+    {
+      //asd
+      appendDoggos(data)
+  	}
+	});
+}
+
+//appending doggos to the document
+function appendDoggos(dogs)
+{
+  var dogContainer = document.getElementById("dog-container");
+
+  // finding out last doggo in the document
+  var lastChildN = dogContainer.lastElementChild.getAttribute("data-id");
+
+  // creating doggo nodes
+  var count = Object.keys(dogs).length;
+  for (var i = 0; i < count; i++)
+  {
+    // creating a div - container for img and data
+    var doggoId = parseInt(lastChildN) + i + 1
+    var node = document.createElement("div");
+    node.id = "doggo-number-" + doggoId;
+    node.classList.add("hidden");
+    node.setAttribute("data-id", doggoId);
+    node.setAttribute("data-breed", dogs[i][1]);
+
+    // creating an img element
+    var img = document.createElement("img");
+    img.src = dogs[i][0];
+    img.classList.add("doggoImg")
+    node.appendChild(img);
+
+    // appending the element to the game
+    dogContainer.appendChild(node);
+  }
+}
 
 // https://javascript.info/task/shuffle#:~:text=function%20shuffle%20(%20array%20)%20%7B%20array,That%20somewhat%20works%2C%20because%20Math.
 function shuffle(array) {
@@ -193,15 +302,10 @@ function Timer(fn, t) {
   // Restart with original interval, stop current interval
   this.reset = function() {
       isTimerOver = false;
-
-      // Pause-resume button logic
-      document.getElementById("pauseResumeTimer").classList.remove("resumeTimer");
-      document.getElementById("pauseResumeTimer").classList.add("pauseTimer");
-      document.getElementById("pauseResumeTimer").innerHTML = "Pause";
-
       return this.stop().start();
   }
 }
+
 
 // lists
 // doggo breeds list

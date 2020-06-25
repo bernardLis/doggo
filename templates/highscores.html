@@ -7,7 +7,7 @@
 {% block main %}
   {% for score in hscores: %}
     <div class="row">
-      {{loop.index}} <span>. </span> {{score["user"]}} <span> - </span> {{score["score"]}}
+      {{loop.index}} <span>. </span> {{score["username"]}} <span> - </span> {{score["score"]}} {{score["favbreed"]}}
     </div>
   {% endfor %}
   <a href="/">restart</a>
