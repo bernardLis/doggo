@@ -45,27 +45,20 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-md navbar-light bg-light border">
-            <a class="navbar-brand" href="/">Doggo</a>
-            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </nav>
+      {% if get_flashed_messages() %}
+          <header>
+              <div class="alert alert-primary border text-center" role="alert">
+                  {{ get_flashed_messages() | join(" ") }}
+              </div>
+          </header>
+      {% endif %}
 
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary border text-center" role="alert">
-                    {{ get_flashed_messages() | join(" ") }}
-                </div>
-            </header>
-        {% endif %}
+      <main class="container p-5">
+          {% block main %}{% endblock %}
+      </main>
 
-        <main class="container p-5">
-            {% block main %}{% endblock %}
-        </main>
-
-        <footer class="small text-center text-muted">
-        </footer>
+      <footer class="small text-center text-muted">
+      </footer>
 
     </body>
 

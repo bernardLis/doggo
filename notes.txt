@@ -2,6 +2,29 @@
 
 
 
+<div class="wrapper">
+    <div class="inner"></div>
+</div>
+@keyframes drawArc1 {
+  0% {
+    transform: rotate(-10deg);
+  }
+
+  100% {
+    transform: rotate(10deg);
+  }
+}
+//ok, chwile mi zjamie zeby to wrzucic do swojego kodu, bo to musi byc w loopie robione - te wrappery, rajt?
+// no chyba tak, musisz je troche losować też żeby to wyglądało randomowo, nie?
+// jakieś randomowe translacje rotacje i randomowy pewnie też width
+// nie wiem, ogarniesz to, full time gamedevem jesteś co
+//xD ogarne! dzieki! mysle ze to zadziala, a przynajmniej ma szanse zadzialac :D
+.wrapper {
+  width: 2000px;
+  animation: drawArc1 1s linear infinite;
+}
+
+
 
 
 

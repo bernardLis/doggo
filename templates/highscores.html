@@ -5,11 +5,31 @@
 {% endblock %}
 
 {% block main %}
-  {% for score in hscores: %}
-    <div class="row">
-      {{loop.index}} <span>. </span> {{score["username"]}} <span> - </span> {{score["score"]}} {{score["favbreed"]}}
-    </div>
-  {% endfor %}
-  <a href="/">restart</a>
+  <h1>Highscores:</h1>
+  <table class="table table-striped">
+
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nickname</th>
+        <th>Bones</th>
+        <th>Favourite breed</th>
+        </tr>
+    </thead>
+
+    <tbody>
+      {% for score in hscores: %}
+        <tr>
+          <td>{{loop.index}}</td>
+          <td>{{score["username"]}}</td>
+          <td>{{score["score"]}}</td>
+          <td>{{score["favbreed"]}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+  <a href="/"><button>restart</button></a>
 
 {% endblock %}
