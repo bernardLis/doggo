@@ -4,15 +4,86 @@ game.currentDoggo = 0;
 game.currentDoggoBreed = null;
 game.score = 0;
 game.streak = 0;
+game.lastDoggo = false;
+game.lastDoggoAnswered = false;
 
 var documentHeight = document.body.clientHeight;
 var documentWidth = document.body.clientWidth;
 
-// setting up the game on window load
-window.onload = function()
+// start the timer only when the page loads
+window.addEventListener("load", function()
 {
-  setBreedButtons();
-};
+  // keep track of how many doggos I have loaded
+  game.doggosRemaining = 15;
+
+  // countdown before the game start into game start
+  gameStartUp(setBreedButtons, gameTimer);
+});
+
+function gameStartUp(breeds, timer)
+{
+  // disable the game reset button and add the placeholder bone
+  var gameResetButton = document.getElementById("gameReset");
+  gameResetButton.innerHTML = "";
+  gameResetButton.disabled = true;
+  var bone = getABone();
+  bone.classList.add("rotating");
+  gameResetButton.appendChild(bone);
+
+  // arrays for storing doggos
+  correctDoggos = [];
+  incorrectDoggos = [];
+
+  // setting up the countdown overlay
+  var overlay = document.getElementById("countdownOverlay");
+  overlay.style.width = "100%";
+
+  var msg = document.getElementById("countdownMsg");
+  var msgText = "Woof! ";
+
+  var streakDisplay = document.getElementById("streakDisplay");
+  var scoreDisplay = document.getElementById("scoreDisplay");
+
+  // countdown duration
+  var n = 3;
+  var interval = setInterval(countdown, 1000);
+  function countdown()
+  {
+    // clearing interval and hiding the overlay
+    if (n == 0)
+    {
+      overlay.style.width = "0%";
+      msg.innerHTML = "";
+      msg.classList.remove("textScaling");
+
+      clearInterval(interval);
+    }
+    // starting the timer and counters
+    else if (n == 1)
+    {
+      timer(4); //61 works well for a minute
+      streakDisplay.innerHTML = "0";
+      scoreDisplay.innerHTML = "0";
+      msg.innerHTML = msgText.repeat(n);
+      n--;
+    }
+    // setting up the breed buttons
+    else if (n == 2)
+    {
+      breeds();
+      msg.innerHTML = msgText.repeat(n);
+      n--;
+    }
+    // setting up the countdown
+    else
+    {
+      msg.innerHTML = msgText.repeat(n);
+      //adding the animation
+      msg.classList.add("textScaling");
+      n--;
+    }
+  }
+}
 
 function setBreedButtons()
 {
@@ -43,7 +114,7 @@ function setBreedButtons()
 
   // shuffle the array
   shuffle(breedsForButtons);
-  // twice for a good measure
+  // twice
   shuffle(breedsForButtons);
 
   // adding breeds to buttons
@@ -52,7 +123,7 @@ function setBreedButtons()
     // getting the breed buttons
     var str = "button" + (i + 1);
     var button = document.getElementById(str);
-    // setting their html
+    // setting their html and value
     button.innerHTML = breedsForButtons[i];
     button.value = breedsForButtons[i];
     button.style.backgroundColor = "#f8f9fa";
@@ -62,6 +133,7 @@ function setBreedButtons()
   }
 }
 
+// checking the answer
 function doggoBreedCheck()
 {
   var doggoNumber = "doggo-number-" + game.currentDoggo;
@@ -71,7 +143,6 @@ function doggoBreedCheck()
 
   if (this.value == game.currentDoggoBreed)
   {
-
     // giving player more bones on higher streaks
     animateResultCount(game.streak, (game.streak + 1), streakDisplay);
 
@@ -97,7 +168,7 @@ function doggoBreedCheck()
     var message = capitalizeFirstLetter(CONGRATZ[Math.floor(Math.random() * CONGRATZ.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
     document.getElementById("message").innerHTML = message;
 
-    // preping end screen doggo pile
+    // preping the end screen doggo pile
     correctDoggos.push(doggoElement);
   }
   else
@@ -123,15 +194,31 @@ function doggoBreedCheck()
     var message = capitalizeFirstLetter(WRONG[Math.floor(Math.random() * WRONG.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
     document.getElementById("message").innerHTML = message;
 
-    // preping end screen doggo pile
+    // preping the end screen doggo pile
     incorrectDoggos.push(doggoElement);
   }
 
+  // waiting for the user to answer the last doggo querry
+  if (game.lastDoggo)
+  {
+    // disabling the buttons after the answer (otherwise user could click several buttons)
+    for (var i = 0; i < 6; i++)
+    {
+      // getting the breed buttons
+      var str = "button" + (i + 1);
+      var button = document.getElementById(str);
+      button.disabled = "true";
+    }
+    game.lastDoggoAnswered = true;
+  }
   // wait 300 and show the next doggo
-  setTimeout(function(){ nextDoggo(); }, 300);
+  else
+  {
+    setTimeout(function(){ nextDoggo(); }, 300);
+  }
 }
 
-// showing next doggo
+// showing the next doggo
 function nextDoggo()
 {
   var doggoNumber = "doggo-number-" + game.currentDoggo;
@@ -143,12 +230,12 @@ function nextDoggo()
   doggoElement.classList.remove("currentDoggo");
   doggoElement.classList.add("hidden");
 
-  nextDoggoElement.classList.remove("hidden");
+  //nextDoggoElement.classList.remove("hidden");
   nextDoggoElement.classList.add("currentDoggo");
 
   game.currentDoggo++;
 
-  // load new doggos when there is less than 5 doggos
+  // load new doggos when there is less than 15 doggos
   game.doggosRemaining--;
   if (game.doggosRemaining < 15)
   {
@@ -159,28 +246,11 @@ function nextDoggo()
   setBreedButtons();
 }
 
-
-// start the timer only when the page loads
-window.addEventListener("load", function()
-{
-  // keep track of how many doggos I have loaded
-  game.doggosRemaining = 15;
-  gameTimer();
-
-});
-
-function gameTimer() {
-  // disable the game reset button
-  document.getElementById("gameReset").disabled = true;
-
+function gameTimer(value) {
   // Timer variables
-  var timerValue = 3 * 1000;
+  var timerValue = value * 1000;
   var n = 0;
   var isTimerOver = false;
-
-  // arrays for storing doggos
-  correctDoggos = [];
-  incorrectDoggos = [];
 
   // Update the count down every second
   var timer = new Timer(function()
@@ -203,87 +273,139 @@ function gameTimer() {
     var seconds = Math.floor((distance % (1000 * 60)) / 1000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
 
     // Display the timer in the element with id="timerDisplay"
+    var timerDisplay = document.getElementById("timerDisplay");
     timerDisplay.innerHTML = minutes + ":" + seconds;
 
-    // When the countdown is finished transition between game state and hscoreentrystate
+    // When the countdown is finished transition between game state and hight score entry state
     if (distance <= 0)
     {
+      // giving the user time to answer the last doggo
+      game.lastDoggo = true;
       isTimerOver = true;
-      timer.stop();
 
-      // hide the game, show the hscore entry
-      var gameContainer = document.getElementById("game");
-      gameContainer.classList.add("hidden");
-
-      var hscoreEntryState = document.getElementById("hscoreEntryState");
-      hscoreEntryState.classList.remove("hidden");
-
-      // show score
-      var dbScore = document.getElementById("db-score");
-      var formScore = document.getElementById("form-score");
-      dbScore.innerHTML = game.score;
-      formScore.value = game.score;
-
-      // show correctly and incorrectly guessed doggos
-      var correctDoggoPile = document.getElementById("correctDoggoPile");
-      var incorrectDoggoPile = document.getElementById("incorrectDoggoPile");
-
-      len = correctDoggos.length
-      for (var i = 0; i < len; i++)
+      // waiting for the last answer
+      if (game.lastDoggoAnswered)
       {
-        // display breed
-        var breed = correctDoggos[i].getAttribute("data-breed");
-        var para = document.createElement("p");
-        para.innerHTML = breed;
-        para.classList.add("doggoPileText");
-        correctDoggos[i].appendChild(para);
+        timer.stop();
 
-        correctDoggos[i].classList.remove("hidden");
-        correctDoggos[i].classList.remove("gameDoggo");
-        correctDoggos[i].classList.add("doggoPile");
-
-        correctDoggoPile.appendChild(correctDoggos[i]);
+        // finishes the game and starts preparing the new game
+        finishTheGame();
       }
-
-      len = incorrectDoggos.length
-      for (var i = 0; i < len; i++)
-      {
-        // display breed
-        var breed = incorrectDoggos[i].getAttribute("data-breed");
-        var para = document.createElement("p");
-        para.innerHTML = breed;
-        para.classList.add("doggoPileText");
-
-        incorrectDoggos[i].appendChild(para);
-
-        incorrectDoggos[i].classList.remove("hidden");
-        incorrectDoggos[i].classList.remove("gameDoggo");
-        incorrectDoggos[i].classList.add("doggoPile");
-
-        incorrectDoggoPile.appendChild(incorrectDoggos[i]);
-      }
-
-      // prepare the new game
-      setTimeout(function(){prepareNewGame();}, 1001);
     }
   }, 1000);
 }
 
+// 2 async functions to make sure that the game loop does not break itself
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+const finishTheGame = async () => {
+  const result = await finishTheGameFn()
+  prepareTheNewGame();
+}
+
+// function that prepares the new game and enables the restart button after it is done
+const prepareTheNewGame = async () => {
+  const result = await prepareTheNewGameFn()
+  // enable the restart button after the new game is ready + 1.5sec
+  setTimeout(function()
+  {
+    var gameResetButton = document.getElementById("gameReset");
+    gameResetButton.disabled = false
+    gameResetButton.innerHTML = "restart";
+  }, 1500);
+}
+
+function finishTheGameFn()
+{
+  // hide the game, show the hscore entry
+  var gameContainer = document.getElementById("game");
+  gameContainer.classList.add("hidden");
+
+  var hscoreEntryState = document.getElementById("hscoreEntryState");
+  hscoreEntryState.classList.remove("hidden");
+
+  // show score
+  var dbScore = document.getElementById("db-score");
+  var formScore = document.getElementById("form-score");
+  dbScore.innerHTML = game.score;
+  formScore.value = game.score;
+
+  // show correctly and incorrectly guessed doggos
+  var correctDoggoPile = document.getElementById("correctDoggoPile");
+  var incorrectDoggoPile = document.getElementById("incorrectDoggoPile");
+
+  len = correctDoggos.length
+  for (var i = 0; i < len; i++)
+  {
+    // display breed
+    var breed = correctDoggos[i].getAttribute("data-breed");
+    var para = document.createElement("p");
+    para.innerHTML = breed;
+    para.classList.add("doggoPileText");
+    correctDoggos[i].appendChild(para);
+
+    correctDoggos[i].classList.remove("hidden");
+    correctDoggos[i].classList.remove("gameDoggo");
+    correctDoggos[i].classList.remove("currentDoggo");
+    correctDoggos[i].classList.add("doggoPile");
+
+    correctDoggoPile.appendChild(correctDoggos[i]);
+  }
+
+  len = incorrectDoggos.length
+  for (var i = 0; i < len; i++)
+  {
+    // display breed
+    var breed = incorrectDoggos[i].getAttribute("data-breed");
+    var para = document.createElement("p");
+    para.innerHTML = breed;
+    para.classList.add("doggoPileText");
+
+    incorrectDoggos[i].appendChild(para);
+
+    incorrectDoggos[i].classList.remove("hidden");
+    incorrectDoggos[i].classList.remove("gameDoggo");
+    incorrectDoggos[i].classList.remove("currentDoggo");
+    incorrectDoggos[i].classList.add("doggoPile");
+
+    incorrectDoggoPile.appendChild(incorrectDoggos[i]);
+  }
+}
 
 // I want to prepare new game when user reviews his previous game and then transition to the new game without reloading the page
-function prepareNewGame()
+function prepareTheNewGameFn()
 {
   // destroy doggos in the dog container
   removeElements("gameDoggo");
   game.doggosRemaining = 0;
 
+  // reseting the last doggo flags
+  game.lastDoggo = false;
+  game.lastDoggoAnswered = false;
+
   // reseting the score
   game.score = 0;
   game.streak = 0;
+
+  //adding placeholder bones
+  var bones = [];
+  for (var i = 0; i < 3; i++)
+  {
+    // create bone element with a random color
+    var bone = getABone();
+    bone.classList.add("rotating");
+    bones.push(bone);
+  }
   var scoreDisplay = document.getElementById("scoreDisplay");
   var streakDisplay = document.getElementById("streakDisplay");
-  scoreDisplay.innerHTML = game.score;
-  streakDisplay.innerHTML = game.streak;
+  var timerDisplay = document.getElementById("timerDisplay");
+
+  scoreDisplay.innerHTML = "";
+  streakDisplay.innerHTML = "";
+  timerDisplay.innerHTML = "";
+
+  scoreDisplay.appendChild(bones[0]);
+  streakDisplay.appendChild(bones[1]);
+  timerDisplay.appendChild(bones[2]);
 
   // load new doggos
   var dogContainer = document.getElementById("dog-container");
@@ -306,18 +428,24 @@ function prepareNewGame()
   game.doggosRemaining += 10;
   flaskLoadDoggos();
   game.doggosRemaining += 10;
-
-  // enable the game reset button when the game is ready
-  setTimeout(function(){ document.getElementById("gameReset").disabled = false }, 1500);
-
 }
 
+// Restars the game
 var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
-  // disable the game reset button
-  document.getElementById("gameReset").disabled = true;
+  // resetting the msg
+  var dbUser = document.getElementById("db-user");
+  var msg = document.getElementById("message");
+  if (dbUser.value.length == 0)
+  {
+    msg.innerHTML = "Good Luck " + "Chihuahua " + "!";
+  }
+  else
+  {
+    msg.innerHTML = "Good Luck " + dbUser.value + "!";
+  }
 
   var game = document.getElementById("game");
   var hscoreEntryState = document.getElementById("hscoreEntryState");
@@ -334,54 +462,59 @@ function newGame()
   // enable the hscore inputs
   document.getElementById("db-user").disabled = false;
   document.getElementById("favBreed").disabled = false;
-  // show the button
-  document.getElementById("subHscoreButton").classList.remove("hidden");
+
+  // show the submit hscore button
+  var subHscoreButton = document.getElementById("subHscoreButton");
+  subHscoreButton.classList.remove("hidden");
+  subHscoreButton.disabled = false;
+
   // hide the success message
   var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
   submitHscoreSuccess.classList.add("hidden");
 
   // moving from placeholder doggo to a proper doggo
   nextDoggo();
+  // Appending placeholder bones to dog breed buttons
+  for (var i = 0; i < 6; i++)
+  {
+    // getting the breed buttons
+    var str = "button" + (i + 1);
+    var button = document.getElementById(str);
+    // setting their html
+    button.innerHTML = "";
+    // create bone element with a random color
+    var bone = getABone();
+    bone.classList.add("rotating");
+    button.appendChild(bone);
+    button.disabled = false;
+  }
 
   // removing the placeholder doggo
   var dogContainer = document.getElementById("dog-container");
   dogContainer.removeChild(dogContainer.getElementsByTagName('div')[0]);
 
   // starting new timer
-  gameTimer();
+  gameStartUp(setBreedButtons, gameTimer);
 }
 
 // animating flying bones on streaks
 function throwBones(boneN)
 {
-  bones = [];
-
-  // pick a random origin position on the left side of the screen
-  var positionTop = getRndInteger(500, (documentHeight - 100));
-  var positionTopStr = positionTop + 'px';
-
-  // create bone elements on the left
+  // create bone elements
   for (var i = 0; i < boneN; i++)
   {
-    // random color https://stackoverflow.com/questions/1484506/random-color-generator
-    var rcolor = "#"+((1<<24)*Math.random()|0).toString(16)
     // create bone element with a random color
-    var bone = document.createElement("i");
-    bone.classList.add("fas");
-    bone.classList.add("fa-bone");
-    bone.classList.add("bone");
-    bone.style.color = rcolor;
+    var bone = getABone();
+    bone.classList.add("bone")
 
-    // bone position
+    // bone position (without position it breaks)
     bone.style.position = 'absolute';
-    // without position it breaks
     bone.style.left = '0px';
     bone.style.top = '0px';
 
+    // bones will be thrown in the game
     var game = document.getElementById("game");
     game.appendChild(bone);
-
-    bones.push(bone);
   }
 
   // animate bones
@@ -402,6 +535,7 @@ function throwBones(boneN)
       boneAnimationL(boneEl);
     }
 
+    // remove bone elements from the document after 0.9 sec
     setTimeout(function()
     {
       removeElements("bone");
@@ -409,7 +543,7 @@ function throwBones(boneN)
   }
 }
 
-
+// animate bones so they fly from the left side of the doggo img to top-left corner of the document
 function boneAnimationL(bone) {
   // bones originate from the picture not the document sides
   var currentDoggo = document.getElementsByClassName("currentDoggo");
@@ -446,7 +580,7 @@ function boneAnimationL(bone) {
   var animationPlayer = bone.animate(bone.keyframes, bone.animProps);
 }
 
-
+// animate bones so they fly from the right side of the doggo img to top-right corner of the document
 function boneAnimationR(bone) {
   // bones originate from the picture not the document sides
   var currentDoggo = document.getElementsByClassName("currentDoggo");
@@ -462,11 +596,10 @@ function boneAnimationR(bone) {
   var minY = offsetTop + cdHeight;
   var onTheRight = offsetLeft + cdWidth;
 
- 
   bone.keyframes = [
     {
       opacity: 1,
-      // this is where the originate
+      // this is where they originate
       transform: "translate3d(" + onTheRight + "px, " + getRndInteger(minY, (minY - 50)) + "px, 0px)"
     },
     {
@@ -487,9 +620,21 @@ function boneAnimationR(bone) {
   var animationPlayer = bone.animate(bone.keyframes, bone.animProps);
 }
 
+function getABone()
+{
+  // random color https://stackoverflow.com/questions/1484506/random-color-generator
+  var rcolor = "#"+((1<<24)*Math.random()|0).toString(16)
+  // create bone element with a random color
+  var bone = document.createElement("i");
+  bone.classList.add("fas");
+  bone.classList.add("fa-bone");
+  bone.style.color = rcolor;
+
+  return bone;
+}
+
 // submitting the hscore form
 // https://stackoverflow.com/questions/25983603/how-to-submit-html-form-without-redirection
-var subButtonWrapper = document.getElementById("subButtonWrapper");
 var subFormButton = document.getElementById("subHscoreButton");
 subFormButton.addEventListener("click", subForm);
 
@@ -533,13 +678,6 @@ function subForm(e){
       breedMsg.innerHTML = "";
     }
 
-    // hide the button
-    subFormButton.classList.add("hidden");
-
-    // show the success message
-    var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
-    submitHscoreSuccess.classList.remove("hidden");
-
     // send data to the database
     var url=$(this).closest('form').attr('action'),
     data=$(this).closest('form').serialize();
@@ -547,20 +685,37 @@ function subForm(e){
         url:url,
         type:'post',
         data:data,
-        success: function() {
+        beforeSend: function() {
           // disable the inputs
           dbUser.disabled = "true";
           document.getElementById("favBreed").disabled = "true";
+          subFormButton.disabled = "true";
+          subFormButton.innerHTML = "";
+
+          // animate the bone
+          var bone = getABone();
+          bone.classList.add("rotating");
+          subFormButton.appendChild(bone);
+        },
+
+        success: function() {
+          // show the success message
+          setTimeout( function() {
+            // hide the button and prep it
+            subFormButton.classList.add("hidden");
+            var c = subFormButton.childNodes;
+            c[0].parentNode.removeChild(c[0]);
+            subFormButton.innerHTML = "Submit";
+
+            var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
+            submitHscoreSuccess.classList.remove("hidden");
+          }, 1500);
 
          // remove the breed error message if it exists
-         setTimeout( function() { breedMsg.innerHTML = "";}, 2000);
+         setTimeout( function() { breedMsg.innerHTML = "";}, 2500);
        }
    });
 }
-
-
-
-
 
 // flask call
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
@@ -574,7 +729,7 @@ async function flaskLoadDoggos()
   	contentType: 'application/json;charset=UTF-8',
   	success: function (data)
     {
-      //asd
+      // this gets exectured only if I get the doggos from the server
       appendDoggos(data)
   	}
 	});
@@ -613,7 +768,7 @@ function appendDoggos(dogs)
   }
 }
 
-// removing all elements with A class from the document
+// removing all elements with a class from the document
 function removeElements(className)
 {
   var list = document.getElementsByClassName(className);
@@ -635,6 +790,7 @@ function shuffle(array) {
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
 }
+
 function capitalizeFirstLetter(str)
 {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -692,8 +848,6 @@ function animateResultCount(number, target, elem) {
     }
 }
 
-
-// lists
 // doggo breeds list
 var ALL_BREEDS =
 ['Affenpinscher', 'African', 'Airedale', 'Akita', 'Appenzeller', 'Australian Shepherd', 'Basenji', 'Beagle', 'Bluetick', 'Borzoi', 'Bouvier', 'Boxer', 'Brabancon', 'Briard',

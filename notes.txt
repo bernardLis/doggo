@@ -1,5 +1,90 @@
 
 
+-------------------------------// tinderlike animations on good/bad answer-------------------------------------
+
+// good answer = to the right
+function doggoToTheRight()
+{
+  // getting the doggo position
+  var currentDoggo = document.getElementsByClassName("currentDoggo");
+  currentDoggo = currentDoggo[0];
+  var cdImg = currentDoggo.children;
+  cdImg = cdImg[0];
+  var offsetLeft = cdImg.offsetLeft;
+  var offsetTop = cdImg.offsetTop;
+  var cdHeight = cdImg.offsetHeight;
+  var cdWidth = cdImg.offsetWidth;
+
+
+  cdImg.keyframes = [
+    {
+      opacity: 1,
+      transform: "translate3d(" + 0 + "px, " + 0 + "px, 0px)"
+    },
+    {
+      opacity: 1,
+      // first is left to right, second is bottom to top
+      transform: "translate3d(" + (offsetLeft + 150)  + "px, " + (offsetTop - 200)  + "px, 0px) rotate(" + 15 + "deg)"
+    },
+
+    {
+      opacity: 1,
+      // first is left to right, second is bottom to top
+      transform: "translate3d(" + (offsetLeft + 250)  + "px, " + (offsetTop - 400)  + "px, 0px) rotate(" + 30 + "deg)"
+    }
+  ];
+ 
+  cdImg.animProps =
+  {
+    duration: 1000,
+    easing: "ease-out",
+    iterations: 1
+  }
+ 
+  var animationPlayer = cdImg.animate(cdImg.keyframes, cdImg.animProps);
+}
+
+// bad answer = to the left
+function doggoToTheLeft()
+{
+  // getting the doggo position
+  var currentDoggo = document.getElementsByClassName("currentDoggo");
+  currentDoggo = currentDoggo[0];
+  var cdImg = currentDoggo.children;
+  cdImg = cdImg[0];
+  var offsetLeft = cdImg.offsetLeft;
+  var offsetTop = cdImg.offsetTop;
+  var cdHeight = cdImg.offsetHeight;
+  var cdWidth = cdImg.offsetWidth;
+
+
+  cdImg.keyframes = [
+    {
+      opacity: 1,
+      transform: "translate3d(" + 0 + "px, " + 0 + "px, 0px)"
+    },
+    {
+      opacity: 1,
+      // first is left to right, second is bottom to top
+      transform: "translate3d(" +  -300  + "px, " + (offsetTop - 200)  + "px, 0px) rotate(" + -15 + "deg)"
+    },
+
+    {
+      opacity: 1,
+      // first is left to right, second is bottom to top
+      transform: "translate3d(" +  -500  + "px, " + (offsetTop - 400)  + "px, 0px) rotate(" + -30 + "deg)"
+    }
+  ];
+ 
+  cdImg.animProps =
+  {
+    duration: 1000,
+    easing: "ease-out",
+    iterations: 1
+  }
+ 
+  var animationPlayer = cdImg.animate(cdImg.keyframes, cdImg.animProps);
+}
 
 
 <div class="wrapper">
