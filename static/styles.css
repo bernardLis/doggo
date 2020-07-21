@@ -3,8 +3,6 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Tinder like swiping */
-
 .hidden
 {
   display: none;
@@ -42,7 +40,6 @@ main
   color: white;
 }
 
-
 .answerFeedback
 {
   font-size: 2rem;
@@ -79,6 +76,49 @@ main
 {
   font-size: 11px;
 }
+#db-score
+{
+  font-weight: bold;
+}
+#db-user, #favBreed
+{
+  width: 200px;
+}
+#db-user-error-msg, #db-favBreed-error-msg
+{
+  height: 1rem;
+}
+.btn-danger
+{
+  background-color: #E47790;
+  border-color: #E16682;
+  color: white;
+}
+.btn-danger:hover
+{
+  background-color: #E47790;
+  border-color: #E16682;
+  filter: brightness(0.9);
+}
+.btn-danger:active
+{
+  background-color: #E47790;
+  border-color: #E16682;
+  filter: brightness(1.1);
+}
+
+
+#gameReset, #highscoresButton
+{
+}
+
+#hsnewGame
+{
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+}
+
 
 /* text transition by me */
 

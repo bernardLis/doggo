@@ -15,20 +15,19 @@
     <div class="row">
       <div class="col text-right">
         <p class="my-0 font-weight-bold">Bones</p>
-        <p id="scoreDisplay"><i style="color: #FE938C;" class="rotating fas fa-bone"></i></p>
+        <p id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></p>
       </div>
 
       <div class="col text-center">
         <p class="my-0 font-weight-bold">Streak</p>
-        <p id="streakDisplay"><i style="color: #FE938C;" class="rotating fas fa-bone"></i></p>
+        <p id="streakDisplay"><i style="color: #C2714F;" class="rotating fas fa-bone"></i></p>
       </div>
 
       <div class="col text-left">
         <p class="my-0 font-weight-bold">Time</p>
-        <p class="my-0" id="timerDisplay"><i style="color: #FE938C;" class="rotating fas fa-bone"></i> </p>
+        <p class="my-0" id="timerDisplay"><i style="color: #E16682;" class="rotating fas fa-bone"></i> </p>
       </div>
     </div>
-
 
     <div id="dog-container" class="text-center">
       {% for id in dogDict: %}
@@ -64,28 +63,30 @@
 
   <div id="hscoreEntryState" class="hidden">
 
-    <p>You got them right doggos: </p>
-    <div id="correctDoggoPile" class="row d-flex"></div>
-    <p>You will get them next time doggos: </p>
-    <div id="incorrectDoggoPile" class="row d-flex"></div>
+    <p>You got <span id="spanNCorrect">0 doggos:</span> </p>
+    <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
+    <p>You will get <span id="spanNIncorrect">0 doggos</span> next time: </p>
+    <div id="incorrectDoggoPile" class="row ml-2 d-flex"></div>
+    <hr/>
 
-    <form id="hscoreEntry" action="/hscoreEntry" method="post">
+    <form class="" id="hscoreEntry" action="/hscoreEntry" method="post">
 
-      <div class="row my-2">
-        <p>Your score: <span id="db-score"></span></p>
+      <div class="form-group">
+        <span>Score: </span>
+        <span id="db-score"></span>
         <input name="score" class="hidden" value="" id="form-score"></input>
       </div>
 
-      <div class="row my-2">
-        <label for="username">Your nickname: </label>
-        <input class="ml-2" maxlength="3" name="username" id="db-user" placeholder="DOE"></input>
-        <span class="mx-2" id="db-user-error-msg"></span>
+      <div class="form-group">
+        <label for="username">Nickname: </label>
+        <input class="form-control" maxlength="255" name="username" id="db-user" placeholder="Chihuahua"></input>
+        <p class="" id="db-user-error-msg"></p>
       </div>
 
-      <div class="row my-2">
-        <label for="favBreed">Your favourite breed: </label>
-        <input class="ml-2" list="allBreeds" name="favBreed" placeholder="Chihuahua" id="favBreed"></input>
-        <span class="mx-2" id="db-favBreed-error-msg"></span>
+      <div class="form-group mt-2">
+        <label for="favBreed">Favourite breed: </label>
+        <input class="form-control" list="allBreeds" name="favBreed" placeholder="Chihuahua" id="favBreed"></input>
+        <p class="" id="db-favBreed-error-msg"></p>
         <datalist id="allBreeds">
           {% for breed in ALL_BREEDS: %}
             <option value="{{ breed }}">
@@ -93,16 +94,18 @@
         </datalist>
       </div>
 
-      <div id="subButtonWrapper" class="row my-2">
-        <button id="subHscoreButton" type="submit">submit</button>
-        <p id="submitHscoreSuccess" class="hidden">Your high score was submitted!</p>
+      <div id="subButtonWrapper" class="form-group mb-2">
+        <button class="btn btn-light" id="subHscoreButton" type="submit">Submit</button>
+        <p id="submitHscoreSuccess" class="hidden">Your high score was submitted.</p>
       </div>
 
     </form>
 
-    <div class="row my-4">
-      <button id="gameReset"><i style="color: #FE938C;" class="rotating fas fa-bone"></i></button>
-      <a class="ml-2" href="/highscores"><button>highscores</button></a>
+    <hr/>
+
+    <div class="form-group mt-5">
+      <button class="btn btn-primary" id="gameReset"><i style="color: #FE938C;" class="rotating fas fa-bone"></i><i style="color: #FE938C;" class="rotating fas fa-bone"></i><i style="color: #FE938C;" class="rotating fas fa-bone"></i></button>
+      <a class="ml-2" href="/highscores"><button id="highscoresButton" class="btn btn-light">Highscores</button></a>
     </div>
 
   </div>

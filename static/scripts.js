@@ -2,6 +2,8 @@
 var game = {};
 game.currentDoggo = 0;
 game.currentDoggoBreed = null;
+game.nCorrect = 0;
+game.nIncorrect = 0;
 game.score = 0;
 game.streak = 0;
 game.lastDoggo = false;
@@ -26,9 +28,12 @@ function gameStartUp(breeds, timer)
   var gameResetButton = document.getElementById("gameReset");
   gameResetButton.innerHTML = "";
   gameResetButton.disabled = true;
-  var bone = getABone();
-  bone.classList.add("rotating");
-  gameResetButton.appendChild(bone);
+  for(var i = 0; i < 4; i++)
+  {
+    var bone = getABone();
+    bone.classList.add("rotating");
+    gameResetButton.appendChild(bone);
+  }
 
   // arrays for storing doggos
   correctDoggos = [];
@@ -169,6 +174,7 @@ function doggoBreedCheck()
     document.getElementById("message").innerHTML = message;
 
     // preping the end screen doggo pile
+    game.nCorrect++;
     correctDoggos.push(doggoElement);
   }
   else
@@ -195,6 +201,7 @@ function doggoBreedCheck()
     document.getElementById("message").innerHTML = message;
 
     // preping the end screen doggo pile
+    game.nIncorrect++;
     incorrectDoggos.push(doggoElement);
   }
 
@@ -310,7 +317,7 @@ const prepareTheNewGame = async () => {
   {
     var gameResetButton = document.getElementById("gameReset");
     gameResetButton.disabled = false
-    gameResetButton.innerHTML = "restart";
+    gameResetButton.innerHTML = "New game";
   }, 1500);
 }
 
@@ -328,6 +335,27 @@ function finishTheGameFn()
   var formScore = document.getElementById("form-score");
   dbScore.innerHTML = game.score;
   formScore.value = game.score;
+
+  // show how many doggos user guessed correcty/incorrectly
+  var spanNCorrect = document.getElementById("spanNCorrect");
+  if (game.nCorrect == 1)
+  {
+    spanNCorrect.innerHTML = game.nCorrect + " doggo:";
+  }
+  else
+  {
+    spanNCorrect.innerHTML = game.nCorrect + " doggos:";
+  }
+
+  var spanNCorrect = document.getElementById("spanNIncorrect");
+  if (game.nIncorrect == 1)
+  {
+    spanNIncorrect.innerHTML = game.nIncorrect + " doggo";
+  }
+  else
+  {
+    spanNIncorrect.innerHTML = game.nIncorrect + " doggos";
+  }
 
   // show correctly and incorrectly guessed doggos
   var correctDoggoPile = document.getElementById("correctDoggoPile");
@@ -385,6 +413,10 @@ function prepareTheNewGameFn()
   // reseting the score
   game.score = 0;
   game.streak = 0;
+
+  // reseting the correct/incorrect doggo count
+  game.nCorrect = 0;
+  game.nIncorrect = 0;
 
   //adding placeholder bones
   var bones = [];
@@ -654,9 +686,16 @@ function subForm(e){
     e.preventDefault();
 
     // validating username
-    if (dbUser.value.length == 0)
+    var usr = dbUser.value.toLowerCase();
+    if (usr.length == 0)
     {
-      userMsg.innerHTML = "Enter your username!";
+      userMsg.innerHTML = "Enter your nickname!";
+      userMsg.style.color = "#F8333C";
+      return;
+    }
+    if (usr.includes("hitler"))
+    {
+      userMsg.innerHTML = "No.";
       userMsg.style.color = "#F8333C";
       return;
     }
