@@ -8,6 +8,7 @@ game.score = 0;
 game.streak = 0;
 game.lastDoggo = false;
 game.lastDoggoAnswered = false;
+game.numberOfChoices = 4;
 
 var documentHeight = document.body.clientHeight;
 var documentWidth = document.body.clientWidth;
@@ -28,7 +29,7 @@ function gameStartUp(breeds, timer)
   var gameResetButton = document.getElementById("gameReset");
   gameResetButton.innerHTML = "";
   gameResetButton.disabled = true;
-  for(var i = 0; i < 4; i++)
+  for(var i = 0; i < game.numberOfChoices; i++)
   {
     var bone = getABone();
     bone.classList.add("rotating");
@@ -106,8 +107,8 @@ function setBreedButtons()
   let arr = ALL_BREEDS;
   arr = arr.filter(e => e !== currentDoggoBreed);
 
-  // getting 5 random doggo breeds from the list
-  for (var i = 0; i < 5; i++)
+  // getting 3 random doggo breeds from the list
+  for (var i = 0; i < game.numberOfChoices - 1; i++)
   {
     var b = arr[Math.floor(Math.random() * arr.length)];
 
@@ -123,7 +124,7 @@ function setBreedButtons()
   shuffle(breedsForButtons);
 
   // adding breeds to buttons
-  for (var i = 0; i < 6; i++)
+  for (var i = 0; i < game.numberOfChoices; i++)
   {
     // getting the breed buttons
     var str = "button" + (i + 1);
@@ -181,7 +182,7 @@ function doggoBreedCheck()
   {
     // blinking the wrong choice red and the correct button green
     this.style.backgroundColor = "#F8333C";
-    for (var i = 0; i < 6; i++)
+    for (var i = 0; i < game.numberOfChoices; i++)
     {
       // getting the breed buttons
       var str = "button" + (i + 1);
@@ -209,7 +210,7 @@ function doggoBreedCheck()
   if (game.lastDoggo)
   {
     // disabling the buttons after the answer (otherwise user could click several buttons)
-    for (var i = 0; i < 6; i++)
+    for (var i = 0; i < game.numberOfChoices; i++)
     {
       // getting the breed buttons
       var str = "button" + (i + 1);
@@ -317,7 +318,7 @@ const prepareTheNewGame = async () => {
   {
     var gameResetButton = document.getElementById("gameReset");
     gameResetButton.disabled = false
-    gameResetButton.innerHTML = "New game";
+    gameResetButton.innerHTML = "Try again!";
   }, 1500);
 }
 
@@ -335,6 +336,11 @@ function finishTheGameFn()
   var formScore = document.getElementById("form-score");
   dbScore.innerHTML = game.score;
   formScore.value = game.score;
+
+  // show good job
+  var msgEnd = document.getElementById("msgEnd");
+  var msg = capitalizeFirstLetter(CONGRATZ[Math.floor(Math.random() * CONGRATZ.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
+  msgEnd.innerHTML = msg + "!";
 
   // show how many doggos user guessed correcty/incorrectly
   var spanNCorrect = document.getElementById("spanNCorrect");
@@ -506,11 +512,14 @@ function newGame()
 
   // moving from placeholder doggo to a proper doggo
   nextDoggo();
+
   // Appending placeholder bones to dog breed buttons
-  for (var i = 0; i < 6; i++)
+  // for some reason game.numberOfChoices does not work here - it's undefined.
+  for (var i = 0; i < 4; i++)
   {
     // getting the breed buttons
     var str = "button" + (i + 1);
+
     var button = document.getElementById(str);
     // setting their html
     button.innerHTML = "";
@@ -528,6 +537,25 @@ function newGame()
   // starting new timer
   gameStartUp(setBreedButtons, gameTimer);
 }
+
+// animate the brand bone
+var brandBone = document.getElementById("brandBone");
+var brandBoneCounter = 0;
+brandBone.addEventListener("click", function()
+{
+  brandBoneCounter++;
+  if(brandBoneCounter % 7 == 0)
+  {
+    var main = document.getElementById("main");
+    main.classList.add("rotating");
+    setTimeout(function(){ main.classList.remove("rotating");}, 2000);
+  }
+  else
+  {
+    brandBone.classList.add("rotating");
+    setTimeout(function(){ brandBone.classList.remove("rotating");}, 2000);
+  }
+})
 
 // animating flying bones on streaks
 function throwBones(boneN)
@@ -1258,3 +1286,13 @@ var DOG_NAMES =
 "Olivia Chewton John",
 "Ozzy Pawsborne"
 ]
+
+/* MEDIA */
+var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+
+// For devices with screen width of less than 1000px
+if (width < 1001)
+{
+  var message = document.getElementById("message");
+  message.classList.add("hidden");
+}

@@ -52,16 +52,16 @@
       <div class="row d-flex justify-content-center">
         <button class="breedButton mx-2 my-2 btn btn-light" id="button1"><i style="color: #FE938C;" class="rotating fas fa-bone"></i></button>
         <button class="breedButton mx-2 my-2 btn btn-light" id="button2"><i style="color: #AD91A3;" class="rotating fas fa-bone"></i></button>
-        <button class="breedButton mx-2 my-2 btn btn-light" id="button3"><i style="color: #EDAF97;" class="rotating fas fa-bone"></i></button>
       </div>
       <div class="row d-flex justify-content-center">
-        <button class="breedButton mx-2 my-2 btn btn-light" id="button4"><i style="color: #B33951;" class="rotating fas fa-bone"></i></button>
-        <button class="breedButton mx-2 my-2 btn btn-light" id="button5"><i style="color: #91C7B1;" class="rotating fas fa-bone"></i></button>
-        <button class="breedButton mx-2 my-2 btn btn-light" id="button6"><i style="color: #E3D081;" class="rotating fas fa-bone"></i></button>
+        <button class="breedButton mx-2 my-2 btn btn-light" id="button3"><i style="color: #B33951;" class="rotating fas fa-bone"></i></button>
+        <button class="breedButton mx-2 my-2 btn btn-light" id="button4"><i style="color: #91C7B1;" class="rotating fas fa-bone"></i></button>
       </div>
     </div>
 
   <div id="hscoreEntryState" class="hidden">
+
+    <h5 id="msgEnd"></h5>
 
     <p>You got <span id="spanNCorrect">0 doggos:</span> </p>
     <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
@@ -70,6 +70,7 @@
     <hr/>
 
     <form class="" id="hscoreEntry" action="/hscoreEntry" method="post">
+      <h5> Submit your high score: </h5>
 
       <div class="form-group">
         <span>Score: </span>

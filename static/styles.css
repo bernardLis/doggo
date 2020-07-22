@@ -197,3 +197,9 @@ main
   -o-animation: rotating 2s ease-out infinite;
   animation: rotating 2s ease-out infinite;
 }
+
+
+@media (max-width: 601px)
+{
+
+}

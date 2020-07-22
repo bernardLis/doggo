@@ -30,21 +30,34 @@
 
   </table>
 
-  <a id="hsnewGame" href="/">
-    <button class="btn btn-secondary">
-      <i style="color: white;" class="fas fa-bone"></i>
-      <i style="color: white;" class="fas fa-bone"></i>
-      <i style="color: white;" class="fas fa-bone"></i>
+  <script>
+  var brandBone = document.getElementById("brandBone");
+  var brandBoneCounter = 0;
+  brandBone.addEventListener("click", function()
+  {
+    brandBoneCounter++;
+    if(brandBoneCounter % 7 == 0)
+    {
+      var hsnewGame = document.getElementById("hsnewGame");
+      hsnewGame.classList.add("rotating");
+      setTimeout(function(){ hsnewGame.classList.remove("rotating");}, 2000);
+    }
+    else
+    {
+      brandBone.classList.add("rotating");
+      setTimeout(function(){ brandBone.classList.remove("rotating");}, 2000);
+    }
+  })
 
-      <h6 class="my-2">
-        New game
-      </h6>
+  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 
-      <i style="color: white;" class="fas fa-bone"></i>
-      <i style="color: white;" class="fas fa-bone"></i>
-      <i style="color: white;" class="fas fa-bone"></i>
-
-    </button>
-  </a>
+  // For devices with screen width of less than 1000px
+  if (width < 1001)
+  {
+    // remove padding
+    var main = document.getElementById("main");
+    main.classList.remove("p-5");
+  }
+  </script>
 
 {% endblock %}

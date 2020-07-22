@@ -97,6 +97,11 @@ def highscores():
 
     return render_template("highscores.html", hscores=hscores)
 
+@app.route("/info", methods=["GET"])
+def info():
+
+    return render_template("info.html")
+
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):
