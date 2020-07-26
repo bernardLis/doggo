@@ -1,21 +1,24 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    index
 {% endblock %}
 
 {% block main %}
+
   <div id="countdownOverlay">
     <div class="overlayContent">
       <h1 class="" id=countdownMsg></h1>
     </div>
   </div>
+  <i class="fa fa-volume-up" id="toggleSound"></i>
 
   <div id="game">
     <div class="row">
+
       <div class="col text-right">
-        <p class="my-0 font-weight-bold">Bones</p>
-        <p id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></p>
+
+          <p class="my-0 font-weight-bold">Bones</p>
+          <p id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></p>
       </div>
 
       <div class="col text-center">

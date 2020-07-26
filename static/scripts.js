@@ -9,9 +9,15 @@ game.streak = 0;
 game.lastDoggo = false;
 game.lastDoggoAnswered = false;
 game.numberOfChoices = 4;
+game.musicFinished = false;
+game.audioMuted = false;
+game.musicID;
+game.disableMusic = true;
 
 var documentHeight = document.body.clientHeight;
 var documentWidth = document.body.clientWidth;
+
+var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 
 // start the timer only when the page loads
 window.addEventListener("load", function()
@@ -67,7 +73,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(4); //61 works well for a minute
+      timer(61); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
       msg.innerHTML = msgText.repeat(n);
@@ -142,6 +148,15 @@ function setBreedButtons()
 // checking the answer
 function doggoBreedCheck()
 {
+  // diable the buttons so user can't click
+  for (var i = 0; i < game.numberOfChoices; i++)
+  {
+    // getting the breed buttons
+    var str = "button" + (i + 1);
+    var button = document.getElementById(str);
+    button.disabled = true;
+  }
+
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var doggoElement = document.getElementById(doggoNumber);
   var streakDisplay = document.getElementById("streakDisplay");
@@ -149,6 +164,18 @@ function doggoBreedCheck()
 
   if (this.value == game.currentDoggoBreed)
   {
+    // Audio
+    var correctSound = new Howl({
+        src: 'static/audio/Correct.mp3',
+        autoplay: false,
+        volume: 1
+    });
+    // play sound if audio is not muted
+    if(!game.audioMuted)
+    {
+      correctSound.play();
+    }
+
     // giving player more bones on higher streaks
     animateResultCount(game.streak, (game.streak + 1), streakDisplay);
 
@@ -180,6 +207,16 @@ function doggoBreedCheck()
   }
   else
   {
+    // play sound if audio is not muted
+    if(!game.audioMuted)
+    {
+      var inCorrectSound = new Howl({
+          src: 'static/audio/Negative.wav',
+          autoplay: true,
+          volume: 1
+      });
+    }
+
     // blinking the wrong choice red and the correct button green
     this.style.backgroundColor = "#F8333C";
     for (var i = 0; i < game.numberOfChoices; i++)
@@ -209,20 +246,12 @@ function doggoBreedCheck()
   // waiting for the user to answer the last doggo querry
   if (game.lastDoggo)
   {
-    // disabling the buttons after the answer (otherwise user could click several buttons)
-    for (var i = 0; i < game.numberOfChoices; i++)
-    {
-      // getting the breed buttons
-      var str = "button" + (i + 1);
-      var button = document.getElementById(str);
-      button.disabled = "true";
-    }
     game.lastDoggoAnswered = true;
   }
-  // wait 300 and show the next doggo
+  // wait 500 and show the next doggo
   else
   {
-    setTimeout(function(){ nextDoggo(); }, 300);
+    setTimeout(function(){ nextDoggo(); }, 500);
   }
 }
 
@@ -243,6 +272,15 @@ function nextDoggo()
 
   game.currentDoggo++;
 
+  // enable the buttons so user can't click
+  for (var i = 0; i < game.numberOfChoices; i++)
+  {
+    // getting the breed buttons
+    var str = "button" + (i + 1);
+    var button = document.getElementById(str);
+    button.disabled = false;
+  }
+
   // load new doggos when there is less than 15 doggos
   game.doggosRemaining--;
   if (game.doggosRemaining < 15)
@@ -255,10 +293,21 @@ function nextDoggo()
 }
 
 function gameTimer(value) {
+
   // Timer variables
   var timerValue = value * 1000;
   var n = 0;
   var isTimerOver = false;
+  var sn = 0;
+
+  // Audio
+  // Countdown sound
+  var GAME_END_SOUNDS = [
+    'static/audio/game_end1.mp3',
+    'static/audio/game_end2.mp3',
+    'static/audio/game_end3.mp3',
+  ]
+
 
   // Update the count down every second
   var timer = new Timer(function()
@@ -284,6 +333,42 @@ function gameTimer(value) {
     var timerDisplay = document.getElementById("timerDisplay");
     timerDisplay.innerHTML = minutes + ":" + seconds;
 
+    // Countdown audio
+    var src = GAME_END_SOUNDS[sn];
+
+    var countDownSound = new Howl({
+        src: src,
+        autoplay: false,
+        volume: 1
+    });
+
+    if (distance == 6000)
+    {
+      // play sound if audio is not muted
+      if(!game.audioMuted)
+      {
+        countDownSound.play()
+        sn++;
+      }
+    }
+    if (distance == 4000)
+    {
+      // play sound if audio is not muted
+      if(!game.audioMuted)
+      {
+        countDownSound.play()
+        sn++;
+      }
+    }
+    if (distance == 2000)
+    {
+      // play sound if audio is not muted
+      if(!game.audioMuted)
+      {
+        countDownSound.play()
+      }
+    }
+
     // When the countdown is finished transition between game state and hight score entry state
     if (distance <= 0)
     {
@@ -297,7 +382,7 @@ function gameTimer(value) {
         timer.stop();
 
         // finishes the game and starts preparing the new game
-        finishTheGame();
+        setTimeout(function(){ finishTheGame(); }, 500);
       }
     }
   }, 1000);
@@ -319,7 +404,7 @@ const prepareTheNewGame = async () => {
     var gameResetButton = document.getElementById("gameReset");
     gameResetButton.disabled = false
     gameResetButton.innerHTML = "Try again!";
-  }, 1500);
+  }, 2000);
 }
 
 function finishTheGameFn()
@@ -370,6 +455,15 @@ function finishTheGameFn()
   len = correctDoggos.length
   for (var i = 0; i < len; i++)
   {
+    // img is a link to the big pic
+    var img = correctDoggos[i].children[0];
+    var src = img.src;
+    var link = document.createElement("a");
+    link.href = src;
+    link.target = "_blank"
+    link.appendChild(img);
+    correctDoggos[i].appendChild(link);
+
     // display breed
     var breed = correctDoggos[i].getAttribute("data-breed");
     var para = document.createElement("p");
@@ -388,6 +482,15 @@ function finishTheGameFn()
   len = incorrectDoggos.length
   for (var i = 0; i < len; i++)
   {
+    // img is a link to the big pic
+    var img = incorrectDoggos[i].children[0];
+    var src = img.src;
+    var link = document.createElement("a");
+    link.href = src;
+    link.target = "_blank"
+    link.appendChild(img);
+    incorrectDoggos[i].appendChild(link);
+
     // display breed
     var breed = incorrectDoggos[i].getAttribute("data-breed");
     var para = document.createElement("p");
@@ -538,24 +641,6 @@ function newGame()
   gameStartUp(setBreedButtons, gameTimer);
 }
 
-// animate the brand bone
-var brandBone = document.getElementById("brandBone");
-var brandBoneCounter = 0;
-brandBone.addEventListener("click", function()
-{
-  brandBoneCounter++;
-  if(brandBoneCounter % 7 == 0)
-  {
-    var main = document.getElementById("main");
-    main.classList.add("rotating");
-    setTimeout(function(){ main.classList.remove("rotating");}, 2000);
-  }
-  else
-  {
-    brandBone.classList.add("rotating");
-    setTimeout(function(){ brandBone.classList.remove("rotating");}, 2000);
-  }
-})
 
 // animating flying bones on streaks
 function throwBones(boneN)
@@ -617,18 +702,40 @@ function boneAnimationL(bone) {
   var maxY = offsetTop;
   var minY = offsetTop + cdHeight;
   var onTheLeft = offsetLeft;
- 
-  bone.keyframes = [
-    {
-      opacity: 1,
-      transform: "translate3d(" + onTheLeft + "px, " + getRndInteger(minY, (minY - 50)) + "px, 0px)"
-    },
-    {
-      opacity: 1,
-      // first is left to right, second is bottom to top
-      transform: " translate3d(" + getRndInteger((onTheLeft - 300), (onTheLeft - 30)) + "px, " + getRndInteger((minY - 60), (maxY - 200)) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
-    }
-  ];
+
+  // animation on desktop - originates from the picture and flies to the edges
+  if (screenWidth > 1001)
+  {
+    bone.keyframes = [
+      {
+        opacity: 1,
+        transform: "translate3d(" + onTheLeft + "px, " + getRndInteger(minY, (minY - 50)) + "px, 0px)"
+      },
+      {
+        opacity: 1,
+        // first is left to right, second is bottom to top
+        transform: " translate3d(" + getRndInteger((onTheLeft - 300), (onTheLeft - 30)) + "px, " + getRndInteger((minY - 60), (maxY - 200)) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
+      }
+    ];
+  }
+  // animation on mobile - originates from the top and flies to the bottom
+  else
+  {
+    bone.keyframes = [
+      {
+        opacity: 1,
+        // this is where they originate
+        transform: "translate3d(" + getRndInteger(25, screenWidth / 2 - 25) + "px, " + 55 + "px, 0px)"
+      },
+      {
+        opacity: 1,
+        // this is where the bones fly to
+        // first is left to right, second is bottom to top
+        transform: " translate3d(" + getRndInteger(5, screenWidth / 2 - 5) + "px, " + getRndInteger(200, 400) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
+      }
+    ];
+
+  }
  
   bone.animProps =
   {
@@ -656,19 +763,40 @@ function boneAnimationR(bone) {
   var minY = offsetTop + cdHeight;
   var onTheRight = offsetLeft + cdWidth;
 
-  bone.keyframes = [
-    {
-      opacity: 1,
-      // this is where they originate
-      transform: "translate3d(" + onTheRight + "px, " + getRndInteger(minY, (minY - 50)) + "px, 0px)"
-    },
-    {
-      opacity: 1,
-      // this is where the bones fly to
-      // first is left to right, second is bottom to top
-      transform: " translate3d(" + getRndInteger((onTheRight + 10), (onTheRight + 300)) + "px, " + getRndInteger((minY - 60), (maxY - 200)) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
-    }
-  ];
+  // animation on desktop - originates from the picture and flies to the edges
+  if (screenWidth > 1001)
+  {
+    bone.keyframes = [
+      {
+        opacity: 1,
+        // this is where they originate
+        transform: "translate3d(" + onTheRight + "px, " + getRndInteger(minY, (minY - 50)) + "px, 0px)"
+      },
+      {
+        opacity: 1,
+        // this is where the bones fly to
+        // first is left to right, second is bottom to top
+        transform: " translate3d(" + getRndInteger((onTheRight + 10), (onTheRight + 300)) + "px, " + getRndInteger((minY - 60), (maxY - 200)) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
+      }
+    ];
+  }
+  // animation on mobile - originates from the top and flies to the bottom
+  else
+  {
+    bone.keyframes = [
+      {
+        opacity: 1,
+        // this is where they originate
+        transform: "translate3d(" + getRndInteger(screenWidth / 2, screenWidth - 25) + "px, " + 55 + "px, 0px)"
+      },
+      {
+        opacity: 1,
+        // this is where the bones fly to
+        // first is left to right, second is bottom to top
+        transform: " translate3d(" + getRndInteger(screenWidth / 2 , screenWidth - 5) + "px, " + getRndInteger(200, 400) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
+      }
+    ];
+  }
  
   bone.animProps =
   {
@@ -782,6 +910,88 @@ function subForm(e){
          setTimeout( function() { breedMsg.innerHTML = "";}, 2500);
        }
    });
+}
+
+/* MEDIA */
+
+// For devices with screen width of less than 1000px
+if (screenWidth < 1001)
+{
+  var message = document.getElementById("message");
+  message.classList.add("hidden");
+}
+
+
+/* AUDIO */
+// I've decided not to play music
+
+var MUSIC_LIST =
+[
+  'static/audio/Kai_Engel_-_07_-_Interception.mp3',
+  'static/audio/Kai_Engel_-_09_-_Homeroad.mp3',
+  'static/audio/Pictures_of_the_Floating_World_-_Waves.mp3',
+  'static/audio/Pictures_of_the_Floating_World_-_01_-_Bumbling.mp3'
+]
+
+var track = MUSIC_LIST[Math.floor(Math.random() * MUSIC_LIST.length)];
+
+var sound = new Howl({
+    src: track,
+    autoplay: false,
+    volume: 0.5,
+    onend: function() {
+      game.musicFinished = true;
+    }
+});
+
+// Toggle sound
+var toggleSound = document.getElementById("toggleSound");
+toggleSound.addEventListener("click", function()
+{
+  if(game.audioMuted)
+  {
+    toggleSound.classList.remove("fa-volume-mute");
+    toggleSound.classList.add("fa-volume-up");
+    game.audioMuted = false;
+    if(!game.disableMusic)
+    {
+      game.musicID = sound.play();
+    }
+  }
+  else
+  {
+    toggleSound.classList.remove("fa-volume-up");
+    toggleSound.classList.add("fa-volume-mute");
+    game.audioMuted = true;
+    if(!game.disableMusic)
+    {
+      sound.pause(game.musicID);
+    }
+  }
+})
+
+// making sure music is playing
+if(!game.disableMusic)
+{
+  var soundCheck = setInterval(musicCheck, 1000);
+}
+
+function musicCheck()
+{
+  if (game.musicFinished && game.audioMuted == false)
+  {
+    track = MUSIC_LIST[Math.floor(Math.random() * MUSIC_LIST.length)];
+    sound = new Howl({
+        src: track,
+        autoplay: false,
+        volume: 0.5,
+        onend: function() {
+          game.musicFinished = true;
+        }
+    });
+    game.musicID = sound.play();
+    game.musicFinished = false;
+  }
 }
 
 // flask call
@@ -914,6 +1124,7 @@ function animateResultCount(number, target, elem) {
         }, 30);
     }
 }
+
 
 // doggo breeds list
 var ALL_BREEDS =
@@ -1286,13 +1497,3 @@ var DOG_NAMES =
 "Olivia Chewton John",
 "Ozzy Pawsborne"
 ]
-
-/* MEDIA */
-var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-
-// For devices with screen width of less than 1000px
-if (width < 1001)
-{
-  var message = document.getElementById("message");
-  message.classList.add("hidden");
-}

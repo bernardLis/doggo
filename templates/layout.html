@@ -13,7 +13,7 @@
         <link href="/static/lib/bootstrap.css" rel="stylesheet">
 
         <!-- https://favicon.io/emoji-favicons/money-mouth-face/ -->
-        <link href="/static/favicon.ico" rel="icon">
+        <link href="/static/bone-solid.svg" rel="icon">
 
         <link href="/static/styles.css" rel="stylesheet">
 
@@ -36,7 +36,7 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&family=Signika:wght@600&display=swap" rel="stylesheet">
 
-        <title>Doggo: {% block title %}{% endblock %}</title>
+        <title>Doggo Quiz{% block title %}{% endblock %}</title>
 
         <!-- Place for custom head links from other pages-->
         {% block head %}{% endblock %}
@@ -46,26 +46,20 @@
     <body>
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <i style="color: #D4CBB3;" id="brandBone" class="navbar-brand disabled fas fa-bone"></i>
+
+
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
 
+
         <div class="collapse navbar-collapse align-items-center" id="navbarSupportedContent">
           <ul class="navbar-nav ml-auto align-items-center">
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                New Game
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="/">Normal</a>
-                <div class="dropdown-divider"></div>
-                <span class="dropdown-item disabled" href="#">Unlimited Time</span>
-                <span class="dropdown-item disabled" href="#">Hot or Not</span>
-              </div>
+            <li class="nav-item">
+              <a class="nav-link" href="/">New Game</a>
             </li>
-
             <li class="nav-item">
               <a class="nav-link" href="/highscores">High Scores</a>
             </li>
@@ -90,8 +84,26 @@
           {% block main %}{% endblock %}
       </main>
 
-      <footer class="small text-center text-muted">
-      </footer>
+      <script>
+        var brandBone = document.getElementById("brandBone");
+        var brandBoneCounter = 0;
+        brandBone.addEventListener("click", function()
+        {
+          brandBoneCounter++;
+          if(brandBoneCounter % 7 == 0)
+          {
+            var main = document.getElementById("main");
+            main.classList.add("rotating");
+            setTimeout(function(){ main.classList.remove("rotating");}, 2000);
+          }
+          else
+          {
+            brandBone.classList.add("rotating");
+            setTimeout(function(){ brandBone.classList.remove("rotating");}, 2000);
+          }
+        })
+
+      </script>
 
     </body>
 

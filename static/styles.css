@@ -1,3 +1,6 @@
+
+
+
 html, body {
     max-width: 100%;
     overflow-x: hidden;
@@ -40,6 +43,12 @@ main
   color: white;
 }
 
+#toggleSound
+{
+  position: fixed;
+  top: 80px;
+  left: 20px;
+}
 .answerFeedback
 {
   font-size: 2rem;
@@ -198,8 +207,35 @@ main
   animation: rotating 2s ease-out infinite;
 }
 
+ul.boneList {
+  list-style:none;
+  padding-left: 2em;
+  list-style-image: url(bone-solid.svg);
+}
 
-@media (max-width: 601px)
+
+#mJu
 {
+  -webkit-animation: changeColor 5s linear infinite;
+  animation: changeColor 5s linear infinite;
+}
+@-webkit-keyframes changeColor {
+  0% { color: #f99; }
+  33% { color: #9f9; }
+  67% { color: #99f; }
+  100% { color: #f99; }
+}
+@keyframes changeColor {
+  0% { color: #f99; }
+  33% { color: #9f9; }
+  67% { color: #99f; }
+  100% { color: #f99; }
+}
 
+@media (max-width: 1001px)
+{
+  .currentDoggo
+  {
+    height: 300px;
+  }
 }

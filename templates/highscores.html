@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block main %}
-  <h1>Highscores:</h1>
-  <table class="table table-striped">
+  <h2 class="text-center mb-5">High Scores</h2>
+  <table id="hsTable" class="table table-striped">
 
     <thead>
       <tr>
@@ -31,23 +31,6 @@
   </table>
 
   <script>
-  var brandBone = document.getElementById("brandBone");
-  var brandBoneCounter = 0;
-  brandBone.addEventListener("click", function()
-  {
-    brandBoneCounter++;
-    if(brandBoneCounter % 7 == 0)
-    {
-      var hsnewGame = document.getElementById("hsnewGame");
-      hsnewGame.classList.add("rotating");
-      setTimeout(function(){ hsnewGame.classList.remove("rotating");}, 2000);
-    }
-    else
-    {
-      brandBone.classList.add("rotating");
-      setTimeout(function(){ brandBone.classList.remove("rotating");}, 2000);
-    }
-  })
 
   var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 
