@@ -1,6 +1,3 @@
-
-
-
 html, body {
     max-width: 100%;
     overflow-x: hidden;
@@ -14,6 +11,18 @@ main
 {
   /* center contents */
   margin: 0 auto;
+}
+
+/* No outline on bootstrap buttons */
+.btn:focus,.btn:active, .btn-light:focus,.btn-light:active
+{
+   outline: none !important;
+   box-shadow: none !important;
+   -webkit-box-shadow: none !important;
+}
+.btn-light:hover
+{
+  border: none !important;
 }
 
 #countdownOverlay
@@ -48,6 +57,10 @@ main
   position: fixed;
   top: 80px;
   left: 20px;
+}
+#timerDisplay
+{
+  color: black;
 }
 .answerFeedback
 {
@@ -213,7 +226,6 @@ ul.boneList {
   list-style-image: url(bone-solid.svg);
 }
 
-
 #mJu
 {
   -webkit-animation: changeColor 5s linear infinite;
@@ -232,10 +244,26 @@ ul.boneList {
   100% { color: #f99; }
 }
 
+/* MOBILE */
 @media (max-width: 1001px)
 {
+  #toggleSound
+  {
+    top: 20px;
+    margin-left: 42vw;
+    color: #646E68;
+  }
+
+  #countdownMsg
+  {
+    font-size: 1rem;
+  }
   .currentDoggo
   {
     height: 300px;
+  }
+  #message
+  {
+    font-size: 1rem;
   }
 }

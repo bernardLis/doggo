@@ -14,10 +14,24 @@ game.audioMuted = false;
 game.musicID;
 game.disableMusic = true;
 
+
+// Audio
+var correctSound = new Howl({
+    src: 'static/audio/Correct.mp3',
+    autoplay: false,
+    volume: 1
+});
+var inCorrectSound = new Howl({
+    src: 'static/audio/Negative.wav',
+    autoplay: false,
+    volume: 1
+});
+
 var documentHeight = document.body.clientHeight;
 var documentWidth = document.body.clientWidth;
 
 var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+var screenHeight = window.screen.height;
 
 // start the timer only when the page loads
 window.addEventListener("load", function()
@@ -73,9 +87,10 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(61); //61 works well for a minute
+      timer(91); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
+
       msg.innerHTML = msgText.repeat(n);
       n--;
     }
@@ -83,6 +98,7 @@ function gameStartUp(breeds, timer)
     else if (n == 2)
     {
       breeds();
+
       msg.innerHTML = msgText.repeat(n);
       n--;
     }
@@ -90,9 +106,11 @@ function gameStartUp(breeds, timer)
     else
     {
       msg.innerHTML = msgText.repeat(n);
+
       //adding the animation
       msg.classList.add("textScaling");
       n--;
+
     }
   }
 }
@@ -164,12 +182,6 @@ function doggoBreedCheck()
 
   if (this.value == game.currentDoggoBreed)
   {
-    // Audio
-    var correctSound = new Howl({
-        src: 'static/audio/Correct.mp3',
-        autoplay: false,
-        volume: 1
-    });
     // play sound if audio is not muted
     if(!game.audioMuted)
     {
@@ -181,11 +193,6 @@ function doggoBreedCheck()
 
     game.streak += 1;
     boneN = game.streak * 5
-    // limiting boneN to 100
-    if (boneN > 100)
-    {
-      boneN = 100;
-    }
 
     // animating the score (bone) count
     animateResultCount(game.score, (game.score + boneN), scoreDisplay);
@@ -198,7 +205,14 @@ function doggoBreedCheck()
     this.style.backgroundColor = "#44AF69";
 
     // displaying congratz
-    var message = capitalizeFirstLetter(CONGRATZ[Math.floor(Math.random() * CONGRATZ.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
+    // I have 20 congratz adjectives
+    var streakCongratzN = game.streak - 1;
+    if (streakCongratzN > 19)
+    {
+      streakCongratzN = 19;
+    }
+
+    var message = capitalizeFirstLetter(STREAK_CONGRATZ[streakCongratzN]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
     document.getElementById("message").innerHTML = message;
 
     // preping the end screen doggo pile
@@ -210,11 +224,7 @@ function doggoBreedCheck()
     // play sound if audio is not muted
     if(!game.audioMuted)
     {
-      var inCorrectSound = new Howl({
-          src: 'static/audio/Negative.wav',
-          autoplay: true,
-          volume: 1
-      });
+      inCorrectSound.play();
     }
 
     // blinking the wrong choice red and the correct button green
@@ -235,8 +245,8 @@ function doggoBreedCheck()
     game.streak = 0;
 
     // displaying negative congratz
-    var message = capitalizeFirstLetter(WRONG[Math.floor(Math.random() * WRONG.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
-    document.getElementById("message").innerHTML = message;
+    //var message = capitalizeFirstLetter(WRONG[Math.floor(Math.random() * WRONG.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
+    document.getElementById("message").innerHTML = "You will get it next time!";
 
     // preping the end screen doggo pile
     game.nIncorrect++;
@@ -308,7 +318,6 @@ function gameTimer(value) {
     'static/audio/game_end3.mp3',
   ]
 
-
   // Update the count down every second
   var timer = new Timer(function()
   {
@@ -342,8 +351,10 @@ function gameTimer(value) {
         volume: 1
     });
 
+    // countdown on 6, 4, 2 seconds
     if (distance == 6000)
     {
+      timerDisplay.style.color = "#F56676";
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
@@ -380,6 +391,10 @@ function gameTimer(value) {
       if (game.lastDoggoAnswered)
       {
         timer.stop();
+
+        // reset the timer color
+        timerDisplay.style.color = "black";
+
 
         // finishes the game and starts preparing the new game
         setTimeout(function(){ finishTheGame(); }, 500);
@@ -917,20 +932,21 @@ function subForm(e){
 // For devices with screen width of less than 1000px
 if (screenWidth < 1001)
 {
-  var message = document.getElementById("message");
-  message.classList.add("hidden");
+  var main = document.getElementById("main");
+  main.classList.remove("p-5");
 }
 
 
 /* AUDIO */
 // I've decided not to play music
-
-var MUSIC_LIST =
-[
-  'static/audio/Kai_Engel_-_07_-_Interception.mp3',
+/*   'static/audio/Kai_Engel_-_07_-_Interception.mp3',
   'static/audio/Kai_Engel_-_09_-_Homeroad.mp3',
   'static/audio/Pictures_of_the_Floating_World_-_Waves.mp3',
   'static/audio/Pictures_of_the_Floating_World_-_01_-_Bumbling.mp3'
+  */
+var MUSIC_LIST =
+[
+  '/static/audio/bones-2.wav'
 ]
 
 var track = MUSIC_LIST[Math.floor(Math.random() * MUSIC_LIST.length)];
@@ -1143,163 +1159,31 @@ var ALL_BREEDS =
 'Terrier Sealyham', 'Terrier Silky', 'Terrier Tibetan', 'Terrier Toy', 'Terrier Westhighland', 'Terrier Wheaten', 'Terrier Yorkshire', 'Vizsla', 'Waterdog Spanish', 'Weimaraner',
 'Whippet', 'Wolfhound Irish']
 
-
-var CONGRATZ =
+// Streak
+var STREAK_CONGRATZ =
 [
-  "amazing",
-"ambitious",
-"aspiring",
-"astounding",
-"awe-inspiring",
-"best",
-"better",
-"brilliant",
-"celebrated",
-"celebratory",
-"certain",
-"challenging",
-"compelling",
-"confidant",
-"congratulatory",
-"consummate",
-"dedicated",
-"deserving",
-"driven",
-"eminent",
-"energetic",
-"massive",
-"momentous",
-"monumental",
-"moving",
-"notable",
-"outstanding",
-"passionate",
-"phenomenal",
-"profound",
-"proud",
-"qualified",
-"recent",
-"remarkable",
-"satisfying",
-"savvy",
-"self-assured",
-"sensational",
-"skilled",
-"smart",
-"special",
-"spectacular",
-"exciting",
-"exemplary",
-"extraordinary",
-"focused",
-"grand",
-"great",
-"gutsy",
-"hard",
-"hardworking",
-"heartfelt",
-"highly regarded",
-"honoarble",
-"impassioned",
-"important",
-"impressive",
-"innovative",
-"inspired",
-"inspiring",
-"intelligent",
-"life-changing",
-"limitless",
-"stunning",
-"successful",
-"superb",
-"superior",
-"talented",
-"thrilled",
-"thrilling",
-"top-notch",
-"touching",
-"triumphant",
-"ultimate",
-"unlimited",
-"unmatched",
-"up-and-coming",
-"victorious",
-"visionary",
-"well-deserved",
-"well-done",
-"winning",
-"wonderful"
+  "ok",
+  "sweet",
+  "great",
+  "ambitious",
+  "confidant",
+  "qualified",
+  "impressive",
+  "wonderful",
+  "life-changing",
+  "savvy",
+  "grand",
+  "dedicated",
+  "highly regarded",
+  "impressive",
+  "spectacular",
+  "stunning",
+  "monumental",
+  "superior",
+  "unmatched",
+  "unlimited"
 ]
 
-var WRONG =
-[
-"apprehension",
-"avoid",
-"back down",
-"be lazy",
-"choke",
-"delay",
-"detour",
-"dodge",
-"err",
-"everyday",
-"fail",
-"failure",
-"fall",
-"falter",
-"fluctuate",
-"flunk",
-"fruitless",
-"neglect",
-"partied too much",
-"past due",
-"powerless",
-"premature",
-"scared",
-"self-doubt",
-"shirk",
-"shy",
-"sidetracked",
-"sit around",
-"stagnant",
-"stray",
-"student loans",
-"stumble",
-"talentless",
-"undecided",
-"going nowhere",
-"hapless",
-"hesitant",
-"hesitate",
-"hopeless",
-"in vain",
-"inability",
-"incapable",
-"incompetent",
-"indecisive",
-"ineffective",
-"inept",
-"irresolute",
-"lack of drive",
-"laziness",
-"lazy",
-"lethargy",
-"unfulfilled",
-"uninspired",
-"unintelligent",
-"unlucky",
-"unmotivated",
-"unprofitable",
-"unsuccessful",
-"unsure",
-"up in the air",
-"useless",
-"waver",
-"wavering",
-"weak",
-"worthless",
-"would-be"
-]
 
 //https://www.thesprucepets.com/punny-names-for-dogs-4842364
 var DOG_NAMES =
@@ -1496,4 +1380,91 @@ var DOG_NAMES =
 "The Notorious D.O.G.",
 "Olivia Chewton John",
 "Ozzy Pawsborne"
+]
+
+var CONGRATZ =
+[
+  "amazing",
+"ambitious",
+"aspiring",
+"astounding",
+"awe-inspiring",
+"best",
+"better",
+"brilliant",
+"celebrated",
+"celebratory",
+"certain",
+"challenging",
+"compelling",
+"confidant",
+"congratulatory",
+"consummate",
+"dedicated",
+"deserving",
+"driven",
+"eminent",
+"energetic",
+"massive",
+"momentous",
+"monumental",
+"moving",
+"notable",
+"outstanding",
+"passionate",
+"phenomenal",
+"profound",
+"proud",
+"qualified",
+"recent",
+"remarkable",
+"satisfying",
+"savvy",
+"self-assured",
+"sensational",
+"skilled",
+"smart",
+"special",
+"spectacular",
+"exciting",
+"exemplary",
+"extraordinary",
+"focused",
+"grand",
+"great",
+"gutsy",
+"hard",
+"hardworking",
+"heartfelt",
+"highly regarded",
+"honoarble",
+"impassioned",
+"important",
+"impressive",
+"innovative",
+"inspired",
+"inspiring",
+"intelligent",
+"life-changing",
+"limitless",
+"stunning",
+"successful",
+"superb",
+"superior",
+"talented",
+"thrilled",
+"thrilling",
+"top-notch",
+"touching",
+"triumphant",
+"ultimate",
+"unlimited",
+"unmatched",
+"up-and-coming",
+"victorious",
+"visionary",
+"well-deserved",
+"well-done",
+"winning",
+"wonderful"
 ]
