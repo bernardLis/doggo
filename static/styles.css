@@ -14,15 +14,24 @@ main
 }
 
 /* No outline on bootstrap buttons */
-.btn:focus,.btn:active, .btn-light:focus,.btn-light:active
-{
-   outline: none !important;
-   box-shadow: none !important;
-   -webkit-box-shadow: none !important;
-}
-.btn-light:hover
+.btn:focus,.btn:active, .btn-light:focus,.btn-light:active, .btn-light:hover
 {
   border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+.breedButton:hover
+{
+  filter: brightness(95%);
+  transform: scale(1.02);
+  transition: all .2s linear;
+}
+.breedButton:active
+{
+  filter: brightness(105%);
+  transform: scale(0.98);
+  transition: all .2s linear;
 }
 
 #countdownOverlay
@@ -46,15 +55,22 @@ main
   text-align: center;
   margin-top: 30px;
 }
+
 #countdownMsg
 {
+  height: 2rem;
   font-size: 2rem;
+  color: white;
+}
+#countdownTooltip
+{
+  margin-top: 35%;
   color: white;
 }
 
 #toggleSound
 {
-  position: fixed;
+  position: absolute;
   top: 80px;
   left: 20px;
 }
@@ -80,6 +96,24 @@ main
   max-width:100%;
   max-height:100%;
 }
+#game
+{
+  position: relative;
+}
+#messageWrapper
+{
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  margin-top: 40%;
+}
+#message
+{
+  color: #fff;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+}
+
 .breedButton
 {
   width: 200px;
@@ -127,11 +161,6 @@ main
   background-color: #E47790;
   border-color: #E16682;
   filter: brightness(1.1);
-}
-
-
-#gameReset, #highscoresButton
-{
 }
 
 #hsnewGame
@@ -247,6 +276,19 @@ ul.boneList {
 /* MOBILE */
 @media (max-width: 1001px)
 {
+  .breedButton:hover
+  {
+    filter: brightness(100%);
+    transform: scale(1);
+    transition: all .2s ease-in;
+  }
+  .breedButton:active
+  {
+    filter: brightness(100%);
+    transform: scale(1);
+    transition: all .2s ease-in;
+  }
+
   #toggleSound
   {
     top: 20px;
@@ -261,6 +303,10 @@ ul.boneList {
   .currentDoggo
   {
     height: 300px;
+  }
+  #messageWrapper
+  {
+    margin-top: 70%;
   }
   #message
   {

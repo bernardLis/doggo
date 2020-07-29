@@ -14,11 +14,20 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from flask_wtf.csrf import CSRFProtect
+
 from helpers import apology
 
 # Configure application
 app = Flask(__name__)
 application = app # our hosting requires application in passenger_wsgi
+
+# https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
+csrf = CSRFProtect()
+
+def create_app():
+    app = Flask(__name__)
+    csrf.init_app(app)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -51,6 +60,10 @@ def hscoreEntry():
     score = request.form.get("score")
     favbreed = request.form.get("favBreed")
 
+    # naive score validation
+    if int(score) > 3500:
+        return jsonify("You won!")
+
     # insering hscore of the user to the databse
     db.execute("INSERT INTO highscores (username, score, favbreed) VALUES (?, ?, ?)",
                 (username, score, favbreed))
@@ -77,10 +90,13 @@ def loadDogs(n):
         else:
             breed = breedStr[0].capitalize()
 
+        # Encrypt doggo breed
+        encryptedBreed = caesarShift(breed, 4)
+
         # Creating a list with a doggo img src and breed
         doggos[i] = []
         doggos[i].append(link)
-        doggos[i].append(breed)
+        doggos[i].append(encryptedBreed)
         i += 1
 
     return doggos
@@ -113,6 +129,27 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
+
+
+def caesarShift(string, key):
+    k = key
+    plainString = string
+    cipherString = ""
+
+    for char in plainString:
+        if 65 <= ord(char) <= 90:
+            cipherASCII = 65 + ((ord(char) - 65 + key) % 26)
+            cipherString = cipherString + chr(cipherASCII)
+
+        elif 97 <= ord(char) <= 122:
+            cipherASCII = 97 + ((ord(char) - 97 + key) % 26)
+            cipherString = cipherString + chr(cipherASCII)
+
+        else:
+            cipherString = cipherString + char
+
+    return cipherString
+
 
 
 ALL_BREEDS = ['Affenpinscher', 'African', 'Airedale', 'Akita', 'Appenzeller', 'Australian Shepherd', 'Basenji', 'Beagle', 'Bluetick', 'Borzoi', 'Bouvier', 'Boxer', 'Brabancon', 'Briard',

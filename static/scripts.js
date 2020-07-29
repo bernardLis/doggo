@@ -6,6 +6,7 @@ game.nCorrect = 0;
 game.nIncorrect = 0;
 game.score = 0;
 game.streak = 0;
+game.easyModeDoggos = 0;
 game.lastDoggo = false;
 game.lastDoggoAnswered = false;
 game.numberOfChoices = 4;
@@ -13,6 +14,9 @@ game.musicFinished = false;
 game.audioMuted = false;
 game.musicID;
 game.disableMusic = true;
+game.timerValue = 0;
+game.timeLeft = 0;
+
 
 
 // Audio
@@ -64,8 +68,11 @@ function gameStartUp(breeds, timer)
   var overlay = document.getElementById("countdownOverlay");
   overlay.style.width = "100%";
 
+
   var msg = document.getElementById("countdownMsg");
+  var tooltip = document.getElementById("countdownTooltip");
   var msgText = "Woof! ";
+  tooltip.innerHTML = "More bones on higher streaks! Good luck!"
 
   var streakDisplay = document.getElementById("streakDisplay");
   var scoreDisplay = document.getElementById("scoreDisplay");
@@ -80,6 +87,7 @@ function gameStartUp(breeds, timer)
     {
       overlay.style.width = "0%";
       msg.innerHTML = "";
+      tooltip.innerHTML = "";
       msg.classList.remove("textScaling");
 
       clearInterval(interval);
@@ -87,7 +95,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(91); //61 works well for a minute
+      timer(61); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
 
@@ -124,12 +132,13 @@ function setBreedButtons()
   var doggoElement = document.getElementById(doggoNumber);
   currentDoggoBreed = doggoElement.getAttribute("data-breed");
   game.currentDoggoBreed = currentDoggoBreed;
-  breedsForButtons.push(currentDoggoBreed);
+  var decryptedBreed = caesarShift(currentDoggoBreed, -4);
+  breedsForButtons.push(decryptedBreed);
 
   // https://stackoverflow.com/questions/9792927/javascript-array-search-and-remove-string
   // making sure I only get one occurance of each breed in buttons
   let arr = ALL_BREEDS;
-  arr = arr.filter(e => e !== currentDoggoBreed);
+  arr = arr.filter(e => e !== decryptedBreed);
 
   // getting 3 random doggo breeds from the list
   for (var i = 0; i < game.numberOfChoices - 1; i++)
@@ -179,8 +188,9 @@ function doggoBreedCheck()
   var doggoElement = document.getElementById(doggoNumber);
   var streakDisplay = document.getElementById("streakDisplay");
   var scoreDisplay = document.getElementById("scoreDisplay");
+  var encryptedBreed = caesarShift(this.value, 4);
 
-  if (this.value == game.currentDoggoBreed)
+  if (encryptedBreed == game.currentDoggoBreed)
   {
     // play sound if audio is not muted
     if(!game.audioMuted)
@@ -204,6 +214,7 @@ function doggoBreedCheck()
     // blink this button green
     this.style.backgroundColor = "#44AF69";
 
+
     // displaying congratz
     // I have 20 congratz adjectives
     var streakCongratzN = game.streak - 1;
@@ -211,9 +222,34 @@ function doggoBreedCheck()
     {
       streakCongratzN = 19;
     }
+    var messageTxt = STREAK_CONGRATZ[streakCongratzN];
+    var timerDisplay = document.getElementById("timerDisplay");
 
-    var message = capitalizeFirstLetter(STREAK_CONGRATZ[streakCongratzN]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
-    document.getElementById("message").innerHTML = message;
+    // timer shenanigans
+    if (!game.lastDoggo)
+    {
+      if (game.streak % 3 == 0)
+      {
+        messageTxt = STREAK_CONGRATZ[streakCongratzN] + " + 5 seconds";
+        game.timerValue += 5 * 1000;
+      }
+    }
+
+    var message = document.getElementById("message");
+    // TODO: it breaks sometimes...
+    if (message != null)
+    {
+      message.innerHTML = messageTxt;
+      message.classList.remove("hidden");
+      message.classList.add("textScaling");
+      message.classList.add("changeColor");
+      setTimeout(hideTheMessage, 900);
+      function hideTheMessage()
+      {
+        message.classList.remove("textScaling");
+        message.classList.add("hidden");
+      }
+    }
 
     // preping the end screen doggo pile
     game.nCorrect++;
@@ -234,7 +270,8 @@ function doggoBreedCheck()
       // getting the breed buttons
       var str = "button" + (i + 1);
       var button = document.getElementById(str);
-      if (button.value == game.currentDoggoBreed)
+      var encryptedButton = caesarShift(button.value, 4);
+      if (encryptedButton == game.currentDoggoBreed)
       {
         button.style.backgroundColor = "#44AF69";
       }
@@ -246,7 +283,7 @@ function doggoBreedCheck()
 
     // displaying negative congratz
     //var message = capitalizeFirstLetter(WRONG[Math.floor(Math.random() * WRONG.length)]) + " " + DOG_NAMES[Math.floor(Math.random() * DOG_NAMES.length)];
-    document.getElementById("message").innerHTML = "You will get it next time!";
+    //document.getElementById("message").innerHTML = "You will get it next time!";
 
     // preping the end screen doggo pile
     game.nIncorrect++;
@@ -261,7 +298,7 @@ function doggoBreedCheck()
   // wait 500 and show the next doggo
   else
   {
-    setTimeout(function(){ nextDoggo(); }, 500);
+    setTimeout(function(){ nextDoggo(); }, 700);
   }
 }
 
@@ -305,7 +342,7 @@ function nextDoggo()
 function gameTimer(value) {
 
   // Timer variables
-  var timerValue = value * 1000;
+  game.timerValue = value * 1000;
   var n = 0;
   var isTimerOver = false;
   var sn = 0;
@@ -325,18 +362,18 @@ function gameTimer(value) {
     n += 1 * 1000;
 
     // Find the distance between now and the count down date
-    var distance = timerValue - n;
+    game.timeLeft = game.timerValue - n;
 
     // Never let distance be less than 0
-    if (distance < 0)
+    if (game.timeLeft < 0)
     {
-      distance = 0
+      game.timeLeft = 0
     }
 
     // Time calculations for minutes and seconds
     // toLocaleString to display 01
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+    var minutes = Math.floor((game.timeLeft % (1000 * 60 * 60)) / (1000 * 60)).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+    var seconds = Math.floor((game.timeLeft % (1000 * 60)) / 1000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
 
     // Display the timer in the element with id="timerDisplay"
     var timerDisplay = document.getElementById("timerDisplay");
@@ -352,36 +389,37 @@ function gameTimer(value) {
     });
 
     // countdown on 6, 4, 2 seconds
-    if (distance == 6000)
+    if (game.timeLeft == 6000)
     {
       timerDisplay.style.color = "#F56676";
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
+        sn = 0
         countDownSound.play()
-        sn++;
       }
     }
-    if (distance == 4000)
+    if (game.timeLeft == 4000)
     {
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
+        sn = 1;
         countDownSound.play()
-        sn++;
       }
     }
-    if (distance == 2000)
+    if (game.timeLeft == 2000)
     {
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
+        sn = 2;
         countDownSound.play()
       }
     }
 
     // When the countdown is finished transition between game state and hight score entry state
-    if (distance <= 0)
+    if (game.timeLeft <= 0)
     {
       // giving the user time to answer the last doggo
       game.lastDoggo = true;
@@ -394,7 +432,6 @@ function gameTimer(value) {
 
         // reset the timer color
         timerDisplay.style.color = "black";
-
 
         // finishes the game and starts preparing the new game
         setTimeout(function(){ finishTheGame(); }, 500);
@@ -856,6 +893,17 @@ dbUser.addEventListener("input", function(){
 function subForm(e){
     e.preventDefault();
 
+    // validating score
+    var score = document.getElementById("form-score").value;
+    if (score > 3500)
+    {
+      var main = document.getElementById("main");
+      main.classList.add("rotating");
+
+      console.log("You won!");
+      return;
+    }
+
     // validating username
     var usr = dbUser.value.toLowerCase();
     if (usr.length == 0)
@@ -895,7 +943,13 @@ function subForm(e){
         url:url,
         type:'post',
         data:data,
-        beforeSend: function() {
+        beforeSend: function(xhr, settings) {
+          //https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain)
+          {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+
           // disable the inputs
           dbUser.disabled = "true";
           document.getElementById("favBreed").disabled = "true";
@@ -1028,7 +1082,6 @@ async function flaskLoadDoggos()
 	});
 }
 
-
 // appending doggos to the document
 function appendDoggos(dogs)
 {
@@ -1037,8 +1090,9 @@ function appendDoggos(dogs)
   // finding out last doggo in the document
   var lastChildN = dogContainer.lastElementChild.getAttribute("data-id");
 
-  // creating doggo nodes
+  // create an array of encrypted dog imgs
   var count = Object.keys(dogs).length;
+  // creating doggo nodes
   for (var i = 0; i < count; i++)
   {
     // creating a div - container for img and data
@@ -1053,13 +1107,56 @@ function appendDoggos(dogs)
     // creating an img element
     var img = document.createElement("img");
     img.src = dogs[i][0];
-    img.classList.add("doggoImg")
+    img.classList.add("doggoImg");
+    img.setAttribute("data-you-are-a-cheater", true);
     node.appendChild(img);
 
     // appending the element to the game
     dogContainer.appendChild(node);
   }
 }
+
+// https://gist.github.com/EvanHahn/2587465
+// I wrote it in C and python, I don't wanna write it in js
+function caesarShift(str, amount) {
+  // Wrap the amount
+  if (amount < 0) {
+    return caesarShift(str, amount + 26);
+  }
+
+  // Make an output variable
+  var output = "";
+
+  // Go through each character
+  for (var i = 0; i < str.length; i++) {
+    // Get the character we'll be appending
+    var c = str[i];
+
+    // If it's a letter...
+    if (c.match(/[a-z]/i)) {
+      // Get its code
+      var code = str.charCodeAt(i);
+
+      // Uppercase letters
+      if (code >= 65 && code <= 90) {
+        c = String.fromCharCode(((code - 65 + amount) % 26) + 65);
+      }
+
+      // Lowercase letters
+      else if (code >= 97 && code <= 122) {
+        c = String.fromCharCode(((code - 97 + amount) % 26) + 97);
+      }
+    }
+
+    // Append
+    output += c;
+  }
+
+  // All done!
+  return output;
+};
+
+
 
 // removing all elements with a class from the document
 function removeElements(className)
@@ -1141,6 +1238,69 @@ function animateResultCount(number, target, elem) {
     }
 }
 
+
+//https://gist.github.com/HaNdTriX/7704632
+/**
+ * Converts an image to a dataURL
+ * @param  {String}   src          The src of the image
+ * @param  {Function} callback
+ * @param  {String}   outputFormat [outputFormat='image/png']
+ * @url   https://gist.github.com/HaNdTriX/7704632/
+ * @docs  https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement#Methods
+ * @author HaNdTriX
+ * @example
+ *
+ *   toDataUrl('http://goo.gl/AOxHAL', function(base64Img){
+ *     console.log('IMAGE:',base64Img);
+ *   })
+ *
+ */
+function toDataUrl(src, callback, outputFormat) {
+  // Create an Image object
+  var img = new Image();
+  // Add CORS approval to prevent a tainted canvas
+  img.crossOrigin = 'Anonymous';
+  img.onload = function() {
+    // Create an html canvas element
+    var canvas = document.createElement('CANVAS');
+    // Create a 2d context
+    var ctx = canvas.getContext('2d');
+    var dataURL;
+    // Resize the canavas to the original image dimensions
+    canvas.height = this.naturalHeight;
+    canvas.width = this.naturalWidth;
+    // Draw the image to a canvas
+    ctx.drawImage(this, 0, 0);
+    // Convert the canvas to a data url
+    dataURL = canvas.toDataURL(outputFormat);
+    // Return the data url via callback
+    callback(dataURL);
+    // Mark the canvas to be ready for garbage
+    // collection
+    canvas = null;
+  };
+  // Load the image
+  img.src = src;
+  // make sure the load event fires for cached images too
+  if (img.complete || img.complete === undefined) {
+    // Flush cache
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+    // Try again
+    img.src = src;
+  }
+}
+
+// https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
+// general csfr set up
+var csrf_token = "{{ csrf_token() }}";
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+    }
+});
 
 // doggo breeds list
 var ALL_BREEDS =
