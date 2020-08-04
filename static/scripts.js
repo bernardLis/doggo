@@ -17,8 +17,6 @@ game.disableMusic = true;
 game.timerValue = 0;
 game.timeLeft = 0;
 
-
-
 // Audio
 var correctSound = new Howl({
     src: 'static/audio/Correct.mp3',
@@ -40,8 +38,9 @@ var screenHeight = window.screen.height;
 // start the timer only when the page loads
 window.addEventListener("load", function()
 {
+  flaskLoadDoggos();
   // keep track of how many doggos I have loaded
-  game.doggosRemaining = 15;
+  game.doggosRemaining = 11;
 
   // countdown before the game start into game start
   gameStartUp(setBreedButtons, gameTimer);
@@ -67,7 +66,6 @@ function gameStartUp(breeds, timer)
   // setting up the countdown overlay
   var overlay = document.getElementById("countdownOverlay");
   overlay.style.width = "100%";
-
 
   var msg = document.getElementById("countdownMsg");
   var tooltip = document.getElementById("countdownTooltip");
@@ -95,7 +93,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(61); //61 works well for a minute
+      timer(5); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
 
@@ -224,30 +222,46 @@ function doggoBreedCheck()
     }
     var messageTxt = STREAK_CONGRATZ[streakCongratzN];
     var timerDisplay = document.getElementById("timerDisplay");
+    var message = document.getElementById("message");
+    // TODO: it breaks sometimes...
+    if (message != null)
+    {
+      message.innerHTML = messageTxt.toUpperCase();
+      message.classList.remove("hidden");
+      message.classList.add("textScaling");
+
+      // hide the message after 800 ms
+      setTimeout(hideTheMessage, 800);
+      function hideTheMessage()
+      {
+        message.classList.remove("textScaling");
+        message.classList.add("hidden");
+      }
+    }
 
     // timer shenanigans
     if (!game.lastDoggo)
     {
       if (game.streak % 3 == 0)
       {
-        messageTxt = STREAK_CONGRATZ[streakCongratzN] + " + 5 seconds";
-        game.timerValue += 5 * 1000;
-      }
-    }
+        var messageParTxt = " + 5 sec";
+        var messagePar = document.getElementById("messageParagraph");
+        if (messagePar != null)
+        {
+          messagePar.innerHTML = messageParTxt.toUpperCase();
+          messagePar.classList.remove("hidden");
+          messagePar.classList.add("textScaling");
 
-    var message = document.getElementById("message");
-    // TODO: it breaks sometimes...
-    if (message != null)
-    {
-      message.innerHTML = messageTxt;
-      message.classList.remove("hidden");
-      message.classList.add("textScaling");
-      message.classList.add("changeColor");
-      setTimeout(hideTheMessage, 900);
-      function hideTheMessage()
-      {
-        message.classList.remove("textScaling");
-        message.classList.add("hidden");
+          // hide the message after 800 ms
+          setTimeout(hideTheMessagePar, 800);
+          function hideTheMessagePar()
+          {
+            messagePar.classList.remove("textScaling");
+            messagePar.classList.add("hidden");
+          }
+        }
+        // add 5 sec to the timer
+        game.timerValue += 5 * 1000;
       }
     }
 
@@ -335,12 +349,10 @@ function nextDoggo()
     flaskLoadDoggos();
     game.doggosRemaining += 10;
   }
-
   setBreedButtons();
 }
 
 function gameTimer(value) {
-
   // Timer variables
   game.timerValue = value * 1000;
   var n = 0;
@@ -367,7 +379,7 @@ function gameTimer(value) {
     // Never let distance be less than 0
     if (game.timeLeft < 0)
     {
-      game.timeLeft = 0
+      game.timeLeft = 0;
     }
 
     // Time calculations for minutes and seconds
@@ -395,8 +407,8 @@ function gameTimer(value) {
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
-        sn = 0
-        countDownSound.play()
+        sn = 0;
+        countDownSound.play();
       }
     }
     if (game.timeLeft == 4000)
@@ -405,7 +417,7 @@ function gameTimer(value) {
       if(!game.audioMuted)
       {
         sn = 1;
-        countDownSound.play()
+        countDownSound.play();
       }
     }
     if (game.timeLeft == 2000)
@@ -414,7 +426,7 @@ function gameTimer(value) {
       if(!game.audioMuted)
       {
         sn = 2;
-        countDownSound.play()
+        countDownSound.play();
       }
     }
 
@@ -454,7 +466,7 @@ const prepareTheNewGame = async () => {
   setTimeout(function()
   {
     var gameResetButton = document.getElementById("gameReset");
-    gameResetButton.disabled = false
+    gameResetButton.disabled = false;
     gameResetButton.innerHTML = "Try again!";
   }, 2000);
 }
@@ -483,21 +495,21 @@ function finishTheGameFn()
   var spanNCorrect = document.getElementById("spanNCorrect");
   if (game.nCorrect == 1)
   {
-    spanNCorrect.innerHTML = game.nCorrect + " doggo:";
+    spanNCorrect.innerHTML = "this " + game.nCorrect + " doggo";
   }
   else
   {
-    spanNCorrect.innerHTML = game.nCorrect + " doggos:";
+    spanNCorrect.innerHTML = "these " + game.nCorrect + " doggos";
   }
 
   var spanNCorrect = document.getElementById("spanNIncorrect");
   if (game.nIncorrect == 1)
   {
-    spanNIncorrect.innerHTML = game.nIncorrect + " doggo";
+    spanNIncorrect.innerHTML = "this " + game.nIncorrect + " doggo";
   }
   else
   {
-    spanNIncorrect.innerHTML = game.nIncorrect + " doggos";
+    spanNIncorrect.innerHTML = "these " + game.nIncorrect + " doggos";
   }
 
   // show correctly and incorrectly guessed doggos
@@ -512,7 +524,7 @@ function finishTheGameFn()
     var src = img.src;
     var link = document.createElement("a");
     link.href = src;
-    link.target = "_blank"
+    link.target = "_blank";
     link.appendChild(img);
     correctDoggos[i].appendChild(link);
 
@@ -539,7 +551,7 @@ function finishTheGameFn()
     var src = img.src;
     var link = document.createElement("a");
     link.href = src;
-    link.target = "_blank"
+    link.target = "_blank";
     link.appendChild(img);
     incorrectDoggos[i].appendChild(link);
 
@@ -736,7 +748,7 @@ function throwBones(boneN)
     setTimeout(function()
     {
       removeElements("bone");
-    }, 900);
+    }, 800);
   }
 }
 
@@ -893,14 +905,38 @@ dbUser.addEventListener("input", function(){
 function subForm(e){
     e.preventDefault();
 
-    // validating score
+    // naively validating score
     var score = document.getElementById("form-score").value;
     if (score > 3500)
     {
-      var main = document.getElementById("main");
-      main.classList.add("rotating");
+      subFormButton.innerHTML = "Are you a cheater?";
+      subFormButton.disabled;
+      subButtonDiv = document.getElementById("subButtonWrapper");
+      var cheaterDiv = document.createElement("div");
+      subButtonDiv.appendChild(cheaterDiv)
+      var yes = document.createElement("button");
+      yes.innerHTML = "Yes.";
+      yes.type = "button";
+      var a = document.createElement("a");
+      a.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+      a.appendChild(yes);
+      cheaterDiv.appendChild(a);
 
-      console.log("You won!");
+      var no = document.createElement("button");
+      no.innerHTML = "No";
+      no.type = "button";
+      no.addEventListener("click", function(){
+        var p = document.createElement("p");
+        p.innerHTML = "Ok, you can submit your score. I promise it won't load viruses to your computer.";
+        cheaterDiv.appendChild(p);
+
+        var cheaterSubmit = document.createElement("button");
+        cheaterSubmit.innerHTML = "I am not a cheater and I want to submit my score.";
+
+        cheaterDiv.appendChild(cheaterSubmit);
+      })
+      cheaterDiv.appendChild(no);
+
       return;
     }
 
@@ -1083,6 +1119,8 @@ async function flaskLoadDoggos()
 }
 
 // appending doggos to the document
+
+// TODO: BROKEN
 function appendDoggos(dogs)
 {
   var dogContainer = document.getElementById("dog-container");
@@ -1090,30 +1128,64 @@ function appendDoggos(dogs)
   // finding out last doggo in the document
   var lastChildN = dogContainer.lastElementChild.getAttribute("data-id");
 
-  // create an array of encrypted dog imgs
+  // getting the count of doggos to append
   var count = Object.keys(dogs).length;
+
+  // creating arrays
+  var nodeList = [];
+  var canvasList = [];
+
   // creating doggo nodes
-  for (var i = 0; i < count; i++)
-  {
-    // creating a div - container for img and data
-    var doggoId = parseInt(lastChildN) + i + 1
-    var node = document.createElement("div");
-    node.id = "doggo-number-" + doggoId;
-    node.classList.add("hidden");
-    node.classList.add("gameDoggo");
-    node.setAttribute("data-id", doggoId);
-    node.setAttribute("data-breed", dogs[i][1]);
+  function createNodes() {
+    for (var i = 0; i < count; i++)
+    {
+      // creating a div - container for img and data
+      var doggoId = parseInt(lastChildN) + i + 1
+      var node = document.createElement("div");
+      node.id = "doggo-number-" + doggoId;
+      node.classList.add("hidden");
+      node.classList.add("gameDoggo");
+      node.setAttribute("data-id", doggoId);
+      node.setAttribute("data-breed", dogs[i][1]);
+      nodeList.push(node);
 
-    // creating an img element
-    var img = document.createElement("img");
-    img.src = dogs[i][0];
-    img.classList.add("doggoImg");
-    img.setAttribute("data-you-are-a-cheater", true);
-    node.appendChild(img);
-
-    // appending the element to the game
-    dogContainer.appendChild(node);
+      // creating canvas where the img will be drawn
+      var canvas = document.createElement('canvas');
+      canvasList.push(canvas);
+    }
   }
+
+  // drawing doggo imgs to canvas
+  const createImage = i => {
+    var img = new Image();
+    img.src = dogs[i][0];
+    img.onload = function()
+    {
+      canvasList[i].width = img.width;
+      canvasList[i].height = img.height;
+      var ctx = canvasList[i].getContext("2d");
+      ctx.drawImage(this, 0, 0);
+    }
+    return canvasList[i];
+  }
+
+  // appending the canvas with a doggo to the document only after canvas is done
+  const ImgToCanva = async (i) => {
+    const canvas = await createImage(i);
+
+    // this class resizes canvas to fit the container div
+    canvas.classList.add("doggoImg");
+    nodeList[i].appendChild(canvas);
+    dogContainer.appendChild(nodeList[i]);
+  }
+
+  // calling the functions
+  createNodes();
+  for (let i = 0; i < count; i++)
+  {
+    ImgToCanva(i);
+  }
+
 }
 
 // https://gist.github.com/EvanHahn/2587465

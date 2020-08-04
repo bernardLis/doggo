@@ -90,6 +90,10 @@ main
   justify-content: center;
   align-items: center;
 }
+.gameDoggo
+{
+  height: 400px;
+}
 .doggoImg
 {
   object-fit: contain;
@@ -109,6 +113,11 @@ main
   margin-top: 40%;
 }
 #message
+{
+  color: #fff;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+}
+#messageParagraph
 {
   color: #fff;
   text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;

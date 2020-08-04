@@ -50,7 +50,7 @@ Session(app)
 def index():
     """Doggo App"""
 
-    dogDict = loadDogs(15)
+    dogDict = loadDogs(1)
     return render_template("index.html", dogDict=dogDict, ALL_BREEDS=ALL_BREEDS)
 
 @app.route("/hscoreEntry", methods=["POST"])
@@ -118,6 +118,23 @@ def highscores():
 def info():
 
     return render_template("info.html")
+
+@app.route("/hsadmin", methods=["GET", "POST"])
+def hsadmin():
+
+    # getting highscores from the database
+    hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
+
+    return render_template("hsAdmin.html", hscores=hscores)
+
+@app.route("/deleteHSEntry", methods=["POST"])
+def deleteHSEntry():
+    userid = request.form.get("userid")
+    db.execute("DELETE FROM highscores WHERE userid=(?)", (userid))
+    hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
+
+    return render_template("hsAdmin.html", hscores=hscores)
+
 
 def errorhandler(e):
     """Handle error"""

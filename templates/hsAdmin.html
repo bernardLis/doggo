@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    highscores admin
+{% endblock %}
+
+{% block main %}
+  <h2 class="text-center mb-5">High Scores Admin</h2>
+  <table id="hsTable" class="table table-striped">
+
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nickname</th>
+        <th>Bones</th>
+        <th>Favourite breed</th>
+        <th>User ID</th>
+        <th>Delete</th>
+        </tr>
+    </thead>
+
+    <tbody>
+      {% for score in hscores: %}
+        <tr id='{{ score["userid"] }}'>
+          <td>{{loop.index}}</td>
+          <td>{{score["username"]}}</td>
+          <td>{{score["score"]}}</td>
+          <td>{{score["favbreed"]}}</td>
+          <td>{{score["userid"]}}</td>
+
+          <td>
+            <form class="" id="deleteEntry" action="/deleteHSEntry" method="post">
+              <input name="userid" class="hidden" value=" {{score["userid"]}} " id="form-usrid"></input>
+
+              <button type="submit" class="btn btn-danger deleteButton" id="">delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+  <script>
+
+  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+
+  // For devices with screen width of less than 1000px
+  if (width < 1001)
+  {
+    // remove padding
+    var main = document.getElementById("main");
+    main.classList.remove("p-5");
+  }
+  </script>
+
+{% endblock %}

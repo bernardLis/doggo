@@ -33,21 +33,21 @@
     </div>
 
     <div id="messageWrapper">
-      <h4 id="message" class="text-center"></h4>
+      <h3 id="message" class="text-center"></h3>
+      <p id="messageParagraph" class="text-center"></p>
     </div>
 
     <div id="dog-container" class="text-center">
+
       {% for id in dogDict: %}
         {% if id == 0: %}
           <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogDict[id][1] }}" class="gameDoggo currentDoggo">
             <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogDict[id][0] }}" />
           </div>
         {% else %}
-          <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogDict[id][1] }}" class="gameDoggo hidden">
-            <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogDict[id][0] }}" />
-          </div>
         {% endif %}
       {% endfor %}
+
     </div>
 
     <div class="row  d-flex justify-content-center">
@@ -64,9 +64,9 @@
 
     <h5 id="msgEnd"></h5>
 
-    <p>You got <span id="spanNCorrect">0 doggos:</span> </p>
+    <p>You have guessed <span id="spanNCorrect">these 0 doggos</span> correctly: </p>
     <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
-    <p>You will get <span id="spanNIncorrect">0 doggos</span> next time: </p>
+    <p>You will guess <span id="spanNIncorrect">these 0 doggos</span> next time: </p>
     <div id="incorrectDoggoPile" class="row ml-2 d-flex"></div>
     <hr/>
 
