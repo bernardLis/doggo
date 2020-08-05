@@ -93,7 +93,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(5); //61 works well for a minute
+      timer(2222222); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
 
@@ -347,7 +347,6 @@ function nextDoggo()
   if (game.doggosRemaining < 15)
   {
     flaskLoadDoggos();
-    game.doggosRemaining += 10;
   }
   setBreedButtons();
 }
@@ -630,9 +629,7 @@ function prepareTheNewGameFn()
 
   //loading 20 doggos
   flaskLoadDoggos();
-  game.doggosRemaining += 10;
   flaskLoadDoggos();
-  game.doggosRemaining += 10;
 }
 
 // Restars the game
@@ -1119,8 +1116,6 @@ async function flaskLoadDoggos()
 }
 
 // appending doggos to the document
-
-// TODO: BROKEN
 function appendDoggos(dogs)
 {
   var dogContainer = document.getElementById("dog-container");
@@ -1130,6 +1125,9 @@ function appendDoggos(dogs)
 
   // getting the count of doggos to append
   var count = Object.keys(dogs).length;
+
+  // keeping track of how many dogs are remaining
+  game.doggosRemaining += count;
 
   // creating arrays
   var nodeList = [];
@@ -1227,8 +1225,6 @@ function caesarShift(str, amount) {
   // All done!
   return output;
 };
-
-
 
 // removing all elements with a class from the document
 function removeElements(className)

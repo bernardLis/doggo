@@ -50,6 +50,13 @@ Session(app)
 def index():
     """Doggo App"""
 
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
     dogDict = loadDogs(1)
     return render_template("index.html", dogDict=dogDict, ALL_BREEDS=ALL_BREEDS)
 
@@ -73,16 +80,41 @@ def hscoreEntry():
 @app.route("/loadDogs", methods=["POST"])
 def loadDogs(n):
 
-    # dictionary with dogs
-    doggos = {}
+    # making sure shownDogs exists in the session
+    if not 'shownDogs' in session:
+        session["shownDogs"] = ["aDOGGO"]
+
+    # clearing session when shown dogs list is over 20k dogs
+    if len(session["shownDogs"]) > 20000:
+        session.clear()
 
     # api call
     call = "https://dog.ceo/api/breeds/image/random/" + str(n)
     response = requests.get(call)
     json_response = response.json()
+    dogsFromApi = json_response['message']
+
+    # checking whether the dog was already shown in this session
+    for l in session["shownDogs"]:
+        for i, link in enumerate(dogsFromApi):
+            if l == link:
+                # deleting from the list it if it was shown
+                dogsFromApi.pop(i)
+
+    # start over if too many doggos were deleted
+    if len(dogsFromApi) < n/2:
+        print("starting over")
+        loadDogs(n)
+
+    # dictionary with dogs
+    doggos = {}
 
     i = 0
-    for link in json_response['message']:
+    for link in dogsFromApi:
+        # adding the link to shown dogs
+        session["shownDogs"].append(link)
+
+        # preping dogDict and sending it to the client
         l = link.split("/")
         breedStr = l[4].split("-")
         if len(breedStr) > 1:
