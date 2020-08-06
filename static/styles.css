@@ -64,7 +64,7 @@ main
 }
 #countdownTooltip
 {
-  margin-top: 35%;
+  margin-top: 25%;
   color: white;
 }
 
@@ -285,17 +285,26 @@ ul.boneList {
 /* MOBILE */
 @media (max-width: 1001px)
 {
+  .breedButton
+  {
+    width: 160px;
+    font-size: 0.8rem !important;
+  }
   .breedButton:hover
   {
     filter: brightness(100%);
     transform: scale(1);
     transition: all .2s ease-in;
+    border: none !important;
+    outline: none !important;
   }
   .breedButton:active
   {
     filter: brightness(100%);
     transform: scale(1);
     transition: all .2s ease-in;
+    border: none !important;
+    outline: none !important;
   }
 
   #toggleSound
@@ -311,7 +320,7 @@ ul.boneList {
   }
   .currentDoggo
   {
-    height: 300px;
+    height: 400px;
   }
   #messageWrapper
   {

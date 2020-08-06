@@ -68,7 +68,7 @@ def hscoreEntry():
     favbreed = request.form.get("favBreed")
 
     # naive score validation
-    if int(score) > 3500:
+    if int(score) > 4500:
         return jsonify("You won!")
 
     # insering hscore of the user to the databse

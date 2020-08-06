@@ -16,6 +16,7 @@ game.musicID;
 game.disableMusic = true;
 game.timerValue = 0;
 game.timeLeft = 0;
+game.totalGameTime = 91;
 
 // Audio
 var correctSound = new Howl({
@@ -93,7 +94,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(2222222); //61 works well for a minute
+      timer(91); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
 
@@ -262,6 +263,84 @@ function doggoBreedCheck()
         }
         // add 5 sec to the timer
         game.timerValue += 5 * 1000;
+        game.totalGameTime += 5;
+      }
+    }
+
+    // anti-bot shield!
+    //player goes on a watchlist when he makes streak 8
+    if (game.streak == 6)
+    {
+      // if streak is equal or more than 8 after 3 seconds, inform him about the bot watchlist
+      setTimeout(botWatchlistInformation, 3000);
+
+      function botWatchlistInformation()
+      {
+        if(game.streak >= 8)
+        {
+          console.log("Welcome to the bot watchlist!\n I will be testing whether you are a human.");
+          // if streak is equal or more than 10 after 3 seconds, apply test 1
+          setTimeout(firstBotTest, 3000);
+        }
+      }
+      function firstBotTest()
+      {
+        if(game.streak >= 10)
+        console.log("1st bot test.");
+        {
+          var reply = confirm("WOW NICE STREAK AND SO QUICKLY TOO!\nPress OK if you are not a bot.");
+          if (reply == true)
+          {
+            console.log("Wow, congratz on being human.");
+            var streakAfterFirst = game.streak;
+
+            // if streak equal or more than game.streak + 2 after 3 seconds, apply test 2
+            secondBotTest(streakAfterFirst, 3000);
+          }
+          else
+          {
+            game.streak = 0;
+            game.score = 0;
+          }
+        }
+      }
+
+      function secondBotTest(streak, timeout)
+      {
+        setTimeout(function()
+        {
+          console.log("streak + 2 in second bot test", streak+2)
+          if(game.streak >= streak + 2)
+          {
+            console.log("2nd bot test.");
+
+            let reply2 = prompt("YOU SEEM TO BE A BOT!\nType: 'I am human.' to continue");
+            if (reply2 == "I am human.")
+            {
+              console.log("Dear human, stahp botting!");
+              var streakAfterSecond = game.streak;
+
+              // if streak equal or more than game.streak + 4 after 6 seconds, apply test 2
+              thirdBotTest(streakAfterSecond, 6000)
+            }
+            else
+            {
+              game.streak = 0;
+              game.score = 0;
+            }
+          }
+        }, timeout);
+      }
+      function thirdBotTest(streak, timeout)
+      {
+        setTimeout(function()
+        {
+          if(game.streak >= streak + 2)
+          {
+            console.log("3rd bot 'test'.");
+            alert("This game is not optimized for BOTS!!!11!\nJust fyi, I am rejecting scores over 4.5k");
+          }
+        }, timeout);
       }
     }
 
@@ -904,7 +983,7 @@ function subForm(e){
 
     // naively validating score
     var score = document.getElementById("form-score").value;
-    if (score > 3500)
+    if (score > 4500)
     {
       subFormButton.innerHTML = "Are you a cheater?";
       subFormButton.disabled;
