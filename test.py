@@ -5,72 +5,30 @@ import sys
 import json
 from cs50 import SQL
 
-def caesarShift(string, key):
-    k = key
-    plainString = string
-    cipherString = ""
 
-    for char in plainString:
-        if 65 <= ord(char) <= 90:
-            cipherASCII = 65 + ((ord(char) - 65 + key) % 26)
-            cipherString = cipherString + chr(cipherASCII)
 
-        elif 97 <= ord(char) <= 122:
-            cipherASCII = 97 + ((ord(char) - 97 + key) % 26)
-            cipherString = cipherString + chr(cipherASCII)
+ALL_BREEDS = ['Affenpinscher', 'African', 'Airedale', 'Akita', 'Appenzeller', 'Australian Shepherd', 'Basenji', 'Beagle', 'Bluetick', 'Borzoi', 'Bouvier', 'Boxer', 'Brabancon', 'Briard',
+'Buhund Norwegian', 'Bulldog Boston', 'Bulldog English', 'Bulldog French', 'Bullterrier Staffordshire', 'Cairn', 'Cattledog Australian', 'Chihuahua', 'Chow', 'Clumber',
+'Cockapoo', 'Collie Border', 'Coonhound', 'Corgi Cardigan', 'Cotondetulear', 'Dachshund', 'Dalmatian', 'Dane Great', 'Deerhound Scottish', 'Dhole', 'Dingo', 'Doberman',
+'Elkhound Norwegian', 'Entlebucher', 'Eskimo', 'Finnish Lapphund', 'Frise Bichon', 'Germanshepherd', 'Greyhound Italian', 'Groenendael', 'Havanese', 'Hound Afghan',
+'Hound Basset', 'Hound Blood', 'Hound English', 'Hound Ibizan', 'Hound Plott', 'Hound Walker', 'Husky', 'Keeshond', 'Kelpie', 'Komondor', 'Kuvasz', 'Labrador', 'Leonberg',
+'Lhasa', 'Malamute', 'Malinois', 'Maltese', 'Mastiff Bull', 'Mastiff English', 'Mastiff Tibetan', 'Mexicanhairless', 'Mix', 'Mountain Bernese', 'Mountain Swiss', 'Newfoundland',
+'Otterhound', 'Ovcharka Caucasian', 'Papillon', 'Pekinese', 'Pembroke', 'Pinscher Miniature', 'Pitbull', 'Pointer German', 'Pointer Germanlonghair', 'Pomeranian',
+'Poodle Miniature', 'Poodle Standard', 'Poodle Toy', 'Pug', 'Puggle', 'Pyrenees', 'Redbone', 'Retriever Chesapeake', 'Retriever Curly', 'Retriever Flatcoated',
+'Retriever Golden', 'Ridgeback Rhodesian', 'Rottweiler', 'Saluki', 'Samoyed', 'Schipperke', 'Schnauzer Giant', 'Schnauzer Miniature', 'Setter English', 'Setter Gordon',
+'Setter Irish', 'Sheepdog English', 'Sheepdog Shetland', 'Shiba', 'Shihtzu', 'Spaniel Blenheim', 'Spaniel Brittany', 'Spaniel Cocker', 'Spaniel Irish', 'Spaniel Japanese',
+'Spaniel Sussex', 'Spaniel Welsh', 'Springer English', 'Stbernard', 'Terrier American', 'Terrier Australian', 'Terrier Bedlington', 'Terrier Border', 'Terrier Dandie',
+'Terrier Fox', 'Terrier Irish', 'Terrier Kerryblue', 'Terrier Lakeland', 'Terrier Norfolk', 'Terrier Norwich', 'Terrier Patterdale', 'Terrier Russell', 'Terrier Scottish',
+'Terrier Sealyham', 'Terrier Silky', 'Terrier Tibetan', 'Terrier Toy', 'Terrier Westhighland', 'Terrier Wheaten', 'Terrier Yorkshire', 'Vizsla', 'Waterdog Spanish', 'Weimaraner',
+'Whippet', 'Wolfhound Irish']
 
-        else:
-            cipherString = cipherString + char
 
-    return cipherString
+longestBreed = ""
+maxLength = 0
 
-# this is session link list I will be checking against before sending doggos
-linkList = []
+for breed in ALL_BREEDS:
+    if len(breed) > maxLength:
+        longestBreed = breed
+        maxLength = len(breed)
 
-# populating the link list with 50 random doggos
-callPop = "https://dog.ceo/api/breeds/image/random/" + str("50")
-responsePop = requests.get(callPop)
-json_responsePop = responsePop.json()
-linkList = json_responsePop['message']
-
-# dictionary with dogs
-doggos = {}
-n = 10
-
-# api call
-call = "https://dog.ceo/api/breeds/image/random/" + str(n)
-response = requests.get(call)
-json_response = response.json()
-
-i = 0
-
-# checking whether the dog was already shown in this session
-for l in linkList:
-    for n, link in enumerate(json_response['message']):
-        if l == link:
-            print("yes, removing nth item", n)
-            json_response['message'].pop(n)
-
-# if not - add it to the link list
-for link in json_response['message']:
-
-    linkList.append(link)
-
-    # and send it to the client
-    l = link.split("/")
-    breedStr = l[4].split("-")
-    if len(breedStr) > 1:
-        breed = breedStr[0].capitalize() + " " + breedStr[1].capitalize()
-    else:
-        breed = breedStr[0].capitalize()
-
-    # Encrypt doggo breed
-    encryptedBreed = caesarShift(breed, 4)
-
-    # Creating a list with a doggo img src and breed
-    doggos[i] = []
-    doggos[i].append(link)
-    doggos[i].append(encryptedBreed)
-    i += 1
-
-print(doggos)
+print(longestBreed)

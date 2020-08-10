@@ -1,6 +1,6 @@
 
 // simple clicker
-var myInterval = setInterval(buttonClick, 800)
+var myInterval = setInterval(buttonClick, 1000)
 function buttonClick()
 {
   var button = document.getElementById("button1");

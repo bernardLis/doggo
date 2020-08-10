@@ -13,22 +13,26 @@ main
   margin: 0 auto;
 }
 
-/* No outline on bootstrap buttons */
-.btn:focus,.btn:active, .btn-light:focus,.btn-light:active, .btn-light:hover
+.breedButton
 {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
+  width: 200px;
+  border: 1px solid #6b6b6b;
+  padding: 1rem 0;
+  border-radius: 5px;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ and Edge */
+  user-select: none; /* Standard syntax */
 }
 .breedButton:hover
 {
+  border: 1px solid #6b6b6b;
   filter: brightness(95%);
   transform: scale(1.02);
   transition: all .2s linear;
 }
 .breedButton:active
 {
+  border: 1px solid #6b6b6b;
   filter: brightness(105%);
   transform: scale(0.98);
   transition: all .2s linear;
@@ -64,18 +68,20 @@ main
 }
 #countdownTooltip
 {
-  margin-top: 25%;
+  margin-top: 5rem;
   color: white;
+}
+.width150
+{
+  width: 150px;
 }
 
 #toggleSound
 {
-  position: absolute;
-  top: 80px;
-  left: 20px;
 }
 #timerDisplay
 {
+  font-size: 3rem;
   color: black;
 }
 .answerFeedback
@@ -110,7 +116,7 @@ main
   position: absolute;
   width: 100%;
   text-align: center;
-  margin-top: 40%;
+  margin-top: 300px;
 }
 #message
 {
@@ -123,10 +129,7 @@ main
   text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
 }
 
-.breedButton
-{
-  width: 200px;
-}
+
 .center
 {
   display: flex;
@@ -218,9 +221,6 @@ main
   animation: textScaling 1s ease-out infinite;
 
 }
-
-
-
 /* https://stackoverflow.com/questions/6410730/css-endless-rotation-animation */
 @-webkit-keyframes rotating /* Safari and Chrome */ {
   from {
@@ -288,32 +288,21 @@ ul.boneList {
   .breedButton
   {
     width: 160px;
-    font-size: 0.8rem !important;
+    font-size: 0.8rem;
+    padding: 1rem 0;
   }
   .breedButton:hover
   {
     filter: brightness(100%);
     transform: scale(1);
     transition: all .2s ease-in;
-    border: none !important;
-    outline: none !important;
   }
   .breedButton:active
   {
     filter: brightness(100%);
     transform: scale(1);
     transition: all .2s ease-in;
-    border: none !important;
-    outline: none !important;
   }
-
-  #toggleSound
-  {
-    top: 20px;
-    margin-left: 42vw;
-    color: #646E68;
-  }
-
   #countdownMsg
   {
     font-size: 1rem;
@@ -324,10 +313,17 @@ ul.boneList {
   }
   #messageWrapper
   {
-    margin-top: 70%;
   }
   #message
   {
     font-size: 1rem;
+  }
+}
+@media (max-width: 321px)
+{
+  .breedButton
+  {
+    width: 140px;
+    padding: 0.8rem 0rem;
   }
 }

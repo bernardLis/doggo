@@ -1,6 +1,8 @@
 // keep track of the current doggo
 var game = {};
+// game
 game.currentDoggo = 0;
+game.doggosRemaining = 1;
 game.currentDoggoBreed = null;
 game.nCorrect = 0;
 game.nIncorrect = 0;
@@ -10,13 +12,17 @@ game.easyModeDoggos = 0;
 game.lastDoggo = false;
 game.lastDoggoAnswered = false;
 game.numberOfChoices = 4;
+var secretDoggoList = {}
+// audio
 game.musicFinished = false;
 game.audioMuted = false;
 game.musicID;
 game.disableMusic = true;
+// timer
+game.gameTime = 222222222222;
 game.timerValue = 0;
 game.timeLeft = 0;
-game.totalGameTime = 91;
+
 
 // Audio
 var correctSound = new Howl({
@@ -39,9 +45,13 @@ var screenHeight = window.screen.height;
 // start the timer only when the page loads
 window.addEventListener("load", function()
 {
+  // storing the doggo 0 link in the secret doggo list
+  var doggo0El = document.getElementById("doggo-number-0").children;
+  var doggo0 = doggo0El[0];
+  secretDoggoList[0] = doggo0.src
+
+  // loading additional doggos
   flaskLoadDoggos();
-  // keep track of how many doggos I have loaded
-  game.doggosRemaining = 11;
 
   // countdown before the game start into game start
   gameStartUp(setBreedButtons, gameTimer);
@@ -94,7 +104,7 @@ function gameStartUp(breeds, timer)
     // starting the timer and counters
     else if (n == 1)
     {
-      timer(91); //61 works well for a minute
+      timer(game.gameTime); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
 
@@ -165,6 +175,7 @@ function setBreedButtons()
     button.innerHTML = breedsForButtons[i];
     button.value = breedsForButtons[i];
     button.style.backgroundColor = "#f8f9fa";
+    button.style.borderColor = "#6b6b6b";
 
     // checking the answer on button click
     button.addEventListener("click", doggoBreedCheck);
@@ -211,8 +222,8 @@ function doggoBreedCheck()
     throwBones(boneN);
 
     // blink this button green
-    this.style.backgroundColor = "#44AF69";
-
+    this.style.backgroundColor = "rgba(68, 175, 105, 0.5)";
+    this.style.borderColor = "rgba(68, 175, 105, 0.7)";
 
     // displaying congratz
     // I have 20 congratz adjectives
@@ -357,7 +368,8 @@ function doggoBreedCheck()
     }
 
     // blinking the wrong choice red and the correct button green
-    this.style.backgroundColor = "#F8333C";
+    this.style.backgroundColor = "rgba(248, 51, 60, 0.5)";
+    this.style.borderColor = "rgba(248, 51, 60, 0.7)";
     for (var i = 0; i < game.numberOfChoices; i++)
     {
       // getting the breed buttons
@@ -366,7 +378,8 @@ function doggoBreedCheck()
       var encryptedButton = caesarShift(button.value, 4);
       if (encryptedButton == game.currentDoggoBreed)
       {
-        button.style.backgroundColor = "#44AF69";
+        button.style.backgroundColor = "rgba(68, 175, 105, 0.5)";
+        button.style.borderColor = "rgba(68, 175, 105, 0.7)"
       }
     }
 
@@ -407,7 +420,6 @@ function nextDoggo()
   doggoElement.classList.remove("currentDoggo");
   doggoElement.classList.add("hidden");
 
-  //nextDoggoElement.classList.remove("hidden");
   nextDoggoElement.classList.add("currentDoggo");
 
   game.currentDoggo++;
@@ -477,11 +489,41 @@ function gameTimer(value) {
         autoplay: false,
         volume: 1
     });
-
+    // bold + sound on one minute left
+    if (game.timeLeft == 60000)
+    {
+      timerDisplay.style.fontWeight = "600";
+      if(!game.audioMuted)
+      {
+        sn = 0;
+        countDownSound.play();
+      }
+    }
+    //reset after a second
+    if (game.timeLeft == 59000)
+    {
+      timerDisplay.style.fontWeight = "400";
+    }
+    // bold + sound on half minute left
+    if (game.timeLeft == 30000)
+    {
+      timerDisplay.style.fontWeight = "600";
+      if(!game.audioMuted)
+      {
+        sn = 0;
+        countDownSound.play();
+      }
+    }
+    //reset after a second
+    if (game.timeLeft == 29000)
+    {
+      timerDisplay.style.fontWeight = "400";
+    }
     // countdown on 6, 4, 2 seconds
     if (game.timeLeft == 6000)
     {
       timerDisplay.style.color = "#F56676";
+      timerDisplay.style.fontWeight = "600";
       // play sound if audio is not muted
       if(!game.audioMuted)
       {
@@ -521,6 +563,7 @@ function gameTimer(value) {
         timer.stop();
 
         // reset the timer color
+        timerDisplay.style.fontWeight = "400";
         timerDisplay.style.color = "black";
 
         // finishes the game and starts preparing the new game
@@ -597,19 +640,24 @@ function finishTheGameFn()
   len = correctDoggos.length
   for (var i = 0; i < len; i++)
   {
+    // getting link to the doggo
+    var doggoDivId  = correctDoggos[i].id;
+    var splitString = doggoDivId.split("doggo-number-");
+    var id = splitString[1];
+
     // img is a link to the big pic
     var img = correctDoggos[i].children[0];
-    var src = img.src;
     var link = document.createElement("a");
-    link.href = src;
+    link.href = secretDoggoList[id];
     link.target = "_blank";
     link.appendChild(img);
     correctDoggos[i].appendChild(link);
 
     // display breed
-    var breed = correctDoggos[i].getAttribute("data-breed");
+    var breedEncoded = correctDoggos[i].getAttribute("data-breed");
+    var breedDecoded = caesarShift(breedEncoded, -4);
     var para = document.createElement("p");
-    para.innerHTML = breed;
+    para.innerHTML = breedDecoded;
     para.classList.add("doggoPileText");
     correctDoggos[i].appendChild(para);
 
@@ -624,19 +672,24 @@ function finishTheGameFn()
   len = incorrectDoggos.length
   for (var i = 0; i < len; i++)
   {
+    // getting link to the doggo
+    var doggoDivId  = incorrectDoggos[i].id;
+    var splitString = doggoDivId.split("doggo-number-");
+    var id = splitString[1];
+
     // img is a link to the big pic
     var img = incorrectDoggos[i].children[0];
-    var src = img.src;
     var link = document.createElement("a");
-    link.href = src;
+    link.href = secretDoggoList[id];
     link.target = "_blank";
     link.appendChild(img);
     incorrectDoggos[i].appendChild(link);
 
     // display breed
-    var breed = incorrectDoggos[i].getAttribute("data-breed");
+    var breedEncoded = incorrectDoggos[i].getAttribute("data-breed");
+    var breedDecoded = caesarShift(breedEncoded, -4);
     var para = document.createElement("p");
-    para.innerHTML = breed;
+    para.innerHTML = breedDecoded;
     para.classList.add("doggoPileText");
 
     incorrectDoggos[i].appendChild(para);
@@ -653,10 +706,6 @@ function finishTheGameFn()
 // I want to prepare new game when user reviews his previous game and then transition to the new game without reloading the page
 function prepareTheNewGameFn()
 {
-  // destroy doggos in the dog container
-  removeElements("gameDoggo");
-  game.doggosRemaining = 0;
-
   // reseting the last doggo flags
   game.lastDoggo = false;
   game.lastDoggoAnswered = false;
@@ -669,7 +718,7 @@ function prepareTheNewGameFn()
   game.nCorrect = 0;
   game.nIncorrect = 0;
 
-  //adding placeholder bones
+  // adding placeholder bones
   var bones = [];
   for (var i = 0; i < 3; i++)
   {
@@ -690,21 +739,11 @@ function prepareTheNewGameFn()
   streakDisplay.appendChild(bones[1]);
   timerDisplay.appendChild(bones[2]);
 
-  // load new doggos
+  // prep the first doggo
   var dogContainer = document.getElementById("dog-container");
-
-  game.currentDoggo = -1;
-  // creating a div - container for img and data
-  var placeholderDoggoId = -1;
-  var placeholderNode = document.createElement("div");
-  placeholderNode.id = "doggo-number-" + placeholderDoggoId;
-  placeholderNode.classList.add("hidden");
-  placeholderNode.classList.add("currentDoggo");
-  placeholderNode.classList.add("gameDoggo");
-  placeholderNode.setAttribute("data-id", placeholderDoggoId);
-
-  // appending the element to the game
-  dogContainer.appendChild(placeholderNode);
+  var currentDoggo = dogContainer.children[0];
+  game.currentDoggo = parseInt(currentDoggo.getAttribute("data-id"));
+  currentDoggo.classList.add("currentDoggo");
 
   //loading 20 doggos
   flaskLoadDoggos();
@@ -754,7 +793,7 @@ function newGame()
   submitHscoreSuccess.classList.add("hidden");
 
   // moving from placeholder doggo to a proper doggo
-  nextDoggo();
+  // nextDoggo();
 
   // Appending placeholder bones to dog breed buttons
   // for some reason game.numberOfChoices does not work here - it's undefined.
@@ -772,10 +811,6 @@ function newGame()
     button.appendChild(bone);
     button.disabled = false;
   }
-
-  // removing the placeholder doggo
-  var dogContainer = document.getElementById("dog-container");
-  dogContainer.removeChild(dogContainer.getElementsByTagName('div')[0]);
 
   // starting new timer
   gameStartUp(setBreedButtons, gameTimer);
@@ -1225,6 +1260,10 @@ function appendDoggos(dogs)
       node.setAttribute("data-id", doggoId);
       node.setAttribute("data-breed", dogs[i][1]);
       nodeList.push(node);
+
+      // creating a secret list key value paris of doggo id - doggo link
+      // used for doggo piles at the end of the game
+      secretDoggoList[doggoId] = dogs[i][0];
 
       // creating canvas where the img will be drawn
       var canvas = document.createElement('canvas');
