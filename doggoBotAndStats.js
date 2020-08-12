@@ -13,7 +13,7 @@ function stopInterval()
 
 
 //winner
-var myInterval = setInterval(buttonClick, 1500);
+var myInterval = setInterval(buttonClick, 3000);
 function buttonClick()
 {
   var doggoLs = document.getElementsByClassName("currentDoggo");

@@ -8,30 +8,30 @@
   <div id="countdownOverlay">
     <div class="overlayContent">
       <h1 class="" id="countdownMsg"></h1>
-      <p class="" id="countdownTooltip">More bones on higher streaks! Good luck!</p>
+      <p class="" id="countdownTooltip"></p>
     </div>
   </div>
 
   <div id="game">
-    <div class="d-flex justify-content-around">
+    <div id="scoreDashboard" class="d-flex justify-content-around">
 
-      <div class="flex-sm-column">
-        <p class="my-0" id="timerDisplay"><i style="color: #E16682;" class="rotating fas fa-bone"></i> </p>
+      <div class="flex-sm-column width150 text-center">
+        <p class="my-0" id="timerDisplay"><i style="color: #E16682;" class="rotating fas fa-bone"></i></p>
       </div>
 
-      <div class="flex-sm-column">
-        <div class="flex-row">
-          <p class="my-0 font-weight-bold">Bones</p>
-          <p class="ml-1" id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></p>
+      <div class="flex-sm-column my-auto width150">
+        <div class="flex-row justify-content-center mb-1">
+          <span class="my-0 font-weight-bold">Bones</span>
+          <span class="ml-3 " id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></span>
         </div>
 
-        <div class="flex-row">
-          <p class="my-0 font-weight-bold">Streak</p>
-          <p class="ml-1" id="streakDisplay"><i style="color: #C2714F;" class="rotating fas fa-bone"></i></p>
+        <div class="flex-row justify-content-center mt-1">
+          <span class="my-0 font-weight-bold">Streak</span>
+          <span class="ml-3 " id="streakDisplay"><i style="color: #C2714F;" class="rotating fas fa-bone"></i></span>
         </div>
       </div>
 
-      <div class="flex-sm-column my-auto">
+      <div class="flex-sm-column my-auto width150 text-center">
         <i class="fa fa-volume-up" id="toggleSound"></i>
       </div>
 
@@ -70,9 +70,9 @@
 
     <h5 id="msgEnd"></h5>
 
-    <p>You have guessed <span id="spanNCorrect">these 0 doggos</span> correctly: </p>
+    <p id="pNCorrect">You have guessed these 0 doggos correctly:</p>
     <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
-    <p>You will guess <span id="spanNIncorrect">these 0 doggos</span> next time: </p>
+    <p id="pNIncorrect">You will guess these 0 doggos next time:</p>
     <div id="incorrectDoggoPile" class="row ml-2 d-flex"></div>
     <hr/>
 

@@ -1,3 +1,14 @@
+var TOOLTIP_MESSAGES =
+[
+  "You get more bones on higher streaks.",
+  "You can see how much time you have left in upperleft corner.",
+  "You get +5 seconds for guessing 3 doggos in a row.",
+  "Remember to submit your high score.",
+  "There are over 120 different dog breeds in this game.",
+  "There are over 20 000 different dog pictures in this game.",
+  "'The more bones the better.' - Bark Twain"
+]
+
 // keep track of the current doggo
 var game = {};
 // game
@@ -8,21 +19,22 @@ game.nCorrect = 0;
 game.nIncorrect = 0;
 game.score = 0;
 game.streak = 0;
-game.easyModeDoggos = 0;
 game.lastDoggo = false;
 game.lastDoggoAnswered = false;
 game.numberOfChoices = 4;
-var secretDoggoList = {}
+var secretDoggoList = {};
+game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
+
 // audio
 game.musicFinished = false;
 game.audioMuted = false;
 game.musicID;
 game.disableMusic = true;
+
 // timer
-game.gameTime = 222222222222;
+game.gameTime = 7;
 game.timerValue = 0;
 game.timeLeft = 0;
-
 
 // Audio
 var correctSound = new Howl({
@@ -81,11 +93,20 @@ function gameStartUp(breeds, timer)
   var msg = document.getElementById("countdownMsg");
   var tooltip = document.getElementById("countdownTooltip");
   var msgText = "Woof! ";
-  tooltip.innerHTML = "More bones on higher streaks! Good luck!"
+
+  // choosing the tooltip message from TOOLTIP_MESSAGES
+  var tooltipN = Math.floor(Math.random() * game.unseenTooltips.length);
+  var ttmessage = game.unseenTooltips[tooltipN];
+  tooltip.innerHTML = ttmessage;
+  // making sure user sees all tooltips before I start recycling them
+  game.unseenTooltips.splice(tooltipN, 1);
+  if (game.unseenTooltips.length == 0)
+  {
+    game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
+  }
 
   var streakDisplay = document.getElementById("streakDisplay");
   var scoreDisplay = document.getElementById("scoreDisplay");
-
   // countdown duration
   var n = 3;
   var interval = setInterval(countdown, 1000);
@@ -185,14 +206,32 @@ function setBreedButtons()
 // checking the answer
 function doggoBreedCheck()
 {
-  // diable the buttons so user can't click
+  // send the data to the server
+  var dataToSend = {
+    link: "",
+    choice1: "",
+    choice2: "",
+    choice3: "",
+    choice4: "",
+    userGuess: ""
+  };
+  dataToSend.link = secretDoggoList[game.currentDoggo];
+  dataToSend.userGuess = this.innerHTML;
+
+  // disable the buttons
   for (var i = 0; i < game.numberOfChoices; i++)
   {
     // getting the breed buttons
     var str = "button" + (i + 1);
     var button = document.getElementById(str);
     button.disabled = true;
+    // populate dataToSend
+    var choice = "choice" + (i + 1);
+    dataToSend[choice] = button.innerHTML;
   }
+
+  // sending user's guess to the server
+  sendData(dataToSend);
 
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var doggoElement = document.getElementById(doggoNumber);
@@ -613,24 +652,32 @@ function finishTheGameFn()
   msgEnd.innerHTML = msg + "!";
 
   // show how many doggos user guessed correcty/incorrectly
-  var spanNCorrect = document.getElementById("spanNCorrect");
-  if (game.nCorrect == 1)
+  var pNCorrect = document.getElementById("pNCorrect");
+  if (game.nCorrect == 0)
   {
-    spanNCorrect.innerHTML = "this " + game.nCorrect + " doggo";
+    pNCorrect.innerHTML = "";
+  }
+  else if (game.nCorrect == 1)
+  {
+    pNCorrect.innerHTML = "You have guessed this " + game.nCorrect + " doggo correctly:";
   }
   else
   {
-    spanNCorrect.innerHTML = "these " + game.nCorrect + " doggos";
+    pNCorrect.innerHTML = "You have guessed these " + game.nCorrect + " doggos correctly:";
   }
 
-  var spanNCorrect = document.getElementById("spanNIncorrect");
-  if (game.nIncorrect == 1)
+  var pNIncorrect = document.getElementById("pNIncorrect");
+  if (game.nIncorrect == 0)
   {
-    spanNIncorrect.innerHTML = "this " + game.nIncorrect + " doggo";
+    pNIncorrect.innerHTML = "";
+  }
+  else if (game.nIncorrect == 1)
+  {
+    pNIncorrect.innerHTML = "You will guess this " + game.nIncorrect + " doggo next time:";
   }
   else
   {
-    spanNIncorrect.innerHTML = "these " + game.nIncorrect + " doggos";
+    pNIncorrect.innerHTML = "You will guess these " + game.nIncorrect + " doggos next time:";
   }
 
   // show correctly and incorrectly guessed doggos
@@ -755,18 +802,6 @@ var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
-  // resetting the msg
-  var dbUser = document.getElementById("db-user");
-  var msg = document.getElementById("message");
-  if (dbUser.value.length == 0)
-  {
-    msg.innerHTML = "Good Luck " + "Chihuahua " + "!";
-  }
-  else
-  {
-    msg.innerHTML = "Good Luck " + dbUser.value + "!";
-  }
-
   var game = document.getElementById("game");
   var hscoreEntryState = document.getElementById("hscoreEntryState");
 
@@ -792,19 +827,19 @@ function newGame()
   var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
   submitHscoreSuccess.classList.add("hidden");
 
-  // moving from placeholder doggo to a proper doggo
-  // nextDoggo();
-
   // Appending placeholder bones to dog breed buttons
   // for some reason game.numberOfChoices does not work here - it's undefined.
   for (var i = 0; i < 4; i++)
   {
     // getting the breed buttons
     var str = "button" + (i + 1);
-
     var button = document.getElementById(str);
     // setting their html
     button.innerHTML = "";
+    // reseting their color
+    button.style.backgroundColor = "rgb(248, 249, 250)";
+    button.style.borderColor = "rgb(107, 107, 107)";
+
     // create bone element with a random color
     var bone = getABone();
     bone.classList.add("rotating");
@@ -1087,9 +1122,9 @@ function subForm(e){
     var url=$(this).closest('form').attr('action'),
     data=$(this).closest('form').serialize();
     $.ajax({
-        url:url,
-        type:'post',
-        data:data,
+        url: url,
+        type: 'post',
+        data: data,
         beforeSend: function(xhr, settings) {
           //https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
           if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain)
@@ -1133,10 +1168,19 @@ function subForm(e){
 // For devices with screen width of less than 1000px
 if (screenWidth < 1001)
 {
+  // remove padding from the main wrapper
   var main = document.getElementById("main");
   main.classList.remove("p-5");
-}
 
+  // remove width150 from the dashboard elements
+  var parent = document.getElementById("scoreDashboard");
+  var width150Elements = parent.children
+  var len = width150Elements.length;
+  for(var i = 0; i < len; i++)
+  {
+    width150Elements[i].classList.remove("width150");
+  }
+}
 
 /* AUDIO */
 // I've decided not to play music
@@ -1209,6 +1253,17 @@ function musicCheck()
     game.musicID = sound.play();
     game.musicFinished = false;
   }
+}
+function sendData(data)
+{
+  dataJSON = JSON.stringify(data)
+  $.ajax({
+    type : "POST",
+    url : '/collectData',
+    dataType: "json",
+    data: dataJSON,
+    contentType: 'application/json;charset=UTF-8',
+  });
 }
 
 // flask call
@@ -1424,58 +1479,6 @@ function animateResultCount(number, target, elem) {
     }
 }
 
-
-//https://gist.github.com/HaNdTriX/7704632
-/**
- * Converts an image to a dataURL
- * @param  {String}   src          The src of the image
- * @param  {Function} callback
- * @param  {String}   outputFormat [outputFormat='image/png']
- * @url   https://gist.github.com/HaNdTriX/7704632/
- * @docs  https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement#Methods
- * @author HaNdTriX
- * @example
- *
- *   toDataUrl('http://goo.gl/AOxHAL', function(base64Img){
- *     console.log('IMAGE:',base64Img);
- *   })
- *
- */
-function toDataUrl(src, callback, outputFormat) {
-  // Create an Image object
-  var img = new Image();
-  // Add CORS approval to prevent a tainted canvas
-  img.crossOrigin = 'Anonymous';
-  img.onload = function() {
-    // Create an html canvas element
-    var canvas = document.createElement('CANVAS');
-    // Create a 2d context
-    var ctx = canvas.getContext('2d');
-    var dataURL;
-    // Resize the canavas to the original image dimensions
-    canvas.height = this.naturalHeight;
-    canvas.width = this.naturalWidth;
-    // Draw the image to a canvas
-    ctx.drawImage(this, 0, 0);
-    // Convert the canvas to a data url
-    dataURL = canvas.toDataURL(outputFormat);
-    // Return the data url via callback
-    callback(dataURL);
-    // Mark the canvas to be ready for garbage
-    // collection
-    canvas = null;
-  };
-  // Load the image
-  img.src = src;
-  // make sure the load event fires for cached images too
-  if (img.complete || img.complete === undefined) {
-    // Flush cache
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
-    // Try again
-    img.src = src;
-  }
-}
-
 // https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
 // general csfr set up
 var csrf_token = "{{ csrf_token() }}";
@@ -1529,7 +1532,6 @@ var STREAK_CONGRATZ =
   "unmatched",
   "unlimited"
 ]
-
 
 //https://www.thesprucepets.com/punny-names-for-dogs-4842364
 var DOG_NAMES =

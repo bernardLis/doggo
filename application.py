@@ -42,7 +42,7 @@ app.config.from_object(__name__)
 app.config["SESSION_TYPE"] = "filesystem"
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///highscores.db")
+db = SQL("sqlite:///doggoDB.db")
 
 Session(app)
 
@@ -137,6 +137,15 @@ def loadDogs(n):
 def loadDogsCall():
     dogs = loadDogs(10);
     return jsonify(dogs)
+
+@app.route("/collectData", methods=["POST"])
+def collectData():
+    data = request.get_json()
+
+    db.execute("INSERT INTO guesses (link, choice1, choice2, choice3, choice4, userGuess) VALUES (?, ?, ?, ?, ?, ?)",
+                    (data["link"], data["choice1"], data["choice2"], data["choice3"], data["choice4"], data["userGuess"]))
+
+    return jsonify("", 204)
 
 @app.route("/highscores", methods=["GET", "POST"])
 def highscores():
