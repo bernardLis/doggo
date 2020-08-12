@@ -32,7 +32,7 @@ game.musicID;
 game.disableMusic = true;
 
 // timer
-game.gameTime = 7;
+game.gameTime = 22222222;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -1179,6 +1179,14 @@ if (screenWidth < 1001)
   for(var i = 0; i < len; i++)
   {
     width150Elements[i].classList.remove("width150");
+    if (i == 0 || i == 1)
+    {
+      width150Elements[i].classList.add("width130");
+    }
+    else if (i == 2)
+    {
+      width150Elements[i].classList.add("width20");
+    }
   }
 }
 

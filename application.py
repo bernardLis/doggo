@@ -77,6 +77,19 @@ def hscoreEntry():
 
     return jsonify("Success!")
 
+@app.route("/hotornot", methods=["GET"])
+def hotOrNot():
+
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
+    dogDict = loadDogs(1)
+    return render_template("hotornot.html", dogDict=dogDict, ALL_BREEDS=ALL_BREEDS)
+
 @app.route("/loadDogs", methods=["POST"])
 def loadDogs(n):
 
@@ -175,6 +188,8 @@ def deleteHSEntry():
     hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
 
     return render_template("hsAdmin.html", hscores=hscores)
+
+
 
 
 def errorhandler(e):

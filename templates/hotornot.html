@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block main %}
+
+  <div id="countdownOverlay">
+    <div class="overlayContent">
+      <h1 class="" id="countdownMsg"></h1>
+      <p class="" id="countdownTooltip"></p>
+    </div>
+  </div>
+
+  <div id="game">
+    <div id="dog-container" class="text-center">
+      {% for id in dogDict: %}
+        {% if id == 0: %}
+          <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogDict[id][1] }}" class="gameDoggo currentDoggo">
+            <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogDict[id][0] }}" />
+          </div>
+        {% else %}
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div class="row d-flex justify-content-center my-1">
+      <button id="hotDogButton">HOT</button>
+      <button id="notHotDogButton">NOT</button>
+    </div>
+  </div>
+
+  <script>
+  </script>
+
+  <script src="/static/hotScripts.js"></script>
+
+{% endblock %}

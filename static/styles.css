@@ -76,6 +76,14 @@ main
 {
   width: 150px;
 }
+.width130
+{
+  width: 130px;
+}
+.width20
+{
+  width: 20px;
+}
 
 #toggleSound
 {
