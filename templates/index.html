@@ -45,10 +45,10 @@
 
     <div id="dog-container" class="text-center">
 
-      {% for id in dogDict: %}
+      {% for id in dogs: %}
         {% if id == 0: %}
-          <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogDict[id][1] }}" class="gameDoggo currentDoggo">
-            <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogDict[id][0] }}" />
+          <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogs[id][1] }}" class="gameDoggo currentDoggo">
+            <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogs[id][0] }}" />
           </div>
         {% else %}
         {% endif %}

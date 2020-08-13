@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block main %}
+
+  <div id="countdownOverlay">
+    <div class="overlayContent">
+      <h1 class="" id="countdownMsg"></h1>
+      <p class="" id="countdownTooltip"></p>
+    </div>
+  </div>
+
+  <div id="game">
+    <div id="dog-container" class="text-center">
+      {% for id in dogs: %}
+        {% if id == 0: %}
+          <div id="doggo-number-{{id}}" data-id="{{id}}" data-total-votes="{{dogs[id][1]}}" data-hot-votes="{{dogs[id][2]}}" class="gameHotDoggo currentDoggo">
+            <img class="doggoImg" src="{{ dogs[id][0] }}" />
+          </div>
+        {% else %}
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div class="row d-flex justify-content-center my-1 height100">
+      <div id="scoreWrapper" class="hidden">
+        <canvas id="scoreCanvas"></canvas>
+        <p id="scoreParagraph" class="text-center"></p>
+      </div>
+
+      <button class="hotornotbutton mr-4" id="notHotDogButton"><i id="xicon" class="hotornoticon fas fa-times"></i></button>
+      <button class="hotornotbutton ml-4" id="hotDogButton"><i id="heartIcon" class="hotornoticon fas fa-heart"></i></button>
+
+    </div>
+    <div class="row d-flex justify-content-center my-4">
+      <button id="nextDogButton">NEXT</button>
+    </div>
+    <div class="row d-flex justify-content-center my-4">
+      <button id="shareDogButton">SHARE</button>
+    </div>
+
+
+  </div>
+
+  <script>
+  </script>
+  <link href="/static/hotdogstyles.css" rel="stylesheet">
+  <script src="/static/hotScripts.js"></script>
+
+{% endblock %}

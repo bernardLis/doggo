@@ -1,19 +1,39 @@
 var TOOLTIP_MESSAGES =
 [
-  "BLIBLOP",
-  "BLOPBLOP",
+  "There are over 120 different dog breeds in this game.",
+  "There are over 20 000 different dog pictures in this game.",
   "WOOPWOOP"
 ]
 
 var game = {};
-// game
+// game variables
 game.currentDoggo = 0;
 game.doggosRemaining = 1;
 game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
+var secretDoggoList = [];
 
 // load the game when page loads
 window.addEventListener("load", function()
 {
+  // storing the dog 0 object in the secret doggo list
+  var doggo0El = document.getElementById("doggo-number-0");
+  var doggo0ElC = doggo0El.children;
+  var doggo0 = doggo0ElC[0];
+  // making sure hotVotes is a number
+  var hotVotes = parseInt(doggo0El.dataset.hotVotes);
+  if (isNaN(hotVotes))
+  {
+    hotVotes = 0;
+  }
+
+  var dog = {
+    id: 0,
+    link: doggo0.src,
+    totalVotes: parseInt(doggo0El.dataset.totalVotes),
+    hotVotes: hotVotes
+  }
+  secretDoggoList[0] = dog
+
   // loading additional doggos
   flaskLoadDoggos();
 
@@ -81,19 +101,93 @@ function gameStartUp()
   }
 }
 
-// buttons - display next doggo
 // TODO: add the vote, show how many people voted in total on this dog,
 var hotDogButton = document.getElementById("hotDogButton");
 var notHotDogButton = document.getElementById("notHotDogButton");
+var scoreWrapper = document.getElementById("scoreWrapper");
 hotDogButton.addEventListener("click", hotDogFn);
 notHotDogButton.addEventListener("click", notHotDogFn);
 
 function hotDogFn()
 {
-  nextDoggo();
+  link = secretDoggoList[game.currentDoggo].link;
+  sendDataJsFn(link, 1);
+
+  voteFn(1);
 }
+
 function notHotDogFn()
 {
+  link = secretDoggoList[game.currentDoggo].link;
+  sendDataJsFn(link, 0);
+
+  voteFn(0);
+}
+
+function voteFn(vote)
+{
+  // disabling the buttons and showing the score wrapper
+  hotDogButton.disabled;
+  notHotDogButton.disabled;
+
+  hotDogButton.classList.add("hidden");
+  notHotDogButton.classList.add("hidden");
+
+  scoreWrapper.classList.remove("hidden");
+
+  // adding the votes
+  var totalVotes = secretDoggoList[game.currentDoggo].totalVotes + 1;
+  var hotVotes = secretDoggoList[game.currentDoggo].hotVotes + vote;
+
+  // drawing the score
+  var c = document.getElementById("scoreCanvas");
+  c.width = 400;
+  c.height = 50;
+  var ctx = c.getContext("2d");
+
+  // fill proportionally to votes
+  var yespx = hotVotes / totalVotes * 300;
+  var nopx = 300 - yespx;
+
+  ctx.fillStyle = "#55DDAB";
+  ctx.fillRect(0, 0, yespx, 50);
+  ctx.fillStyle = "#F07F83";
+  ctx.fillRect(yespx, 0, nopx, 50);
+
+
+  // adding the paragraph
+  var scoreParagraph = document.getElementById("scoreParagraph");
+  scoreParagraph.innerHTML = "total votes: " + totalVotes;
+}
+
+function sendDataJsFn(link, answer)
+{
+  // send the data to the server
+  var dataToSend = {
+    link: "",
+    answer: ""
+  };
+
+  dataToSend.link = link;
+  // 1 for hot; 0 for not
+  dataToSend.answer = answer;
+
+  sendData(dataToSend);
+}
+
+// display next doggo
+var nextDogButton = document.getElementById("nextDogButton");
+nextDogButton.addEventListener("click", nextDogFn);
+function nextDogFn()
+{
+  hotDogButton.disabled = false;
+  notHotDogButton.disabled = false;
+
+  hotDogButton.classList.remove("hidden");
+  notHotDogButton.classList.remove("hidden");
+
+  scoreWrapper.classList.add("hidden");
+
   nextDoggo();
 }
 
@@ -121,11 +215,27 @@ function nextDoggo()
   }
 }
 
+/*
+** FLASK CALLS
+*/
+
+function sendData(data)
+{
+  dataJSON = JSON.stringify(data)
+  $.ajax({
+    type : "POST",
+    url : '/collectHotDogData',
+    dataType: "json",
+    data: dataJSON,
+    contentType: 'application/json;charset=UTF-8',
+  });
+}
+
 async function flaskLoadDoggos()
 {
   $.ajax({
   	type : "POST",
-  	url : '/loadDogsCall',
+  	url : '/loadHotDogs',
   	dataType: "json",
   	contentType: 'application/json;charset=UTF-8',
   	success: function (data)
@@ -163,10 +273,24 @@ function appendDoggos(dogs)
       var node = document.createElement("div");
       node.id = "doggo-number-" + doggoId;
       node.classList.add("hidden");
-      node.classList.add("gameDoggo");
+      node.classList.add("gameHotDoggo");
       node.setAttribute("data-id", doggoId);
-      node.setAttribute("data-breed", dogs[i][1]);
       nodeList.push(node);
+
+      // creating a secret list key value paris of doggo id - doggo link
+      // used for collecting votes
+      var hotVotes = dogs[i][2];
+      if (hotVotes == null)
+      {
+        hotVotes = 0;
+      }
+      var dog = {
+        id: doggoId,
+        link: dogs[i][0],
+        totalVotes: dogs[i][1],
+        hotVotes: hotVotes
+      }
+      secretDoggoList.push(dog);
 
       // creating canvas where the img will be drawn
       var canvas = document.createElement('canvas');
@@ -206,43 +330,3 @@ function appendDoggos(dogs)
   }
 
 }
-
-// https://gist.github.com/EvanHahn/2587465
-// I wrote it in C and python, I don't wanna write it in js
-function caesarShift(str, amount) {
-  // Wrap the amount
-  if (amount < 0) {
-    return caesarShift(str, amount + 26);
-  }
-
-  // Make an output variable
-  var output = "";
-
-  // Go through each character
-  for (var i = 0; i < str.length; i++) {
-    // Get the character we'll be appending
-    var c = str[i];
-
-    // If it's a letter...
-    if (c.match(/[a-z]/i)) {
-      // Get its code
-      var code = str.charCodeAt(i);
-
-      // Uppercase letters
-      if (code >= 65 && code <= 90) {
-        c = String.fromCharCode(((code - 65 + amount) % 26) + 65);
-      }
-
-      // Lowercase letters
-      else if (code >= 97 && code <= 122) {
-        c = String.fromCharCode(((code - 97 + amount) % 26) + 97);
-      }
-    }
-
-    // Append
-    output += c;
-  }
-
-  // All done!
-  return output;
-};

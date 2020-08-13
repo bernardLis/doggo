@@ -46,6 +46,8 @@ db = SQL("sqlite:///doggoDB.db")
 
 Session(app)
 
+#### displaying pages ####
+
 @app.route("/", methods=["GET"])
 def index():
     """Doggo App"""
@@ -57,28 +59,13 @@ def index():
     # create a shown doggos object in the session
     session['shownDogs'] = ["a dog"]
 
-    dogDict = loadDogs(1)
-    return render_template("index.html", dogDict=dogDict, ALL_BREEDS=ALL_BREEDS)
+    dogs = loadDogs(1)
+    readyDogs = prepareDogs(dogs)
 
-@app.route("/hscoreEntry", methods=["POST"])
-def hscoreEntry():
-    # getting form info
-    username = request.form.get("username")
-    score = request.form.get("score")
-    favbreed = request.form.get("favBreed")
+    return render_template("index.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
 
-    # naive score validation
-    if int(score) > 4500:
-        return jsonify("You won!")
-
-    # insering hscore of the user to the databse
-    db.execute("INSERT INTO highscores (username, score, favbreed) VALUES (?, ?, ?)",
-                (username, score, favbreed))
-
-    return jsonify("Success!")
-
-@app.route("/hotornot", methods=["GET"])
-def hotOrNot():
+@app.route("/hotdog", methods=["GET"])
+def hotdog():
 
     # clearing the session
     session.clear()
@@ -87,8 +74,27 @@ def hotOrNot():
     # create a shown doggos object in the session
     session['shownDogs'] = ["a dog"]
 
-    dogDict = loadDogs(1)
-    return render_template("hotornot.html", dogDict=dogDict, ALL_BREEDS=ALL_BREEDS)
+    # load the first dog
+    dogs = loadDogs(1)
+    readyDogs = prepareHotDogs(dogs)
+    print(readyDogs)
+
+    return render_template("hotdog.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+
+@app.route("/highscores", methods=["GET", "POST"])
+def highscores():
+
+    # getting highscores from the database
+    hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
+
+    return render_template("highscores.html", hscores=hscores)
+
+@app.route("/info", methods=["GET"])
+def info():
+
+    return render_template("info.html")
+
+#### loading dogs ####
 
 @app.route("/loadDogs", methods=["POST"])
 def loadDogs(n):
@@ -127,29 +133,29 @@ def loadDogs(n):
         # adding the link to shown dogs
         session["shownDogs"].append(link)
 
-        # preping dogDict and sending it to the client
-        l = link.split("/")
-        breedStr = l[4].split("-")
-        if len(breedStr) > 1:
-            breed = breedStr[0].capitalize() + " " + breedStr[1].capitalize()
-        else:
-            breed = breedStr[0].capitalize()
-
-        # Encrypt doggo breed
-        encryptedBreed = caesarShift(breed, 4)
-
-        # Creating a list with a doggo img src and breed
+        # Creating a list with a doggo img src
         doggos[i] = []
         doggos[i].append(link)
-        doggos[i].append(encryptedBreed)
         i += 1
 
     return doggos
 
+@app.route("/loadHotDogs", methods=["POST"])
+def loadHotDogs():
+    # loading dogs
+    dogs = loadDogs(10)
+    readyDogs = prepareHotDogs(dogs)
+
+    return jsonify(readyDogs)
+
 @app.route("/loadDogsCall", methods=["POST"])
 def loadDogsCall():
-    dogs = loadDogs(10);
-    return jsonify(dogs)
+    dogs = loadDogs(10)
+    readyDogs = prepareDogs(dogs)
+
+    return jsonify(readyDogs)
+
+#### data collection ####
 
 @app.route("/collectData", methods=["POST"])
 def collectData():
@@ -160,18 +166,33 @@ def collectData():
 
     return jsonify("", 204)
 
-@app.route("/highscores", methods=["GET", "POST"])
-def highscores():
+@app.route("/collectHotDogData", methods=["POST"])
+def collectHotDogData():
+    data = request.get_json()
 
-    # getting highscores from the database
-    hscores = db.execute("SELECT * FROM highscores ORDER BY score DESC")
+    db.execute("INSERT INTO hotdog (link, answer) VALUES (?, ?)",
+                    (data["link"], data["answer"]))
 
-    return render_template("highscores.html", hscores=hscores)
+    return jsonify("", 204)
 
-@app.route("/info", methods=["GET"])
-def info():
+#### highscores ####
 
-    return render_template("info.html")
+@app.route("/hscoreEntry", methods=["POST"])
+def hscoreEntry():
+    # getting form info
+    username = request.form.get("username")
+    score = request.form.get("score")
+    favbreed = request.form.get("favBreed")
+
+    # naive score validation
+    if int(score) > 4500:
+        return jsonify("You won!")
+
+    # insering hscore of the user to the databse
+    db.execute("INSERT INTO highscores (username, score, favbreed) VALUES (?, ?, ?)",
+                (username, score, favbreed))
+
+    return jsonify("Success!")
 
 @app.route("/hsadmin", methods=["GET", "POST"])
 def hsadmin():
@@ -189,8 +210,7 @@ def deleteHSEntry():
 
     return render_template("hsAdmin.html", hscores=hscores)
 
-
-
+#### errors ####
 
 def errorhandler(e):
     """Handle error"""
@@ -198,11 +218,39 @@ def errorhandler(e):
         e = InternalServerError()
     return apology(e.name, e.code)
 
-
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
+#### helpers ####
+
+def prepareDogs(dogs):
+    for key in dogs:
+        # preping dogDict and sending it to the client
+        dogLink = dogs[key][0].split("/")
+        breedStr = dogLink[4].split("-")
+        if len(breedStr) > 1:
+            breed = breedStr[0].capitalize() + " " + breedStr[1].capitalize()
+        else:
+            breed = breedStr[0].capitalize()
+
+        # Encrypt doggo breed
+        encryptedBreed = caesarShift(breed, 4)
+
+        # Creating a list with a doggo img src and breed
+        dogs[key].append(encryptedBreed)
+
+    return dogs
+
+def prepareHotDogs(dogs):
+    for key in dogs:
+        dogLink = dogs[key][0]
+        totalVotes = db.execute("SELECT COUNT(link) FROM hotdog WHERE link=(?)", (dogs[key][0]))
+        hotVotes = db.execute("SELECT SUM(answer) FROM hotdog WHERE link=(?)", (dogs[key][0]))
+        dogs[key].append(totalVotes[0]['COUNT(link)'])
+        dogs[key].append(hotVotes[0]['SUM(answer)'])
+
+    return dogs
 
 def caesarShift(string, key):
     k = key

@@ -1,0 +1,48 @@
+.gameHotDoggo
+{
+  height: 500px;
+}
+#scoreWrapper
+{
+  width: 300px;
+}
+#scoreParagraph
+{
+  font-size: 0.8rem;
+}
+.height100
+{
+  height: 100px;
+}
+.hotornoticon
+{
+  font-size: 3rem;
+}
+#heartIcon
+{
+  color: #55DDAB;
+}
+#xicon
+{
+  color: #F07F83;
+}
+.hotornotbutton
+{
+  border-radius: 50%;
+  background-color: white;
+  width: 100px;
+  border: 1px solid gray;
+  outline: none;
+}
+.hotornotbutton:active
+{
+  outline: none;
+}
+#nextDogButton
+{
+  width: 100px;
+}
+#shareDogButton
+{
+  width: 100px;
+}
