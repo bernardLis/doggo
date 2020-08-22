@@ -77,9 +77,31 @@ def hotdog():
     # load the first dog
     dogs = loadDogs(1)
     readyDogs = prepareHotDogs(dogs)
-    print(readyDogs)
 
     return render_template("hotdog.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+
+@app.route("/hotdog/s/<shareID>", methods=["GET"])
+def sharedHotDog(shareID):
+
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
+    dbData = db.execute("SELECT link, vote FROM shares WHERE shareID=(?)", (shareID))
+
+    session["shownDogs"].append(dbData[0]["link"])
+
+    doggoList = {}
+    doggoList[0] = []
+    doggoList[0].append(dbData[0]["link"]);
+
+    readyDogs = prepareHotDogs(doggoList)
+
+    return render_template("hotdog.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+
 
 @app.route("/highscores", methods=["GET", "POST"])
 def highscores():
@@ -122,7 +144,6 @@ def loadDogs(n):
 
     # start over if too many doggos were deleted
     if len(dogsFromApi) < n/2:
-        print("starting over")
         loadDogs(n)
 
     # dictionary with dogs
@@ -174,6 +195,16 @@ def collectHotDogData():
                     (data["link"], data["answer"]))
 
     return jsonify("", 204)
+
+@app.route("/collectShareData", methods=["POST"])
+def collectShareData():
+    data = request.get_json()
+
+    db.execute("INSERT INTO shares (shareID, link, vote) VALUES (?, ?, ?)",
+                    (data["id"], data["link"], data["vote"]))
+
+    return jsonify("", 204)
+
 
 #### highscores ####
 

@@ -1,0 +1,78 @@
+#countdownOverlay
+{
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0,0, 0.7);
+  overflow-x: hidden;
+  transition: 0.5s;
+}
+
+.overlayContent
+{
+  position: relative;
+  top: 25%;
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
+}
+
+#countdownMsg
+{
+  height: 2rem;
+  font-size: 2rem;
+  color: white;
+}
+#countdownTooltip
+{
+  margin-top: 5rem;
+  color: white;
+}
+
+/* text transition by me */
+@-webkit-keyframes textScaling /* Safari and Chrome */ {
+  from {
+    -webkit-transform: scale(0.5);
+    -o-transform: scale(0.5);
+    transform: scale(0.5);
+  }
+  to {
+    -webkit-transform: scale(2);
+    -o-transform: scale(2);
+    transform: scale(2);
+  }
+}
+@keyframes textScaling {
+  from {
+    -ms-transform: scale(0.5);
+    -moz-transform: scale(0.5);
+    -webkit-transform: scale(0.5);
+    -o-transform: scale(0.5);
+    transform: scale(0.5);
+  }
+  to {
+    -ms-transform: scale(2);
+    -moz-transform: scale(2);
+    -webkit-transform: scale(2);
+    -o-transform: scale(2);
+    transform: scale(2);
+  }
+}
+.textScaling {
+  -webkit-animation: textScaling 1s ease-out infinite;
+  -moz-animation: textScaling 1s ease-out infinite;
+  -ms-animation: textScaling 1s ease-out infinite;
+  -o-animation: textScaling 1s ease-out infinite;
+  animation: textScaling 1s ease-out infinite;
+}
+
+@media (max-width: 1001px)
+{
+  #countdownMsg
+  {
+    font-size: 1rem;
+  }
+}

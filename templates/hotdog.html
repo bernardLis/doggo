@@ -14,6 +14,34 @@
 
   <div id="game">
     <div id="dog-container" class="text-center">
+
+      <div id="notHotOverlay" class="interactionOverlay">
+        <i id="xicon" class="hotornoticon fas fa-times"></i>
+      </div>
+
+      <div id="hotOverlay" class="interactionOverlay">
+        <i id="heartIcon" class="hotornoticon fas fa-heart"></i>
+      </div>
+
+      <div id="nextOverlay" class="interactionOverlay hidden">
+        <i id="nextIcon" class="far fa-hand-point-up"></i>
+      </div>
+
+      <div id="scoreWrapper" class="">
+        <div id="placeholderScore" class="d-flex justify-content-around">
+          <div id="placeholderXBackground">
+            <i id="placeholderXIcon" class="scorePlaceholderIcon fas fa-times"></i>
+          </div>
+          <div id="placeholderHeartBackground">
+            <i id="placeholderHeartIcon" class="scorePlaceholderIcon fas fa-heart"></i>
+          </div>
+        </div>
+        <div id="scoreContainer" class="hidden">
+          <canvas id="scoreCanvas"></canvas>
+          <p id="scoreParagraph" class="text-center">SCORE</p>
+        </div>
+      </div>
+
       {% for id in dogs: %}
         {% if id == 0: %}
           <div id="doggo-number-{{id}}" data-id="{{id}}" data-total-votes="{{dogs[id][1]}}" data-hot-votes="{{dogs[id][2]}}" class="gameHotDoggo currentDoggo">
@@ -25,23 +53,30 @@
 
     </div>
 
-    <div class="row d-flex justify-content-center my-1 height100">
-      <div id="scoreWrapper" class="hidden">
-        <canvas id="scoreCanvas"></canvas>
-        <p id="scoreParagraph" class="text-center"></p>
+    <div class="row d-flex justify-content-center my-4">
+      <button data-target="#shareModal" data-toggle="modal" id="shareButton">SHARE</button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <input id="shareInput"></input>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
       </div>
-
-      <button class="hotornotbutton mr-4" id="notHotDogButton"><i id="xicon" class="hotornoticon fas fa-times"></i></button>
-      <button class="hotornotbutton ml-4" id="hotDogButton"><i id="heartIcon" class="hotornoticon fas fa-heart"></i></button>
-
     </div>
-    <div class="row d-flex justify-content-center my-4">
-      <button id="nextDogButton">NEXT</button>
-    </div>
-    <div class="row d-flex justify-content-center my-4">
-      <button id="shareDogButton">SHARE</button>
-    </div>
-
 
   </div>
 

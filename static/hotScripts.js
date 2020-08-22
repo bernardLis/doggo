@@ -1,17 +1,25 @@
+/* ## Global variables ## */
 var TOOLTIP_MESSAGES =
 [
   "There are over 120 different dog breeds in this game.",
   "There are over 20 000 different dog pictures in this game.",
-  "WOOPWOOP"
+  "Blip"
 ]
 
-var game = {};
+// media
+var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+var screenHeight = (window.innerHeight > 0) ? window.innerHeight : screen.height;
+
 // game variables
+var game = {};
 game.currentDoggo = 0;
 game.doggosRemaining = 1;
 game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
 var secretDoggoList = [];
+game.voteTutorialStarted = false;
+game.nextTutorialStarted = false;
 
+/* ## Game Startup ## */
 // load the game when page loads
 window.addEventListener("load", function()
 {
@@ -29,10 +37,15 @@ window.addEventListener("load", function()
   var dog = {
     id: 0,
     link: doggo0.src,
+    vote: null,
     totalVotes: parseInt(doggo0El.dataset.totalVotes),
     hotVotes: hotVotes
   }
   secretDoggoList[0] = dog
+
+  // managing the height and margin of vote overlays
+  var height = doggo0.offsetHeight;
+  setOverlayHeight(height);
 
   // loading additional doggos
   flaskLoadDoggos();
@@ -88,105 +101,224 @@ function gameStartUp()
     {
       msg.innerHTML = msgText.repeat(n);
       n--;
+
+      // starting vote tutorial, right after the countdown;
+      startVoteTutorial();
     }
     // setting up the countdown
     else
     {
       msg.innerHTML = msgText.repeat(n);
 
-      //adding the animation
+      // adding the animation
       msg.classList.add("textScaling");
       n--;
     }
   }
 }
 
-// TODO: add the vote, show how many people voted in total on this dog,
-var hotDogButton = document.getElementById("hotDogButton");
-var notHotDogButton = document.getElementById("notHotDogButton");
-var scoreWrapper = document.getElementById("scoreWrapper");
-hotDogButton.addEventListener("click", hotDogFn);
-notHotDogButton.addEventListener("click", notHotDogFn);
+/* ## The Game ## */
 
+// Interactive overlays
+var hotOverlay = document.getElementById("hotOverlay");
+var notHotOverlay = document.getElementById("notHotOverlay");
+
+var nextOverlay = document.getElementById("nextOverlay");
+
+var placeholderScore = document.getElementById("placeholderScore");
+var scoreContainer = document.getElementById("scoreContainer");
+
+hotOverlay.addEventListener("click", hotDogFn);
+notHotOverlay.addEventListener("click", notHotDogFn);
+nextOverlay.addEventListener("click", nextDogFn);
+
+/* ## Tutorials ## */
+
+// Vote tutorial
+var voteTutorialInterval;
+var voteTutorialTimeout;
+function startVoteTutorial()
+{
+  game.voteTutorialStarted = true;
+  voteTutorialInterval = setInterval(voteTutorial, 3000);
+}
+function voteTutorial()
+{
+  blink(hotOverlay, 1000);
+  blink(notHotOverlay, 1000);
+}
+function clearVoteTutorial()
+{
+  clearInterval(voteTutorialInterval);
+  game.voteTutorialStarted = false;
+}
+
+// Next doggo tutorial
+var nextTutoriaInterval;
+var nextTutorialTimeout;
+function startNextTutorial()
+{
+  game.nextTutorialStarted = true;
+  nextTutoriaInterval = setInterval(nextTutorial, 3000);
+}
+function nextTutorial()
+{
+  blink(nextOverlay, 1000);
+}
+function clearNextTutorial()
+{
+  clearInterval(nextTutoriaInterval);
+  game.nextTutorialStarted = false;
+}
+
+/* ## Voting & Next ## */
+var link;
 function hotDogFn()
 {
+  // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
   sendDataJsFn(link, 1);
+
+  // storing the vote for share function
+  secretDoggoList[game.currentDoggo].vote = 1
 
   voteFn(1);
 }
 
 function notHotDogFn()
 {
+  // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
   sendDataJsFn(link, 0);
+
+  // storing the vote for share function
+  secretDoggoList[game.currentDoggo].vote = 0
 
   voteFn(0);
 }
 
 function voteFn(vote)
 {
-  // disabling the buttons and showing the score wrapper
-  hotDogButton.disabled;
-  notHotDogButton.disabled;
+  // clear vote tutorial start next tutorial on the first doggo
+  // else, if user is inactive for 5 seconds, start next tutorial
+  if(game.voteTutorialStarted == true)
+  {
+    clearVoteTutorial();
+    startNextTutorial();
+  }
+  else
+  {
+    clearTimeout(voteTutorialTimeout);
+    nextTutorialTimeout = setTimeout(startNextTutorial, 5000);
+  }
 
-  hotDogButton.classList.add("hidden");
-  notHotDogButton.classList.add("hidden");
+  // hiding vote overlays
+  hotOverlay.classList.add("hidden");
+  notHotOverlay.classList.add("hidden");
 
-  scoreWrapper.classList.remove("hidden");
+  //showing the score
+  placeholderScore.classList.add("hidden");
+  placeholderScore.classList.remove("d-flex");
+  scoreContainer.classList.remove("hidden");
 
-  // adding the votes
+  // showing the next overlay
+  nextOverlay.classList.remove("hidden");
+
+  // summing up the votes
   var totalVotes = secretDoggoList[game.currentDoggo].totalVotes + 1;
   var hotVotes = secretDoggoList[game.currentDoggo].hotVotes + vote;
 
   // drawing the score
   var c = document.getElementById("scoreCanvas");
-  c.width = 400;
+
+  // I have to account for padding and margin on desktop
+  var main = document.getElementById("main");
+  var style = main.currentStyle || window.getComputedStyle(main),
+  margin = parseFloat(style.marginLeft),
+  padding = parseFloat(style.paddingLeft);
+  var offset = margin + padding;
+
+  var canvasWidth;
+  if (offset == 0)
+  {
+    canvasWidth = screenWidth;
+  }
+  else
+  {
+    canvasWidth = screenWidth - offset * 2;
+  }
+  c.width = canvasWidth;
   c.height = 50;
   var ctx = c.getContext("2d");
 
-  // fill proportionally to votes
-  var yespx = hotVotes / totalVotes * 300;
-  var nopx = 300 - yespx;
+  // filling the canvas proportionally to votes
+  var hotpx = hotVotes / totalVotes * canvasWidth;
+  var hotPerc = Math.round(hotVotes / totalVotes * 100);
 
-  ctx.fillStyle = "#55DDAB";
-  ctx.fillRect(0, 0, yespx, 50);
-  ctx.fillStyle = "#F07F83";
-  ctx.fillRect(yespx, 0, nopx, 50);
+  var notpx = canvasWidth - hotpx;
+  var notPerc = 100 - hotPerc;
 
+  if (notpx != 0)
+  {
+    // not color
+    ctx.fillStyle = "#F07F83";
+    ctx.fillRect(0, 0, notpx, 50);
+    // not text
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#F4A4A6";
+    ctx.font = "24px Arial";
+    var str = notPerc + "%";
+    ctx.fillText(str, notpx/2, 25);
+  }
 
-  // adding the paragraph
+  if (hotpx != 0)
+  {
+    // hot color
+    ctx.fillStyle = "#55DDAB";
+    ctx.fillRect(notpx, 0, hotpx, 50);
+    // hot text
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#85E7C3";
+    ctx.font = "24px Arial";
+    var str = hotPerc + "%";
+    ctx.fillText(str, (notpx + (hotpx/2)), 25);
+  }
+
+  // adding the paragraph with total votes
+  // TODO: this
   var scoreParagraph = document.getElementById("scoreParagraph");
   scoreParagraph.innerHTML = "total votes: " + totalVotes;
 }
 
-function sendDataJsFn(link, answer)
-{
-  // send the data to the server
-  var dataToSend = {
-    link: "",
-    answer: ""
-  };
-
-  dataToSend.link = link;
-  // 1 for hot; 0 for not
-  dataToSend.answer = answer;
-
-  sendData(dataToSend);
-}
-
-// display next doggo
-var nextDogButton = document.getElementById("nextDogButton");
-nextDogButton.addEventListener("click", nextDogFn);
+// preparing the game for the next doggo
 function nextDogFn()
 {
-  hotDogButton.disabled = false;
-  notHotDogButton.disabled = false;
+  // clearing the next tutorial and the timout for next tutorial
+  if (game.nextTutorialStarted == true)
+  {
+    clearNextTutorial();
+  }
+  else
+  {
+    clearTimeout(nextTutorialTimeout);
+  }
 
-  hotDogButton.classList.remove("hidden");
-  notHotDogButton.classList.remove("hidden");
+  // if user does not vote for 5s vote tutorial will start
+  voteTutorialTimeout = setTimeout(startVoteTutorial, 5000);
 
-  scoreWrapper.classList.add("hidden");
+  // showing vote overlays
+  hotOverlay.classList.remove("hidden");
+  notHotOverlay.classList.remove("hidden");
+  placeholderScore.classList.remove("hidden");
+  placeholderScore.classList.add("d-flex");
+
+  // hiding the score
+  scoreContainer.classList.add("hidden");
+
+  // hiding the next overlay
+  nextOverlay.classList.add("hidden");
 
   nextDoggo();
 }
@@ -204,10 +336,30 @@ function nextDoggo()
   doggoElement.classList.add("hidden");
 
   nextDoggoElement.classList.add("currentDoggo");
+  nextDoggoElement.classList.remove("hidden");
+
+  var nextDoggoElementCh = nextDoggoElement.children
+  var nextDoggoCanvas = nextDoggoElementCh[0]
+
+  // managing the height and margin of vote overlays and the doggo pic
+  var rect = nextDoggoCanvas.getBoundingClientRect();
+  var height = rect.height;
+
+  // limit the height to 70% of total screen height
+  if (height > 0.7 * screenHeight)
+  {
+    height = 0.7 * screenHeight;
+  }
+  setOverlayHeight(height);
+
+  // setting the height of the doggo pict
+  nextDoggoCanvas.style.height = height + "px";
+  var doggoWrapper = document.getElementById("dog-container");
+  doggoWrapper.style.height = height + "px";
 
   game.currentDoggo++;
 
-  // load new doggos when there is less than 15 doggos
+  // load new doggos when there is less than 15 doggos left
   game.doggosRemaining--;
   if (game.doggosRemaining < 15)
   {
@@ -215,22 +367,144 @@ function nextDoggo()
   }
 }
 
-/*
-** FLASK CALLS
-*/
+// setting the height of [vote] overlays depending on height passed
+function setOverlayHeight(height)
+{
+  // dog pict is always in the middle of dog container which is set to be 500px high;
+  var overlays = document.getElementsByClassName("interactionOverlay");
+  for (var i = 0; i < overlays.length; i++)
+  {
+    overlays[i].style.height = (height + 50) + "px";
+  }
+  // setting the position of score overlay
+  var scoreWrapper = document.getElementById("scoreWrapper");
+  scoreWrapper.style.top = height + "px";
+}
 
-function sendData(data)
+// fade-in to fade-out
+function blink(element, duration)
+{
+  fadeObject(element, 0, 0.7, duration);
+
+  setTimeout(function(){
+    fadeObject(element, 0.7, 0, duration);
+  }, 1000)
+}
+
+// https://stackoverflow.com/questions/9145809/how-to-create-an-opacity-fade-improvement-over-jquery
+function fadeObject(el, start, end, duration) {
+    var range = end - start;
+    var goingUp = end > start;
+    var steps = duration / 20;   // arbitrarily picked 20ms for each step
+    var increment = range / steps;
+    var current = start;
+    var more = true;
+    function next() {
+        current = current + increment;
+        if (goingUp) {
+            if (current >= end) {
+                current = end;
+                more = false;
+            }
+        } else {
+            if (current <= end) {
+                current = end;
+                more = false;
+            }
+        }
+        el.style.opacity = current;
+        if (more) {
+            setTimeout(next, 20);
+        }
+    }
+    next();
+}
+
+/* ## Share ## */
+var shareButton = document.getElementById("shareButton");
+shareButton.addEventListener("click", shareTheDog)
+
+function shareTheDog()
+{
+  /* I need:
+  */
+  var id = generateID();
+  console.log("id", id);
+
+  var link = secretDoggoList[game.currentDoggo].link;
+  console.log("doggoUrl", link);
+
+  var vote = secretDoggoList[game.currentDoggo].vote;
+  if(vote == null || vote == undefined)
+  {
+    // I will use it as a code for null/undefined
+    vote = 2;
+  }
+  console.log("vote", vote);
+  sendShareData(id, link, vote);
+
+  var shareInput = document.getElementById("shareInput");
+  shareInput.value = "http://127.0.0.1:5000/hotdog/s/" + id; 
+
+}
+
+// Unique ID generator - I should be using UUID, but this is more fun.
+function generateID()
+{
+  var d = new Date();
+  var n = d.getTime();
+  var m = Math.floor(Math.random() * 100000000);
+  var id = m * n;
+
+  return id
+}
+
+/* ## Flask calls ## */
+function sendShareData(id, link, vote)
+{
+  var dataToSend = {
+    id: "",
+    link: "",
+    vote: ""
+  }
+  dataToSend.id = id;
+  dataToSend.link = link;
+  dataToSend.vote = vote;
+
+  var path = '/collectShareData';
+  sendData(dataToSend, path);
+}
+
+// sending vote data to flask
+function sendDataJsFn(link, answer)
+{
+  // send the data to the server
+  var dataToSend = {
+    link: "",
+    answer: ""
+  };
+
+  dataToSend.link = link;
+  // 1 for hot; 0 for not
+  dataToSend.answer = answer;
+
+  var path = '/collectHotDogData';
+  sendData(dataToSend, path);
+}
+
+function sendData(data, path)
 {
   dataJSON = JSON.stringify(data)
   $.ajax({
     type : "POST",
-    url : '/collectHotDogData',
+    url : path,
     dataType: "json",
     data: dataJSON,
     contentType: 'application/json;charset=UTF-8',
   });
 }
 
+// loading and appending doggos
 async function flaskLoadDoggos()
 {
   $.ajax({
@@ -328,5 +602,14 @@ function appendDoggos(dogs)
   {
     ImgToCanva(i);
   }
+}
 
+/* ## Media ## */
+// For devices with screen width of less than 1000px
+if (screenWidth < 1001)
+{
+  // remove padding from the main wrapper
+  var main = document.getElementById("main");
+  main.classList.remove("p-5");
+  main.classList.remove("container");
 }

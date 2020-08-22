@@ -1,11 +1,140 @@
+/**/
+html,body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+}
+main
+{
+  /* center contents */
+  margin: 0 auto;
+}
+
+.hidden
+{
+  display: none;
+}
+
+.dog-container
+{
+  positon: relative;
+}
+#game
+{
+  position: relative;
+}
+
+.doggoImg
+{
+  object-fit: contain;
+  max-width:100%;
+  max-height:100%;
+}
+
+#notHotOverlay
+{
+  position: absolute;
+  left: 0px;
+  width: 50%;
+  overflow:hidden;
+  background-color: rgba(240, 127, 131, 0.5);
+  opacity: 0;
+
+}
+#hotOverlay
+{
+  position: absolute;
+  right: 0px;
+  width: 50%;
+  overflow:hidden;
+  background-color: rgba(85, 221, 171, 0.5);
+  opacity: 0;
+}
+.hotornoticon
+{
+  font-size: 5rem;
+}
+#xicon
+{
+  position: absolute;
+  top: 33%;
+  left: 25%;
+  color: rgba(240, 127, 131);
+}
+#heartIcon
+{
+  position: absolute;
+  top: 33%;
+  right: 25%;
+  color: rgba(85, 221, 171);
+}
+
+#nextOverlay
+{
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(127, 38, 193, 0.4);
+  opacity: 0;
+}
+#nextIcon
+{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #BD9EA8;
+  font-size: 5rem;
+}
+#scoreWrapper
+{
+  z-index: -1;
+  position: absolute;
+  left: 0px;
+  height: 70px;
+  width: 100%;
+  overflow: hidden;
+}
+#placeholderScore
+{
+  height: 50px;
+}
+#placeholderXBackground
+{
+  position: absolute;
+  left: 0px;
+  width: 50%;
+  overflow: hidden;
+  background-color: rgba(240, 127, 131, 0.2);
+}
+#placeholderXIcon
+{
+  color: rgba(240, 127, 131, 0.7);
+}
+#placeholderHeartBackground
+{
+  position: absolute;
+  right: 0px;
+  width: 50%;
+  overflow:hidden;
+  background-color: rgba(85, 221, 171, 0.2);
+}
+#placeholderHeartIcon
+{
+  color: rgba(85, 221, 171, 0.7);
+}
+.scorePlaceholderIcon
+{
+  font-size: 3rem;
+}
+/*
 .gameHotDoggo
 {
   height: 500px;
 }
-#scoreWrapper
-{
-  width: 300px;
-}
+*/
 #scoreParagraph
 {
   font-size: 0.8rem;
@@ -14,26 +143,7 @@
 {
   height: 100px;
 }
-.hotornoticon
-{
-  font-size: 3rem;
-}
-#heartIcon
-{
-  color: #55DDAB;
-}
-#xicon
-{
-  color: #F07F83;
-}
-.hotornotbutton
-{
-  border-radius: 50%;
-  background-color: white;
-  width: 100px;
-  border: 1px solid gray;
-  outline: none;
-}
+
 .hotornotbutton:active
 {
   outline: none;
@@ -42,7 +152,19 @@
 {
   width: 100px;
 }
-#shareDogButton
+#shareButton
 {
+  position: fixed;
+  bottom: 10px;
   width: 100px;
+}
+#shareModal
+{
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal-open[style]
+{
+  padding-right: 0px !important;
 }
