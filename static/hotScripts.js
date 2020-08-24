@@ -18,6 +18,8 @@ game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
 var secretDoggoList = [];
 game.voteTutorialStarted = false;
 game.nextTutorialStarted = false;
+game.shareID = null;
+game.shareLinkIsUptodate = false;
 
 /* ## Game Startup ## */
 // load the game when page loads
@@ -52,6 +54,26 @@ window.addEventListener("load", function()
 
   // countdown before the game start into game start
   gameStartUp();
+
+  // checking if the user came from a shared link and displaying a message
+  var sharedDoggoMsg = document.getElementById("sharedDoggoMsg");
+  var sharedVote = sharedDoggoMsg.dataset.sharedVote
+  if (sharedVote.length > 0)
+  {
+    sharedDoggoMsg.classList.remove("hidden");
+    if (sharedVote == 0)
+    {
+      sharedDoggoMsg.innerHTML = "Is this even a DOG?!";
+    }
+    else if (sharedVote == 1)
+    {
+      sharedDoggoMsg.innerHTML = "Check this hottie out!";
+    }
+    else
+    {
+      sharedDoggoMsg.innerHTML = "Is it a hot dog?";
+    }
+  }
 });
 
 function gameStartUp()
@@ -199,6 +221,9 @@ function notHotDogFn()
 
 function voteFn(vote)
 {
+  // when user votes, link needs to be updated
+  game.shareLinkIsUptodate = false;
+
   // clear vote tutorial start next tutorial on the first doggo
   // else, if user is inactive for 5 seconds, start next tutorial
   if(game.voteTutorialStarted == true)
@@ -295,6 +320,9 @@ function voteFn(vote)
 // preparing the game for the next doggo
 function nextDogFn()
 {
+  // when the dog changes link needs to be updated
+  game.shareLinkIsUptodate = false;
+
   // clearing the next tutorial and the timout for next tutorial
   if (game.nextTutorialStarted == true)
   {
@@ -421,42 +449,44 @@ function fadeObject(el, start, end, duration) {
 }
 
 /* ## Share ## */
+
 var shareButton = document.getElementById("shareButton");
 shareButton.addEventListener("click", shareTheDog)
 
 function shareTheDog()
 {
-  /* I need:
-  */
-  var id = generateID();
-  console.log("id", id);
-
-  var link = secretDoggoList[game.currentDoggo].link;
-  console.log("doggoUrl", link);
-
-  var vote = secretDoggoList[game.currentDoggo].vote;
-  if(vote == null || vote == undefined)
+  // create share ID, send data to databse
+  if (game.shareLinkIsUptodate == false)
   {
-    // I will use it as a code for null/undefined
-    vote = 2;
+    game.shareID = generateID();
+    var link = secretDoggoList[game.currentDoggo].link;
+    var vote = secretDoggoList[game.currentDoggo].vote;
+    if (vote == null || vote == undefined)
+    {
+      // I will use 2 as a code for no-vote
+      vote = 2;
+    }
+    sendShareData(game.shareID, link, vote);
+    game.shareLinkIsUptodate = true;
   }
-  console.log("vote", vote);
-  sendShareData(id, link, vote);
 
+  // update the input with the link
   var shareInput = document.getElementById("shareInput");
-  shareInput.value = "http://127.0.0.1:5000/hotdog/s/" + id; 
-
+  shareInput.value = "http://127.0.0.1:5000/hotdog/s/" + game.shareID;
 }
 
 // Unique ID generator - I should be using UUID, but this is more fun.
+// https://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
 function generateID()
 {
-  var d = new Date();
-  var n = d.getTime();
-  var m = Math.floor(Math.random() * 100000000);
-  var id = m * n;
-
-  return id
+  var length = 8;
+  var mask = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var result = '';
+  for (var i = length; i > 0; --i)
+  {
+    result += mask[Math.round(Math.random() * (mask.length - 1))];
+  }
+  return result;
 }
 
 /* ## Flask calls ## */

@@ -8,7 +8,7 @@ from pprint import pprint
 from random import choice
 from cs50 import SQL
 from datetime import date, datetime, timedelta
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, request
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, request, url_for
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -67,18 +67,23 @@ def index():
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
 
-    # clearing the session
-    session.clear()
-    # remember session even over browser restarts?
-    session.permanent = False
-    # create a shown doggos object in the session
-    session['shownDogs'] = ["a dog"]
+    # check if the user came for shared link => has a shared dog in the session
+    if "sharedDog" in session:
+        readyDogs = session.get('sharedDog')
+        vote = session.get('sharedDogVote')
+        return render_template("hotdog.html", dogs=readyDogs, vote=vote)
 
-    # load the first dog
-    dogs = loadDogs(1)
-    readyDogs = prepareHotDogs(dogs)
+    else:
+        # clearing the session
+        session.clear()
+        # remember session even over browser restarts?
+        session.permanent = False
+        # create a shown doggos object in the session
+        session['shownDogs'] = ["a dog"]
 
-    return render_template("hotdog.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+        dogs = loadDogs(1)
+        readyDogs = prepareHotDogs(dogs)
+        return render_template("hotdog.html", dogs=readyDogs)
 
 @app.route("/hotdog/s/<shareID>", methods=["GET"])
 def sharedHotDog(shareID):
@@ -90,17 +95,23 @@ def sharedHotDog(shareID):
     # create a shown doggos object in the session
     session['shownDogs'] = ["a dog"]
 
+    # grab the shared dog from the db
     dbData = db.execute("SELECT link, vote FROM shares WHERE shareID=(?)", (shareID))
 
+    # add it to shown dogs for the session
     session["shownDogs"].append(dbData[0]["link"])
 
+    # prep the dog
     doggoList = {}
     doggoList[0] = []
     doggoList[0].append(dbData[0]["link"]);
-
     readyDogs = prepareHotDogs(doggoList)
 
-    return render_template("hotdog.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+    # add it to session so hotdog route can grab it
+    session["sharedDog"] = readyDogs
+    session["sharedDogVote"] = dbData[0]["vote"]
+
+    return redirect(url_for('hotdog'))
 
 
 @app.route("/highscores", methods=["GET", "POST"])
