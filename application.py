@@ -47,6 +47,9 @@ db = SQL("sqlite:///doggoDB.db")
 Session(app)
 
 #### displaying pages ####
+@app.route("/test", methods=["GET"])
+def test():
+    return render_template("test.html")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -96,7 +99,7 @@ def sharedHotDog(shareID):
     session['shownDogs'] = ["a dog"]
 
     # grab the shared dog from the db
-    dbData = db.execute("SELECT link, vote FROM shares WHERE shareID=(?)", (shareID))
+    dbData = db.execute("SELECT link, vote FROM hotDogShares WHERE shareID=(?)", (shareID))
 
     # add it to shown dogs for the session
     session["shownDogs"].append(dbData[0]["link"])
@@ -211,8 +214,18 @@ def collectHotDogData():
 def collectShareData():
     data = request.get_json()
 
-    db.execute("INSERT INTO shares (shareID, link, vote) VALUES (?, ?, ?)",
+    db.execute("INSERT INTO hotDogShares (shareID, link, vote) VALUES (?, ?, ?)",
                     (data["id"], data["link"], data["vote"]))
+
+    return jsonify("", 204)
+
+@app.route("/collectHotDogSummaryShareData", methods=["POST"])
+def collectHotDogSummaryShareData():
+    data = request.get_json()
+
+    for entry in data:
+        db.execute("INSERT INTO hotDogSummaryShares (summaryShareID, link, vote) VALUES (?, ?, ?)",
+        (entry["id"], entry["link"], entry["vote"]))
 
     return jsonify("", 204)
 

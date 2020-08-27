@@ -3,7 +3,7 @@ var TOOLTIP_MESSAGES =
 [
   "There are over 120 different dog breeds in this game.",
   "There are over 20 000 different dog pictures in this game.",
-  "Blip"
+  "Click/touch dog pictures!"
 ]
 
 // media
@@ -19,7 +19,30 @@ var secretDoggoList = [];
 game.voteTutorialStarted = false;
 game.nextTutorialStarted = false;
 game.shareID = null;
+game.summaryShareID = null;
 game.shareLinkIsUptodate = false;
+game.shareSummaryLinkIsUptodate = false;
+
+// arrays for storing doggos
+game.hotDoggos = [];
+game.notHotDoggos = [];
+
+/* ## Audio ## */
+var hotSound = new Howl({
+    src: 'static/audio/hot.wav',
+    autoplay: false,
+    volume: 1
+});
+var notHotSound = new Howl({
+    src: 'static/audio/not-hot.wav',
+    autoplay: false,
+    volume: 1
+});
+var nextSound = new Howl({
+    src: 'static/audio/next.wav',
+    autoplay: false,
+    volume: 1
+});
 
 /* ## Game Startup ## */
 // load the game when page loads
@@ -47,33 +70,21 @@ window.addEventListener("load", function()
 
   // managing the height and margin of vote overlays
   var height = doggo0.offsetHeight;
+  // limit the height to 80% of total screen height
+  // TODO this does not work as intended
+  if (height > 0.75 * screenHeight)
+  {
+    height = 0.75 * screenHeight;
+  }
   setOverlayHeight(height);
+  var doggoWrapper = document.getElementById("dog-container");
+  doggoWrapper.style.height = height + "px";
 
   // loading additional doggos
   flaskLoadDoggos();
 
   // countdown before the game start into game start
   gameStartUp();
-
-  // checking if the user came from a shared link and displaying a message
-  var sharedDoggoMsg = document.getElementById("sharedDoggoMsg");
-  var sharedVote = sharedDoggoMsg.dataset.sharedVote
-  if (sharedVote.length > 0)
-  {
-    sharedDoggoMsg.classList.remove("hidden");
-    if (sharedVote == 0)
-    {
-      sharedDoggoMsg.innerHTML = "Is this even a DOG?!";
-    }
-    else if (sharedVote == 1)
-    {
-      sharedDoggoMsg.innerHTML = "Check this hottie out!";
-    }
-    else
-    {
-      sharedDoggoMsg.innerHTML = "Is it a hot dog?";
-    }
-  }
 });
 
 function gameStartUp()
@@ -82,13 +93,32 @@ function gameStartUp()
   var overlay = document.getElementById("countdownOverlay");
   overlay.style.width = "100%";
 
-  var msg = document.getElementById("countdownMsg");
+  var dogContainer = document.getElementById("dog-container");
   var tooltip = document.getElementById("countdownTooltip");
-  var msgText = "Woof! ";
 
   // choosing the tooltip message from TOOLTIP_MESSAGES
   var tooltipN = Math.floor(Math.random() * game.unseenTooltips.length);
   var ttmessage = game.unseenTooltips[tooltipN];
+
+  // checking if the user came from a shared link and displaying a special tooltip
+  var sharedDoggoMsg = document.getElementById("sharedDoggoMsg");
+  var sharedVote = sharedDoggoMsg.dataset.sharedVote
+  if (sharedVote.length > 0)
+  {
+    if (sharedVote == 0)
+    {
+      ttmessage = "Is this even a DOG?!";
+    }
+    else if (sharedVote == 1)
+    {
+      ttmessage = "Check this hottie out!";
+    }
+    else
+    {
+      ttmessage = "Is it a hot dog?";
+    }
+  }
+
   tooltip.innerHTML = ttmessage;
   // making sure user sees all tooltips before I start recycling them
   game.unseenTooltips.splice(tooltipN, 1);
@@ -106,34 +136,27 @@ function gameStartUp()
     if (n == 0)
     {
       overlay.style.width = "0%";
-      msg.innerHTML = "";
       tooltip.innerHTML = "";
-      msg.classList.remove("textScaling");
-
       clearInterval(interval);
     }
     // starting the timer and counters
+    // setting up the breed buttons
     else if (n == 1)
     {
-      msg.innerHTML = msgText.repeat(n);
       n--;
     }
-    // setting up the breed buttons
     else if (n == 2)
     {
-      msg.innerHTML = msgText.repeat(n);
       n--;
-
       // starting vote tutorial, right after the countdown;
       startVoteTutorial();
     }
     // setting up the countdown
     else
     {
-      msg.innerHTML = msgText.repeat(n);
-
+      createBoneCircle();
+      animateBoneCircle();
       // adding the animation
-      msg.classList.add("textScaling");
       n--;
     }
   }
@@ -197,6 +220,14 @@ function clearNextTutorial()
 var link;
 function hotDogFn()
 {
+  // get the doggo and push it to hot array #summary
+  var doggoElement = document.getElementsByClassName("currentDoggo");
+  doggoElement = doggoElement[0];
+  game.hotDoggos.push(doggoElement);
+
+  // play audio
+  hotSound.play();
+
   // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
   sendDataJsFn(link, 1);
@@ -209,6 +240,14 @@ function hotDogFn()
 
 function notHotDogFn()
 {
+  // get the doggo and push it to NOT hot array #summary
+  var doggoElement = document.getElementsByClassName("currentDoggo");
+  doggoElement = doggoElement[0];
+  game.notHotDoggos.push(doggoElement);
+
+  // play audio
+  notHotSound.play();
+
   // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
   sendDataJsFn(link, 0);
@@ -223,6 +262,8 @@ function voteFn(vote)
 {
   // when user votes, link needs to be updated
   game.shareLinkIsUptodate = false;
+  // flag that summary link needs to be updated
+  game.shareSummaryLinkIsUptodate = false;
 
   // clear vote tutorial start next tutorial on the first doggo
   // else, if user is inactive for 5 seconds, start next tutorial
@@ -320,6 +361,9 @@ function voteFn(vote)
 // preparing the game for the next doggo
 function nextDogFn()
 {
+  // play audio
+  nextSound.play();
+
   // when the dog changes link needs to be updated
   game.shareLinkIsUptodate = false;
 
@@ -373,10 +417,10 @@ function nextDoggo()
   var rect = nextDoggoCanvas.getBoundingClientRect();
   var height = rect.height;
 
-  // limit the height to 70% of total screen height
-  if (height > 0.7 * screenHeight)
+  // limit the height to 80% of total screen height
+  if (height > 0.75 * screenHeight)
   {
-    height = 0.7 * screenHeight;
+    height = 0.75 * screenHeight;
   }
   setOverlayHeight(height);
 
@@ -475,6 +519,321 @@ function shareTheDog()
   shareInput.value = "http://127.0.0.1:5000/hotdog/s/" + game.shareID;
 }
 
+var copyShareLinkDiv = document.getElementById("copyShareLinkDiv");
+var copyShareLinkButton = document.getElementById("copyShareLinkButton");
+var copyShareLinktt = document.getElementById("copyShareLinktt");
+var clipboardjs = new ClipboardJS('#copyShareLinkButton');
+clipboardjs.on('success', function(e)
+{
+  copyShareLinktt.innerHTML = "Copied!";
+});
+
+copyShareLinkDiv.addEventListener("mouseleave", function(){
+  copyShareLinktt.innerHTML = "Copy link!";
+});
+
+
+/* ## Summary ## */
+var summaryButton = document.getElementById("summaryButton");
+summaryButton.addEventListener("click", showSummary);
+
+function showSummary()
+{
+  // hide the game
+  var gameState = document.getElementById("gameState");
+  gameState.classList.add("hidden");
+
+  //show the summary
+  var summaryState = document.getElementById("summaryState");
+  summaryState.classList.remove("hidden");
+
+  // render doggos in matching doggo piles
+  var hotDoggos = game.hotDoggos;
+  var notHotDoggos = game.notHotDoggos;
+  var hotDoggosLen = hotDoggos.length;
+  var notHotDoggosLen = notHotDoggos.length;
+  var hotDoggoPile = document.getElementById("hotDoggoPile");
+  var notHotDoggoPile = document.getElementById("notHotDoggoPile");
+
+  for (var i = 0; i < hotDoggosLen; i++)
+  {
+    var doggo = hotDoggos[i];
+    doggo = prepDoggo(doggo)
+    hotDoggoPile.appendChild(doggo);
+  }
+
+  for (var i = 0; i < notHotDoggosLen; i++)
+  {
+    var doggo = notHotDoggos[i];
+    doggo = prepDoggo(doggo)
+    notHotDoggoPile.appendChild(doggo);
+  }
+
+  // add text
+  var pHotPile = document.getElementById("pHotPile");
+  if (hotDoggosLen == 0)
+  {
+    pHotPile.innerHTML = "Not a single hot doggo :(";
+  }
+  else if (hotDoggosLen == 1)
+  {
+    pHotPile.innerHTML = "This is your hot dog:";
+  }
+  else
+  {
+    pHotPile.innerHTML = "These " + hotDoggosLen + " doggos are your hot doggos:";
+  }
+  var pNotPile = document.getElementById("pNotPile");
+  if (notHotDoggosLen == 0)
+  {
+    pNotPile.innerHTML = "Not a single not doggo :)";
+  }
+  else if (notHotDoggosLen == 1)
+  {
+    pNotPile.innerHTML = "This is your not hot dog:";
+  }
+  else
+  {
+    pNotPile.innerHTML = "These " + notHotDoggosLen + " doggos are your NOT hot doggos:";
+  }
+
+
+  // preparing the doggo before it goes to the pile
+  function prepDoggo(doggo)
+  {
+    doggo.classList.add("doggoPile");
+    doggo.classList.remove("hidden");
+    doggo.classList.remove("gameHotDoggo");
+    var ch = doggo.children;
+    ch[0].style.height = 100 + "%";
+
+    // getting link to the doggo pic
+    var doggoId  = doggo.id;
+    var splitString = doggoId.split("doggo-number-");
+    var id = splitString[1];
+
+    // linking doggo up
+    var link = document.createElement("a");
+    link.href = secretDoggoList[id].link;
+    link.target = "_blank";
+    link.appendChild(doggo);
+
+    return link
+  }
+}
+
+// back to game
+var backToGame = document.getElementById("backToGame");
+backToGame.addEventListener("click", backToGameFn);
+function backToGameFn()
+{
+
+  // if there is no current doggo - it happens when user goes to summary after voting
+  // I need to bring the last doggo from the pile to the game
+  // coz I want to make sure user has his game as he left it
+  var gameHotDoggos = document.getElementsByClassName("gameHotDoggo");
+  var firstGameDoggo = gameHotDoggos[0];
+  var classList = firstGameDoggo.classList;
+  var isCurrentDoggo = false;
+  for (var i = 0; i < classList.length; i++)
+  {
+    if (classList[i] == "currentDoggo")
+    {
+      isCurrentDoggo = true;
+    }
+  }
+  if (isCurrentDoggo == false)
+  {
+    var currentDoggoId = "doggo-number-" + game.currentDoggo;
+    var currentDoggo = document.getElementById(currentDoggoId);
+
+    currentDoggo.classList.remove("doggoPile");
+    currentDoggo.classList.add("gameHotDoggo");
+
+    var nextDoggoId = "doggo-number-" + (game.currentDoggo + 1);
+    var nextDoggo = document.getElementById(nextDoggoId);
+
+    var dogContainer = document.getElementById("dog-container");
+    dogContainer.insertBefore(currentDoggo, nextDoggo);
+  }
+
+  // else just going back to the game
+
+  var gameState = document.getElementById("gameState");
+  var summaryState = document.getElementById("summaryState");
+  gameState.classList.remove("hidden");
+  summaryState.classList.add("hidden");
+}
+
+// share summary
+var shareSummaryButton = document.getElementById("shareSummaryButton");
+shareSummaryButton.addEventListener("click", shareSummaryFn)
+function shareSummaryFn()
+{
+  if (game.shareSummaryLinkIsUptodate == false)
+  {
+    // generate ID
+    game.summaryShareID = generateID();
+
+    // I want to send a list of objects to flask, each object will hold id, link and vote
+    var listOfEntries = [];
+
+    // iterate on doggo arrays and create entries
+    var hotDoggos = game.hotDoggos;
+    var notHotDoggos = game.notHotDoggos;
+    var hotDoggosLen = hotDoggos.length;
+    var notHotDoggosLen = notHotDoggos.length;
+
+    for (var i = 0; i < hotDoggosLen; i++)
+    {
+      var doggo = hotDoggos[i];
+      var entry = createEntry(doggo, 1)
+      listOfEntries.push(entry)
+    }
+
+    for (var i = 0; i < notHotDoggosLen; i++)
+    {
+      var doggo = notHotDoggos[i];
+      var entry = createEntry(doggo, 0)
+      listOfEntries.push(entry)
+    }
+
+    // sending data to flask
+    sendSummaryShareData(listOfEntries);
+
+    // setting flag to not run this function if nothing is changed
+    game.shareSummaryLinkIsUptodate = true;
+  }
+
+  var shareSummaryInput = document.getElementById("shareSummaryInput");
+  shareSummaryInput.value = "http://127.0.0.1:5000/hotdog/sm/" + game.summaryShareID;
+
+  function createEntry(doggo, vote)
+  {
+    var entry =
+    {
+      id: "",
+      link: "",
+      vote: ""
+    }
+    entry.id = game.summaryShareID;
+
+    var doggoId  = doggo.id;
+    var splitString = doggoId.split("doggo-number-");
+    var id = splitString[1];
+    entry.link = secretDoggoList[id].link;
+
+    entry.vote = vote;
+
+    return entry
+  }
+}
+
+// summary share modal functionality
+var copyShareSummaryLinkDiv = document.getElementById("copyShareSummaryLinkDiv");
+var copyShareSummaryLinkButton = document.getElementById("copyShareSummaryLinkButton");
+var copyShareSummaryLinktt = document.getElementById("copyShareSummaryLinktt");
+var clipboardjs = new ClipboardJS('#copyShareSummaryLinkButton');
+clipboardjs.on('success', function(e)
+{
+  copyShareSummaryLinktt.innerHTML = "Copied!";
+});
+
+copyShareSummaryLinkDiv.addEventListener("mouseleave", function(){
+  copyShareLinktt.innerHTML = "Copy link!";
+});
+
+
+// BONE CIRCLE!!
+// https://stackoverflow.com/questions/10152390/dynamically-arrange-some-elements-around-a-circle
+function createBoneCircle()
+{
+  var container = document.getElementById('boneCircleContainer');
+  var positionInfo = container.getBoundingClientRect();
+  var width = positionInfo.width;
+  var height = positionInfo.height;
+
+  // with angle 4.7 bones are being drawn from the top
+  var numberOfBones = 12;
+  var radius = 120;
+  var angle = 4.7;
+  var step = (2*Math.PI) / numberOfBones;
+  var boneColor = "#"+((1<<24)*Math.random()|0).toString(16)
+
+  for(var i = 0; i < numberOfBones; i++)
+  {
+    // create append and hide a bone
+    var bone = getABone();
+    var boneID = "bone-" + i;
+    bone.id = boneID;
+    container.appendChild(bone);
+    bone.style.color = boneColor;
+    bone.classList.add("boneCircleBone");
+    bone.classList.add("hidden");
+
+    // position the bone
+    var rect = bone.getBoundingClientRect();
+    var boneHeight = rect.height;
+    var boneWidth = rect.width;
+    var x = Math.round(width/2 + radius * Math.cos(angle) - (boneWidth/2+20));
+    var y = Math.round(height/2 + radius * Math.sin(angle) - (boneHeight/2+20));
+    bone.style.left = x + "px";
+    bone.style.top = y + "px";
+
+    // rotation (90+(i*30)) works perfectly with 12 bones drawn from the top
+    bone.style.transform = 'rotate(' + (90 + (i * 30)) + 'deg)';
+
+    angle += step;
+  }
+}
+
+function animateBoneCircle()
+{
+  // Showing bones
+  var i = 0;
+  var interval = setInterval(function()
+  {
+    var boneID = "bone-" + i;
+    var bone = document.getElementById(boneID);
+    bone.classList.remove("hidden");
+    i++;
+    // clearing interval after 3s
+    if(i == 12)
+    {
+      clearInterval(interval)
+    }
+  }, 220);
+
+  // removing bones after 3s
+  var timeout = setTimeout(function()
+  {
+    removeElements("boneCircleBone");
+  }, 3000);
+}
+
+// returns a bone element
+function getABone()
+{
+  // random color https://stackoverflow.com/questions/1484506/random-color-generator
+  var rcolor = "#"+((1<<24)*Math.random()|0).toString(16)
+  // create bone element with a random color
+  var bone = document.createElement("i");
+  bone.classList.add("fas");
+  bone.classList.add("fa-bone");
+  bone.style.color = rcolor;
+
+  return bone;
+}
+
+function removeElements(className)
+{
+  var list = document.getElementsByClassName(className);
+
+  while(list[0]){
+    list[0].parentNode.removeChild(list[0]);
+  }
+}
+
 // Unique ID generator - I should be using UUID, but this is more fun.
 // https://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
 function generateID()
@@ -490,6 +849,13 @@ function generateID()
 }
 
 /* ## Flask calls ## */
+
+function sendSummaryShareData(listOfEntries)
+{
+ var path = '/collectHotDogSummaryShareData'
+ sendData(listOfEntries, path)
+}
+
 function sendShareData(id, link, vote)
 {
   var dataToSend = {

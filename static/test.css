@@ -1,0 +1,48 @@
+/*CIRCLE BONES*/
+
+#boneCircleContainer
+{
+  margin-top: 20%;
+  margin-left: 25%;
+  width: 200px;
+  height: 200px;
+  position: relative;
+}
+.boneCircleBone
+{
+  font-size: 1.2rem;
+  position: absolute;
+}
+.hidden
+{
+  display: none;
+}
+
+
+#center {
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 50%;  /* position the top  edge of the element at the middle of the parent */
+  left: 50%; /* position the left edge of the element at the middle of the parent */
+  transform: translate(-50%, -50%); /* This is a shorthand of */
+  background: #000;
+}
+#crosshair-x
+{
+  width: 200px;
+  height: 1px;
+  background: #000;
+  position: absolute;
+  left: 0;
+  top: 100px;
+}
+#crosshair-y
+{
+  width: 1px;
+  height: 200px;
+  background: #000;
+  position: absolute;
+  left: 100px;
+  top: 0;
+}
