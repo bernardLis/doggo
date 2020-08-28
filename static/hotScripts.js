@@ -72,9 +72,9 @@ window.addEventListener("load", function()
   var height = doggo0.offsetHeight;
   // limit the height to 80% of total screen height
   // TODO this does not work as intended
-  if (height > 0.75 * screenHeight)
+  if (height > 0.70 * screenHeight)
   {
-    height = 0.75 * screenHeight;
+    height = 0.70 * screenHeight;
   }
   setOverlayHeight(height);
   var doggoWrapper = document.getElementById("dog-container");
@@ -418,9 +418,9 @@ function nextDoggo()
   var height = rect.height;
 
   // limit the height to 80% of total screen height
-  if (height > 0.75 * screenHeight)
+  if (height > 0.70 * screenHeight)
   {
-    height = 0.75 * screenHeight;
+    height = 0.70 * screenHeight;
   }
   setOverlayHeight(height);
 
@@ -594,9 +594,8 @@ function showSummary()
   }
   else
   {
-    pNotPile.innerHTML = "These " + notHotDoggosLen + " doggos are your NOT hot doggos:";
+    pNotPile.innerHTML = "These " + notHotDoggosLen + " doggos are your not hot doggos:";
   }
-
 
   // preparing the doggo before it goes to the pile
   function prepDoggo(doggo)
@@ -867,7 +866,7 @@ function sendShareData(id, link, vote)
   dataToSend.link = link;
   dataToSend.vote = vote;
 
-  var path = '/collectShareData';
+  var path = '/collectHotDogShareData';
   sendData(dataToSend, path);
 }
 

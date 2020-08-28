@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block main %}
+  <div id="summaryState">
+
+    <h5 class="pileText" id="pHotPile">Check my hot dogs out!</h5>
+    <div id="hotDoggoPile" class="row ml-2 d-flex">
+      {% for entry in dbData:%}
+        {% if entry["vote"] == 1: %}
+          <a target="_blank" href="{{ entry["link"] }}">
+            <img class="doggoPile" src={{ entry["link"] }}></img>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <h5 class="pileText mt-4" id="pNotPile">Haaa... are these even dogs?</h5>
+    <div id="notHotDoggoPile" class="row ml-2 d-flex">
+      {% for entry in dbData:%}
+        {% if entry["vote"] == 0: %}
+        <a target="_blank" href="{{ entry["link"] }}">
+          <img class="doggoPile" src={{ entry["link"] }}></img>
+        </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <hr/>
+
+    <button id="PlayTheGame" onclick="window.open('/hotdog','_self');" class="myButton">
+      <i class="mr-2 fas fa-hotdog"></i>
+      Play Hot Dog
+    </button>
+
+  </div>
+
+  <script>
+  </script>
+  <link href="/static/hotdogstyles.css" rel="stylesheet">
+
+{% endblock %}

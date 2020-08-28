@@ -100,6 +100,7 @@ def sharedHotDog(shareID):
 
     # grab the shared dog from the db
     dbData = db.execute("SELECT link, vote FROM hotDogShares WHERE shareID=(?)", (shareID))
+    print("dbdata", dbData)
 
     # add it to shown dogs for the session
     session["shownDogs"].append(dbData[0]["link"])
@@ -116,6 +117,20 @@ def sharedHotDog(shareID):
 
     return redirect(url_for('hotdog'))
 
+@app.route("/hotdog/sm/<shareID>", methods=["GET"])
+def sharedHotDogSummary(shareID):
+
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
+    # grab the shared dog from the db
+    dbData = db.execute("SELECT link, vote FROM hotDogSummaryShares WHERE summaryShareID=(?)", (shareID))
+
+    return render_template("hotdogSM.html", dbData=dbData)
 
 @app.route("/highscores", methods=["GET", "POST"])
 def highscores():
@@ -150,21 +165,17 @@ def loadDogs(n):
     dogsFromApi = json_response['message']
 
     # checking whether the dog was already shown in this session
-    for l in session["shownDogs"]:
-        for i, link in enumerate(dogsFromApi):
-            if l == link:
-                # deleting from the list it if it was shown
-                dogsFromApi.pop(i)
+    dogsFromApiChecked = set(dogsFromApi) - set(session["shownDogs"])
 
     # start over if too many doggos were deleted
-    if len(dogsFromApi) < n/2:
+    if len(dogsFromApiChecked) < n/2:
         loadDogs(n)
 
     # dictionary with dogs
     doggos = {}
 
     i = 0
-    for link in dogsFromApi:
+    for link in dogsFromApiChecked:
         # adding the link to shown dogs
         session["shownDogs"].append(link)
 
@@ -210,8 +221,8 @@ def collectHotDogData():
 
     return jsonify("", 204)
 
-@app.route("/collectShareData", methods=["POST"])
-def collectShareData():
+@app.route("/collectHotDogShareData", methods=["POST"])
+def collectHotDogShareData():
     data = request.get_json()
 
     db.execute("INSERT INTO hotDogShares (shareID, link, vote) VALUES (?, ?, ?)",
