@@ -4,127 +4,67 @@
 {% endblock %}
 
 {% block head%}
-  <link href="/static/breedStyles.css" rel="stylesheet">
+  <link href="/static/indexStyles.css" rel="stylesheet">
 {% endblock %}
 
 
 {% block main %}
-  <div id="countdownOverlay">
-    <div class="overlayContent">
-      <h1 class="" id="countdownMsg"></h1>
-      <p class="" id="countdownTooltip"></p>
-    </div>
-  </div>
+<div class="row">
+  <h1 class="mx-auto mb-4">Game modes</h1>
+</div>
 
-  <div id="game">
-    <div id="scoreDashboard" class="d-flex justify-content-around">
-
-      <div class="flex-sm-column width150 text-center">
-        <p class="my-0" id="timerDisplay"><i style="color: #E16682;" class="rotating fas fa-bone"></i></p>
-      </div>
-
-      <div class="flex-sm-column my-auto width150">
-        <div class="flex-row justify-content-center mb-1">
-          <span class="my-0 font-weight-bold">Bones</span>
-          <span class="ml-3 " id="scoreDisplay"><i style="color: #F6C5AF;" class="rotating fas fa-bone"></i></span>
+  <div class="row d-flex justify-content-around">
+    <a href="/breedQuiz" class="cardLink">
+      <div class="myCard text-center" id="breedCard">
+        <h3 class="mt-2">Breed Quiz</h3>
+        <p>For the Knowledgable</p>
+        <img class="sampleDoggo" src="{{ dogs[0][0] }}"></img>
+        <div class="row d-flex justify-content-center my-1">
+          <button class="breedButton my-1 mx-1" id="button1"><i style="color: #FE938C;" class="fas fa-bone"></i></button>
+          <button class="breedButton my-1 mx-1" id="button2"><i style="color: #AD91A3;" class="fas fa-bone"></i></button>
         </div>
-
-        <div class="flex-row justify-content-center mt-1">
-          <span class="my-0 font-weight-bold">Streak</span>
-          <span class="ml-3 " id="streakDisplay"><i style="color: #C2714F;" class="rotating fas fa-bone"></i></span>
+        <div class="row d-flex justify-content-center my-1">
+          <button class="breedButton my-1 mx-1" id="button3"><i style="color: #B33951;" class="fas fa-bone"></i></button>
+          <button class="breedButton my-1 mx-1" id="button4"><i style="color: #91C7B1;" class="fas fa-bone"></i></button>
         </div>
       </div>
+    </a>
+    <a href="/hotdog" class="cardLink">
+      <div class="myCard text-center" id="hotdogCard">
+        <h3 class="mt-2">Hot Dog</h3>
+        <p>For the Opinionated</p>
+        <div class="dog-container">
+          <img class="sampleDoggo" src="{{ dogs[1][0] }}"></img>
 
-      <div class="flex-sm-column my-auto width150 text-center">
-        <i class="fa fa-volume-up" id="toggleSound"></i>
-      </div>
-
-
-    </div>
-
-    <div id="messageWrapper">
-      <h3 id="message" class="text-center"></h3>
-      <p id="messageParagraph" class="text-center"></p>
-    </div>
-
-    <div id="dog-container" class="text-center">
-
-      {% for id in dogs: %}
-        {% if id == 0: %}
-          <div id="doggo-number-{{id}}" data-id="{{id}}" data-breed="{{ dogs[id][1] }}" class="gameDoggo currentDoggo">
-            <img class="doggoImg" data-you-are-a-cheater="true" src="{{ dogs[id][0] }}" />
+          <div id="scoreWrapper" class="">
+            <div id="placeholderScore" class="d-flex justify-content-around">
+              <div id="placeholderXBackground">
+                <i id="placeholderXIcon" class="scorePlaceholderIcon fas fa-times"></i>
+              </div>
+              <div id="placeholderHeartBackground">
+                <i id="placeholderHeartIcon" class="scorePlaceholderIcon fas fa-heart"></i>
+              </div>
+            </div>
           </div>
-        {% else %}
-        {% endif %}
-      {% endfor %}
 
-    </div>
 
-    <div class="row d-flex justify-content-center my-1">
-      <button class="breedButton my-1 mx-1" id="button1"><i style="color: #FE938C;" class="rotating fas fa-bone"></i></button>
-      <button class="breedButton my-1 mx-1" id="button2"><i style="color: #AD91A3;" class="rotating fas fa-bone"></i></button>
-    </div>
-    <div class="row d-flex justify-content-center my-1">
-      <button class="breedButton my-1 mx-1" id="button3"><i style="color: #B33951;" class="rotating fas fa-bone"></i></button>
-      <button class="breedButton my-1 mx-1" id="button4"><i style="color: #91C7B1;" class="rotating fas fa-bone"></i></button>
-    </div>
-  </div>
 
-  <div id="hscoreEntryState" class="hidden">
-
-    <h5 id="msgEnd"></h5>
-
-    <p id="pNCorrect">You have guessed these 0 doggos correctly:</p>
-    <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
-    <p id="pNIncorrect">You will guess these 0 doggos next time:</p>
-    <div id="incorrectDoggoPile" class="row ml-2 d-flex"></div>
-    <hr/>
-
-    <form class="" id="hscoreEntry" action="/hscoreEntry" method="post">
-      <h5> Submit your high score: </h5>
-
-      <div class="form-group">
-        <span>Score: </span>
-        <span id="db-score"></span>
-        <input name="score" class="hidden" value="" id="form-score"></input>
+          {#
+          <div id="notHotOverlay">
+            <i id="xicon" class="hotornoticon fas fa-times"></i>
+          </div>
+          <div id="hotOverlay">
+            <i id="heartIcon" class="hotornoticon fas fa-heart"></i>
+          </div>
+          #}
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="username">Nickname: </label>
-        <input class="form-control" maxlength="255" name="username" id="db-user" placeholder="Chihuahua"></input>
-        <p class="" id="db-user-error-msg"></p>
-      </div>
-
-      <div class="form-group mt-2">
-        <label for="favBreed">Favourite breed: </label>
-        <input class="form-control" list="allBreeds" name="favBreed" placeholder="Chihuahua" id="favBreed"></input>
-        <p class="" id="db-favBreed-error-msg"></p>
-        <datalist id="allBreeds">
-          {% for breed in ALL_BREEDS: %}
-            <option value="{{ breed }}">
-          {% endfor %}
-        </datalist>
-      </div>
-
-      <div id="subButtonWrapper" class="form-group mb-2">
-        <button class="btn btn-light" id="subHscoreButton" type="submit">Submit</button>
-        <p id="submitHscoreSuccess" class="hidden">Your high score was submitted.</p>
-      </div>
-
-    </form>
-
-    <hr/>
-
-    <div class="form-group mt-5">
-      <button class="btn btn-primary" id="gameReset"><i style="color: #FE938C;" class="rotating fas fa-bone"></i><i style="color: #FE938C;" class="rotating fas fa-bone"></i><i style="color: #FE938C;" class="rotating fas fa-bone"></i></button>
-      <a class="ml-2" href="/highscores"><button id="highscoresButton" class="btn btn-light">Highscores</button></a>
-    </div>
-
+    </a>
   </div>
 
   <script>
   </script>
 
-  <script src="/static/scripts.js"></script>
+  <script src="/static/indexScripts.js"></script>
 
 {% endblock %}

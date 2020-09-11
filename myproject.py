@@ -3,6 +3,7 @@ import re
 import json
 import requests
 import sys
+import redis
 
 from pprint import pprint
 from random import choice
@@ -38,8 +39,10 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SECRET_KEY"] = "APACHE"
 app.config.from_object(__name__)
 
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_TYPE"] = "filesystem"
+# Configure session to use redis (instead of signed cookies)
+#app.config["SESSION_TYPE"] = "filesystem"
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis.from_url('redis://localhost:6379')
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///doggoDB.db")
@@ -62,10 +65,27 @@ def index():
     # create a shown doggos object in the session
     session['shownDogs'] = ["a dog"]
 
-    dogs = loadDogs(1)
+    dogs = loadDogs(2)
     readyDogs = prepareDogs(dogs)
 
     return render_template("index.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+
+@app.route("/breedQuiz", methods=["GET"])
+def breedQuiz():
+
+        # clearing the session
+        session.clear()
+        # remember session even over browser restarts?
+        session.permanent = False
+        # create a shown doggos object in the session
+        session['shownDogs'] = ["a dog"]
+
+        dogs = loadDogs(1)
+        readyDogs = prepareDogs(dogs)
+
+        return render_template("breedQuiz.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+
+
 
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
@@ -100,7 +120,6 @@ def sharedHotDog(shareID):
 
     # grab the shared dog from the db
     dbData = db.execute("SELECT link, vote FROM hotDogShares WHERE shareID=(?)", (shareID))
-    print("dbdata", dbData)
 
     # add it to shown dogs for the session
     session["shownDogs"].append(dbData[0]["link"])

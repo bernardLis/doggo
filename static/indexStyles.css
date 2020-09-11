@@ -1,0 +1,111 @@
+.myCard
+{
+  height: 500px;
+  width: 400px;
+  border: 1px solid black;
+  -webkit-box-shadow: 4px 4px 5px 1px rgba(0,0,0,0.75);
+  -moz-box-shadow: 4px 4px 5px 1px rgba(0,0,0,0.75);
+  box-shadow: 4px 4px 5px 1px rgba(0,0,0,0.75);
+}
+.myCard:hover
+{
+  transform: scale(1.01);
+  transition: all .1s linear;
+  -webkit-box-shadow: 4px 5px 14px 1px rgba(0,0,0,0.75);
+  -moz-box-shadow: 4px 5px 14px 1px rgba(0,0,0,0.75);
+  box-shadow: 4px 5px 14px 1px rgba(0,0,0,0.75);
+
+}
+.myCard:active
+{
+  transform: scale(1);
+  transition: all .1s linear;
+  -webkit-box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
+  box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
+
+}
+
+
+
+.sampleDoggo
+{
+  max-height: 300px;
+  max-width: 350px;
+}
+
+/* Breed quiz card */
+.breedButton
+{
+  width: 100px;
+  padding: 0.2rem 0;
+  z-index: -1;
+  border: 1px solid #6b6b6b;
+  border-radius: 5px;
+}
+
+
+
+
+/* Hot dog card */
+.dog-container
+{
+  position: relative;
+}
+
+#placeholderXBackground
+{
+  position: absolute;
+  left: 0px;
+  width: 50%;
+  overflow: hidden;
+  background-color: rgba(240, 127, 131, 0.2);
+}
+#placeholderXIcon
+{
+  color: rgba(240, 127, 131, 0.7);
+}
+#placeholderHeartBackground
+{
+  position: absolute;
+  right: 0px;
+  width: 50%;
+  overflow:hidden;
+  background-color: rgba(85, 221, 171, 0.2);
+}
+#placeholderHeartIcon
+{
+  color: rgba(85, 221, 171, 0.7);
+}
+.scorePlaceholderIcon
+{
+  font-size: 3rem;
+}
+
+/* unvisited link */
+.cardLink:link {
+  color: black;
+  text-decoration: none;
+
+}
+
+/* visited link */
+.cardLink:visited {
+  color: black;
+  text-decoration: none;
+
+}
+
+/* mouse over link */
+.cardLink:hover {
+  color: black;
+  text-decoration: none;
+
+}
+
+/* selected link */
+.cardLink:active {
+  color: black;
+  text-decoration: none;
+
+}

@@ -32,7 +32,7 @@ game.musicID;
 game.disableMusic = true;
 
 // timer
-game.gameTime = 22222222;
+game.gameTime = 91;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -47,6 +47,12 @@ var inCorrectSound = new Howl({
     autoplay: false,
     volume: 1
 });
+var click = new Howl({
+    src: 'static/audio/click.wav',
+    autoplay: false,
+    volume: 0.5
+});
+
 
 var documentHeight = document.body.clientHeight;
 var documentWidth = document.body.clientWidth;
@@ -197,6 +203,11 @@ function setBreedButtons()
     button.value = breedsForButtons[i];
     button.style.backgroundColor = "#f8f9fa";
     button.style.borderColor = "#6b6b6b";
+
+    // clickclacking on hover
+    button.addEventListener("mouseenter", function(){
+      click.play();
+    });
 
     // checking the answer on button click
     button.addEventListener("click", doggoBreedCheck);
