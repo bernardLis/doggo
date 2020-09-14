@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 
+
 {% block title %}
 {% endblock %}
 
@@ -24,6 +25,7 @@
       </div>
 
       <div id="nextOverlay" class="interactionOverlay hidden">
+        <h1 id="nextText" class="mt-4">Click the doggo <3</h1>
         <i id="nextIcon" class="far fa-hand-point-up"></i>
       </div>
 
@@ -50,12 +52,13 @@
         {% else %}
         {% endif %}
       {% endfor %}
-      {# if you put sth here it will break the game #}
+      {# if you put anything here it will break the game #}
     </div>
 
     <div id="sharedDoggoMsg" class="text-center hidden" data-shared-vote={{vote}}></div>
 
     <div id="utilityButtons" class="d-flex justify-content-center my-4">
+
       <button class="myButton mx-2" data-target="#shareModal" data-toggle="modal" id="shareButton">
         <i class="mr-2 fas fa-share-alt"></i>
         Share
@@ -94,7 +97,7 @@
 
   </div>
 
-  <div id="summaryState" class="hidden">
+  <div id="summaryState" class="hidden pl-2 pb-2">
 
     <h5 id="msgEnd"></h5>
 
@@ -145,7 +148,9 @@
 
   <script>
   </script>
-  <link href="/static/hotdogstyles.css" rel="stylesheet">
-  <script src="/static/hotScripts.js"></script>
+  <link href="/static/styles/hotdogstyles.css" rel="stylesheet">
+
+  <script src="/static/scripts/helpers.js"></script>
+  <script src="/static/scripts/hotScripts.js"></script>
 
 {% endblock %}

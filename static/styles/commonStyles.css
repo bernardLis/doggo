@@ -1,7 +1,56 @@
+/* General styles */
+html, body
+{
+  overflow-x: hidden;
+  height: 100%;
+}
+main
+{
+  /* center contents */
+  margin: 0 auto;
+}
 .hidden
 {
   display: none;
 }
+
+/* Navigation */
+.nav-item
+{
+  margin-right: 1rem;
+}
+.navLink
+{
+  padding: 0.2rem;
+}
+#toggleSound
+{
+  cursor: pointer;
+}
+/* unvisited link */
+.navLink:link {
+  color: black;
+  text-decoration: none;
+}
+/* visited link */
+.navLink:visited {
+  color: black;
+  text-decoration: none;
+}
+/* mouse over link */
+.navLink:hover {
+  color: black;
+  text-decoration: none;
+}
+/* selected link */
+.navLink:active {
+  color: black;
+  text-decoration: none;
+}
+
+
+
+
 
 #countdownOverlay
 {
@@ -31,6 +80,7 @@
   height: 200px;
   position: relative;
 }
+
 .boneCircleBone
 {
   font-size: 2rem;

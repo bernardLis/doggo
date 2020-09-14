@@ -3,14 +3,14 @@
 {% block title %}
 {% endblock %}
 
-{% block head%}
-  <link href="/static/indexStyles.css" rel="stylesheet">
+{% block head %}
+  <link href="/static/styles/indexStyles.css" rel="stylesheet">
 {% endblock %}
 
 
 {% block main %}
 <div class="row">
-  <h1 class="mx-auto mb-4">Game modes</h1>
+  <h1 id="" class="mx-auto mb-4">Game modes</h1>
 </div>
 
   <div class="row d-flex justify-content-around">
@@ -47,16 +47,6 @@
             </div>
           </div>
 
-
-
-          {#
-          <div id="notHotOverlay">
-            <i id="xicon" class="hotornoticon fas fa-times"></i>
-          </div>
-          <div id="hotOverlay">
-            <i id="heartIcon" class="hotornoticon fas fa-heart"></i>
-          </div>
-          #}
         </div>
       </div>
     </a>
@@ -65,6 +55,6 @@
   <script>
   </script>
 
-  <script src="/static/indexScripts.js"></script>
+  <script src="/static/scripts/indexScripts.js"></script>
 
 {% endblock %}

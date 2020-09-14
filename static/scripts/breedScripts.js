@@ -9,6 +9,10 @@ var TOOLTIP_MESSAGES =
   "'The more bones the better.' - Bark Twain"
 ]
 
+// media
+var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+var screenHeight = (window.innerHeight > 0) ? window.innerHeight : screen.height;
+
 // keep track of the current doggo
 var game = {};
 // game
@@ -53,12 +57,6 @@ var click = new Howl({
     volume: 0.5
 });
 
-
-var documentHeight = document.body.clientHeight;
-var documentWidth = document.body.clientWidth;
-
-var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-var screenHeight = window.screen.height;
 
 // start the timer only when the page loads
 window.addEventListener("load", function()
@@ -204,10 +202,13 @@ function setBreedButtons()
     button.style.backgroundColor = "#f8f9fa";
     button.style.borderColor = "#6b6b6b";
 
-    // clickclacking on hover
-    button.addEventListener("mouseenter", function(){
-      click.play();
-    });
+    // clickclacking on hover on dekstop
+    if (screenWidth > 1000)
+    {
+      button.addEventListener("mouseenter", function(){
+        click.play();
+      });
+    }
 
     // checking the answer on button click
     button.addEventListener("click", doggoBreedCheck);
@@ -539,30 +540,20 @@ function gameTimer(value) {
         autoplay: false,
         volume: 1
     });
-    // bold + sound on one minute left
+    // bold on one minute left
     if (game.timeLeft == 60000)
     {
       timerDisplay.style.fontWeight = "600";
-      if(!game.audioMuted)
-      {
-        sn = 0;
-        countDownSound.play();
-      }
     }
     //reset after a second
     if (game.timeLeft == 59000)
     {
       timerDisplay.style.fontWeight = "400";
     }
-    // bold + sound on half minute left
+    // bold on half minute left
     if (game.timeLeft == 30000)
     {
       timerDisplay.style.fontWeight = "600";
-      if(!game.audioMuted)
-      {
-        sn = 0;
-        countDownSound.play();
-      }
     }
     //reset after a second
     if (game.timeLeft == 29000)
@@ -1029,19 +1020,6 @@ function boneAnimationR(bone) {
   var animationPlayer = bone.animate(bone.keyframes, bone.animProps);
 }
 
-function getABone()
-{
-  // random color https://stackoverflow.com/questions/1484506/random-color-generator
-  var rcolor = "#"+((1<<24)*Math.random()|0).toString(16)
-  // create bone element with a random color
-  var bone = document.createElement("i");
-  bone.classList.add("fas");
-  bone.classList.add("fa-bone");
-  bone.style.color = rcolor;
-
-  return bone;
-}
-
 // submitting the hscore form
 // https://stackoverflow.com/questions/25983603/how-to-submit-html-form-without-redirection
 var subFormButton = document.getElementById("subHscoreButton");
@@ -1182,6 +1160,7 @@ if (screenWidth < 1001)
   // remove padding from the main wrapper
   var main = document.getElementById("main");
   main.classList.remove("p-5");
+  main.classList.remove("container");
 
   // remove width150 from the dashboard elements
   var parent = document.getElementById("scoreDashboard");
@@ -1418,34 +1397,6 @@ function caesarShift(str, amount) {
   return output;
 };
 
-// removing all elements with a class from the document
-function removeElements(className)
-{
-  var list = document.getElementsByClassName(className);
-
-  while(list[0]){
-    list[0].parentNode.removeChild(list[0]);
-  }
-}
-
-// https://javascript.info/task/shuffle#:~:text=function%20shuffle%20(%20array%20)%20%7B%20array,That%20somewhat%20works%2C%20because%20Math.
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-// https://www.w3schools.com/js/js_random.asp
-function getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min) ) + min;
-}
-
-function capitalizeFirstLetter(str)
-{
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 // Timer helper class from: https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
 function Timer(fn, t) {
   var timerObj = setInterval(fn, t);
@@ -1498,17 +1449,6 @@ function animateResultCount(number, target, elem) {
     }
 }
 
-// https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
-// general csfr set up
-var csrf_token = "{{ csrf_token() }}";
-
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrf_token);
-        }
-    }
-});
 
 // doggo breeds list
 var ALL_BREEDS =

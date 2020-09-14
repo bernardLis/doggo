@@ -10,6 +10,7 @@ archive/
 doggoBotAndStats.js
 notes.txt
 test.py
+fabfile.py
 
 
 # https://gist.github.com/octocat/9257657 #

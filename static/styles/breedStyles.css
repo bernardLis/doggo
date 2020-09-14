@@ -1,17 +1,9 @@
-html, body {
+/* General styles */
+html, body
+{
     max-width: 100%;
-    overflow-x: hidden;
 }
 
-.hidden
-{
-  display: none;
-}
-main
-{
-  /* center contents */
-  margin: 0 auto;
-}
 
 .breedButton
 {

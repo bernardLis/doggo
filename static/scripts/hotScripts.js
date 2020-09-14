@@ -3,7 +3,7 @@ var TOOLTIP_MESSAGES =
 [
   "There are over 120 different dog breeds in this game.",
   "There are over 20 000 different dog pictures in this game.",
-  "Click/touch dog pictures!"
+  "Click dog pictures to play!"
 ]
 
 // media
@@ -12,20 +12,25 @@ var screenHeight = (window.innerHeight > 0) ? window.innerHeight : screen.height
 
 // game variables
 var game = {};
-game.currentDoggo = 0;
-game.doggosRemaining = 1;
-game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
 var secretDoggoList = [];
-game.voteTutorialStarted = false;
-game.nextTutorialStarted = false;
-game.shareID = null;
-game.summaryShareID = null;
-game.shareLinkIsUptodate = false;
-game.shareSummaryLinkIsUptodate = false;
 
 // arrays for storing doggos
 game.hotDoggos = [];
 game.notHotDoggos = [];
+
+game.firstDoggo = true;
+game.currentDoggo = 0;
+game.doggosRemaining = 1;
+
+game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
+
+game.voteTutorialStarted = false;
+game.nextTutorialStarted = false;
+
+game.shareID = null;
+game.summaryShareID = null;
+game.shareLinkIsUptodate = false;
+game.shareSummaryLinkIsUptodate = false;
 
 /* ## Audio ## */
 var hotSound = new Howl({
@@ -45,6 +50,7 @@ var nextSound = new Howl({
 });
 
 /* ## Game Startup ## */
+
 // load the game when page loads
 window.addEventListener("load", function()
 {
@@ -52,6 +58,7 @@ window.addEventListener("load", function()
   var doggo0El = document.getElementById("doggo-number-0");
   var doggo0ElC = doggo0El.children;
   var doggo0 = doggo0ElC[0];
+
   // making sure hotVotes is a number
   var hotVotes = parseInt(doggo0El.dataset.hotVotes);
   if (isNaN(hotVotes))
@@ -68,22 +75,24 @@ window.addEventListener("load", function()
   }
   secretDoggoList[0] = dog
 
+  // TODO: this does not work as intended <<<<<<<<<<
   // managing the height and margin of vote overlays
   var height = doggo0.offsetHeight;
+  console.log("height", height);
   // limit the height to 80% of total screen height
-  // TODO this does not work as intended
   if (height > 0.70 * screenHeight)
   {
     height = 0.70 * screenHeight;
   }
   setOverlayHeight(height);
   var doggoWrapper = document.getElementById("dog-container");
+  doggo0.style.height = height + "px";
   doggoWrapper.style.height = height + "px";
 
   // loading additional doggos
   flaskLoadDoggos();
 
-  // countdown before the game start into game start
+  // countdown -> game starts
   gameStartUp();
 });
 
@@ -107,15 +116,15 @@ function gameStartUp()
   {
     if (sharedVote == 0)
     {
-      ttmessage = "Is this even a DOG?!";
+      ttmessage = "Wait a second... is this even a DOG?!";
     }
     else if (sharedVote == 1)
     {
-      ttmessage = "Check this hottie out!";
+      ttmessage = "In a second I will show you a really HOT! dog.";
     }
     else
     {
-      ttmessage = "Is it a hot dog?";
+      ttmessage = "I will show you a dog, is it hot?";
     }
   }
 
@@ -128,7 +137,7 @@ function gameStartUp()
   }
 
   // countdown duration
-  var n = 3;
+  var n = 2;
   var interval = setInterval(countdown, 1000);
   function countdown()
   {
@@ -148,15 +157,17 @@ function gameStartUp()
     else if (n == 2)
     {
       n--;
-      // starting vote tutorial, right after the countdown;
+
+      // bones circle animation start-up
+      createBoneCircle();
+      animateBoneCircle();
+
+      // starting vote tutorial, so it fires right after the countdown;
       startVoteTutorial();
     }
     // setting up the countdown
     else
     {
-      createBoneCircle();
-      animateBoneCircle();
-      // adding the animation
       n--;
     }
   }
@@ -189,8 +200,8 @@ function startVoteTutorial()
 }
 function voteTutorial()
 {
-  blink(hotOverlay, 1000);
-  blink(notHotOverlay, 1000);
+  blink(hotOverlay, 500);
+  blink(notHotOverlay, 500);
 }
 function clearVoteTutorial()
 {
@@ -204,11 +215,17 @@ var nextTutorialTimeout;
 function startNextTutorial()
 {
   game.nextTutorialStarted = true;
+
+  // on first doggo fire tutorial immediately
+  if(game.firstDoggo)
+  {
+    nextTutorial();
+  }
   nextTutoriaInterval = setInterval(nextTutorial, 3000);
 }
 function nextTutorial()
 {
-  blink(nextOverlay, 1000);
+  blink(nextOverlay, 500);
 }
 function clearNextTutorial()
 {
@@ -275,7 +292,7 @@ function voteFn(vote)
   else
   {
     clearTimeout(voteTutorialTimeout);
-    nextTutorialTimeout = setTimeout(startNextTutorial, 5000);
+    nextTutorialTimeout = setTimeout(startNextTutorial, 2000);
   }
 
   // hiding vote overlays
@@ -361,6 +378,12 @@ function voteFn(vote)
 // preparing the game for the next doggo
 function nextDogFn()
 {
+  // setting the first doggo flag to false on first doggo
+  if (game.firstDoggo)
+  {
+    game.firstDoggo = false;
+  }
+
   // play audio
   nextSound.play();
 
@@ -377,8 +400,8 @@ function nextDogFn()
     clearTimeout(nextTutorialTimeout);
   }
 
-  // if user does not vote for 5s vote tutorial will start
-  voteTutorialTimeout = setTimeout(startVoteTutorial, 5000);
+  // if user does not vote for 2s vote tutorial will start
+  voteTutorialTimeout = setTimeout(startVoteTutorial, 2000);
 
   // showing vote overlays
   hotOverlay.classList.remove("hidden");
@@ -621,7 +644,7 @@ function showSummary()
   }
 }
 
-// back to game
+// back to the game
 var backToGame = document.getElementById("backToGame");
 backToGame.addEventListener("click", backToGameFn);
 function backToGameFn()
@@ -664,7 +687,7 @@ function backToGameFn()
   summaryState.classList.add("hidden");
 }
 
-// share summary
+// share game summary
 var shareSummaryButton = document.getElementById("shareSummaryButton");
 shareSummaryButton.addEventListener("click", shareSummaryFn)
 function shareSummaryFn()
@@ -801,54 +824,16 @@ function animateBoneCircle()
     {
       clearInterval(interval)
     }
-  }, 220);
+  }, 150);
 
-  // removing bones after 3s
+  // removing bones after 2s
   var timeout = setTimeout(function()
   {
     removeElements("boneCircleBone");
-  }, 3000);
-}
-
-// returns a bone element
-function getABone()
-{
-  // random color https://stackoverflow.com/questions/1484506/random-color-generator
-  var rcolor = "#"+((1<<24)*Math.random()|0).toString(16)
-  // create bone element with a random color
-  var bone = document.createElement("i");
-  bone.classList.add("fas");
-  bone.classList.add("fa-bone");
-  bone.style.color = rcolor;
-
-  return bone;
-}
-
-function removeElements(className)
-{
-  var list = document.getElementsByClassName(className);
-
-  while(list[0]){
-    list[0].parentNode.removeChild(list[0]);
-  }
-}
-
-// Unique ID generator - I should be using UUID, but this is more fun.
-// https://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
-function generateID()
-{
-  var length = 8;
-  var mask = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var result = '';
-  for (var i = length; i > 0; --i)
-  {
-    result += mask[Math.round(Math.random() * (mask.length - 1))];
-  }
-  return result;
+  }, 2000);
 }
 
 /* ## Flask calls ## */
-
 function sendSummaryShareData(listOfEntries)
 {
  var path = '/collectHotDogSummaryShareData'

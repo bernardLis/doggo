@@ -1,15 +1,8 @@
-/**/
-html,body {
-    height: 100%;
-    width: 100%;
-    overflow-x: hidden;
-}
-main
+/* General styles */
+html,body
 {
-  /* center contents */
-  margin: 0 auto;
+    width: 100%;
 }
-
 .hidden
 {
   display: none;
@@ -30,6 +23,11 @@ main
   max-height:100%;
 }
 
+/* Overlays */
+.hotornoticon
+{
+  font-size: 5rem;
+}
 
 #notHotOverlay
 {
@@ -42,6 +40,14 @@ main
   opacity: 0;
   cursor: pointer;
 }
+#xicon
+{
+  position: absolute;
+  top: 33%;
+  left: 25%;
+  color: rgba(240, 127, 131);
+}
+
 #hotOverlay
 {
   z-index: 1;
@@ -52,17 +58,6 @@ main
   background-color: rgba(85, 221, 171, 0.5);
   opacity: 0;
   cursor: pointer;
-}
-.hotornoticon
-{
-  font-size: 5rem;
-}
-#xicon
-{
-  position: absolute;
-  top: 33%;
-  left: 25%;
-  color: rgba(240, 127, 131);
 }
 #heartIcon
 {
@@ -92,6 +87,14 @@ main
   color: #BD9EA8;
   font-size: 5rem;
 }
+#nextText
+{
+  user-select: none;
+  color: #fff;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+}
+
+/* Score */
 #scoreWrapper
 {
   z-index: -1;
@@ -122,7 +125,7 @@ main
   position: absolute;
   right: 0px;
   width: 50%;
-  overflow:hidden;
+  overflow: hidden;
   background-color: rgba(85, 221, 171, 0.2);
 }
 #placeholderHeartIcon
@@ -142,6 +145,7 @@ main
   height: 100px;
 }
 
+/* Buttons */
 #utilityButtons
 {
   position: fixed;

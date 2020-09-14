@@ -1,6 +1,7 @@
 from fabric import Connection
 import zipfile
 import datetime
+from invoke import Responder
 from datetime import date
 import os, time
 
@@ -58,7 +59,14 @@ def upload_archive():
     c.run('cd myproject && rm %s' %zipName)
 
     # does server restart correctly?
-    # this does not work >> c.run('systemctl restart myproject')
+    # sudo -S -p '[sudo] password: ' systemctl status postgresql-9.6.service
+    sudopass = Responder(
+        pattern=r'\[sudo\] password:',
+        response='1992\n',
+    )
+    # does not work : c.config.sudo.password('1992')
+    print('restarting...')
+    c.sudo('systemctl restart myproject', pty=True, watchers=[sudopass])
 
 def local_cleanup():
     print('cleaning up...')
