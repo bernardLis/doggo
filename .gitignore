@@ -5,6 +5,7 @@
 __pycache__/
 flask_session/
 archive/
+static/dogs/
 
 # files #
 doggoBotAndStats.js

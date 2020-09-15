@@ -8,6 +8,7 @@ html,body
   display: none;
 }
 
+/* Game styles*/
 .dog-container
 {
   positon: relative;
@@ -29,6 +30,7 @@ html,body
   font-size: 5rem;
 }
 
+/* not hot */
 #notHotOverlay
 {
   z-index: 1;
@@ -48,6 +50,7 @@ html,body
   color: rgba(240, 127, 131);
 }
 
+/* hot */
 #hotOverlay
 {
   z-index: 1;
@@ -67,6 +70,7 @@ html,body
   color: rgba(85, 221, 171);
 }
 
+/* next */
 #nextOverlay
 {
   z-index: 1;
@@ -145,7 +149,7 @@ html,body
   height: 100px;
 }
 
-/* Buttons */
+/* Utility buttons */
 #utilityButtons
 {
   position: fixed;
@@ -264,4 +268,25 @@ html,body
 .modal-open[style]
 {
   padding-right: 0px !important;
+}
+
+/* Mobile */
+@media (max-width: 900px)
+{
+
+}
+
+@media (max-width: 370px)
+{
+  #shareInput, #shareSummaryInput
+  {
+    width: 230px;
+  }
+}
+@media (max-width: 300px)
+{
+  #shareInput, #shareSummaryInput
+  {
+    width: 190px;
+  }
 }

@@ -1,10 +1,10 @@
+/* General styles */
 body
 {
   overflow-x: hidden;
 }
 
-
-
+/* Cards */
 .myCard
 {
   height: 500px;
@@ -30,11 +30,23 @@ body
   -webkit-box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
   box-shadow: 4px 5px 37px 0px rgba(0,0,0,0.75);
-
 }
-
-
-
+.cardLink:link {
+  color: black;
+  text-decoration: none;
+}
+.cardLink:visited {
+  color: black;
+  text-decoration: none;
+}
+.cardLink:hover {
+  color: black;
+  text-decoration: none;
+}
+.cardLink:active {
+  color: black;
+  text-decoration: none;
+}
 .sampleDoggo
 {
   max-height: 300px;
@@ -51,15 +63,11 @@ body
   border-radius: 5px;
 }
 
-
-
-
 /* Hot dog card */
 .dog-container
 {
   position: relative;
 }
-
 #placeholderXBackground
 {
   position: absolute;
@@ -89,38 +97,13 @@ body
   font-size: 3rem;
 }
 
-/* unvisited link */
-.cardLink:link {
-  color: black;
-  text-decoration: none;
-
-}
-
-/* visited link */
-.cardLink:visited {
-  color: black;
-  text-decoration: none;
-
-}
-
-/* mouse over link */
-.cardLink:hover {
-  color: black;
-  text-decoration: none;
-
-}
-
-/* selected link */
-.cardLink:active {
-  color: black;
-  text-decoration: none;
-
-}
-
-
-/* MOBILE */
+/* Mobile */
 @media (max-width: 900px)
 {
+  #selectGameModeText
+  {
+    font-size: 2rem;
+  }
   .myCard
   {
     height: 450px;
@@ -133,6 +116,7 @@ body
     max-width: 250px;
   }
 }
+
 @media (max-width: 300px)
 {
   .myCard

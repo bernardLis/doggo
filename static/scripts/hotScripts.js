@@ -33,6 +33,8 @@ game.shareLinkIsUptodate = false;
 game.shareSummaryLinkIsUptodate = false;
 
 /* ## Audio ## */
+game.audioMuted = false;
+
 var hotSound = new Howl({
     src: 'static/audio/hot.wav',
     autoplay: false,
@@ -48,6 +50,28 @@ var nextSound = new Howl({
     autoplay: false,
     volume: 1
 });
+
+// Toggle sound
+var toggleSound = document.getElementById("toggleSound");
+var toggleSoundIcon = document.getElementById("toggleSoundIcon");
+toggleSound.addEventListener("click", function()
+{
+  if(game.audioMuted)
+  {
+    toggleSoundIcon.classList.remove("fa-volume-mute");
+    toggleSoundIcon.classList.add("fa-volume-up");
+    toggleSoundSpan.innerHTML = "Mute";
+    game.audioMuted = false;
+  }
+  else
+  {
+    toggleSoundIcon.classList.remove("fa-volume-up");
+    toggleSoundIcon.classList.add("fa-volume-mute");
+    toggleSoundSpan.innerHTML = "Unmute";
+    game.audioMuted = true;
+  }
+});
+
 
 /* ## Game Startup ## */
 
@@ -243,7 +267,10 @@ function hotDogFn()
   game.hotDoggos.push(doggoElement);
 
   // play audio
-  hotSound.play();
+  if(!game.audioMuted)
+  {
+    hotSound.play();
+  }
 
   // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
@@ -263,8 +290,10 @@ function notHotDogFn()
   game.notHotDoggos.push(doggoElement);
 
   // play audio
-  notHotSound.play();
-
+  if(!game.audioMuted)
+  {
+    notHotSound.play();
+  }
   // sending data to the server
   link = secretDoggoList[game.currentDoggo].link;
   sendDataJsFn(link, 0);
@@ -385,7 +414,10 @@ function nextDogFn()
   }
 
   // play audio
-  nextSound.play();
+  if(!game.audioMuted)
+  {
+    nextSound.play();
+  }
 
   // when the dog changes link needs to be updated
   game.shareLinkIsUptodate = false;

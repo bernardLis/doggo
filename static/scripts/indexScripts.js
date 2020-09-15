@@ -1,7 +1,10 @@
-
 // media
 var screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 var screenHeight = (window.innerHeight > 0) ? window.innerHeight : screen.height;
+
+/* ## Audio ## */
+var game = {};
+game.audioMuted = false;
 
 var click = new Howl({
     src: 'static/audio/click.wav',
@@ -14,13 +17,39 @@ var accept = new Howl({
     volume: 0.5
 });
 
+// Toggle sound
+var toggleSound = document.getElementById("toggleSound");
+var toggleSoundIcon = document.getElementById("toggleSoundIcon");
+var toggleSoundSpan = document.getElementById("toggleSoundSpan");
+toggleSound.addEventListener("click", function()
+{
+  if(game.audioMuted)
+  {
+    toggleSoundIcon.classList.remove("fa-volume-mute");
+    toggleSoundIcon.classList.add("fa-volume-up");
+    toggleSoundSpan.innerHTML = "Mute";
+    game.audioMuted = false;
+  }
+  else
+  {
+    toggleSoundIcon.classList.remove("fa-volume-up");
+    toggleSoundIcon.classList.add("fa-volume-mute");
+    toggleSoundSpan.innerHTML = "Unmute";
+    game.audioMuted = true;
+  }
+});
+
+
 var myCards = document.getElementsByClassName("myCard");
 var len = myCards.length
 for (var i = 0; i < len; i++)
 {
   myCards[i].addEventListener("mouseenter", function()
   {
-    click.play();
+    if(!game.audioMuted)
+    {
+      click.play();
+    }
   });
   myCards[i].addEventListener("click", function(e)
   {
@@ -28,7 +57,10 @@ for (var i = 0; i < len; i++)
     e.preventDefault();
     var goTo = this.parentNode.getAttribute("href");
     // sound
-    accept.play();
+    if(!game.audioMuted)
+    {
+      accept.play();
+    }
     // navigate after 0.3 sec
     setTimeout(function(){
          window.location = goTo;

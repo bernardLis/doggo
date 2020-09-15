@@ -48,42 +48,53 @@
     </head>
 
     <body>
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a href="/"><i style="color: #D4CBB3;" id="brandBone" class="navbar-brand disabled fas fa-bone"></i></a>
+      <nav class="navbar navbar-expand-lg navbar-dark">
+
+        <div id="brandBoneContainer" class="navItem">
+          <a class="navLink" id="" href="/">
+            <i id="brandBone" class="disabled fas fa-bone"></i>
+            Home
+          </a>
+        </div>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse align-items-center" id="navbarSupportedContent">
-          <ul class="navbar-nav ml-auto align-items-center">
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+          <ul class="navbar-nav align-items-center">
             {#
             <li class="nav-item">
               <a class="navLink" href="/test">Test</a>
             </li>
             #}
 
+
             <li class="nav-item">
               <div class="navLink" id="toggleSound">
-                <i class="fa fa-volume-up" id=""></i>
-                Mute
+                <i class="fa fa-volume-up" id="toggleSoundIcon"></i>
+                <span id="toggleSoundSpan">Mute</span>
+
               </div>
             </li>
 
             <li class="nav-item">
               <a class="navLink" href="/hotdog">
+                <i class="fas fa-hotdog"></i>
                 Hot Dog
               </a>
             </li>
 
             <li class="nav-item">
               <a class="navLink" href="/breedQuiz">
+                <i class="fas fa-paw"></i>
                 Breed Quiz
               </a>
             </li>
 
             <li class="nav-item">
               <a class="navLink" href="/info">
+                <i class="fas fa-info"></i>
                 Info
               </a>
             </li>
@@ -101,11 +112,20 @@
           </header>
       {% endif %}
 
-      <main id="main" class="container p-5">
+      <main id="main" class="mt-2 container p-5">
           {% block main %}{% endblock %}
       </main>
 
       <script>
+        var bbc = document.getElementById("brandBoneContainer");
+        var bb = document.getElementById("brandBone");
+
+        bbc.addEventListener("mouseenter", function(){
+          bb.classList.add("rotating");
+          setTimeout(function(){
+            bb.classList.remove("rotating");
+          }, 2000);
+        });
       </script>
 
     </body>

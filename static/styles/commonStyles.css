@@ -15,13 +15,19 @@ main
 }
 
 /* Navigation */
+.navbar
+{
+  background-color: #1c1c1c;
+}
 .nav-item
 {
-  margin-right: 1rem;
+  margin: 0 1rem;
 }
 .navLink
 {
   padding: 0.2rem;
+  color: #ababab;
+  user-select: none;
 }
 #toggleSound
 {
@@ -29,27 +35,25 @@ main
 }
 /* unvisited link */
 .navLink:link {
-  color: black;
+  color: #ababab;
   text-decoration: none;
 }
 /* visited link */
 .navLink:visited {
-  color: black;
+  color: #ababab;
   text-decoration: none;
 }
 /* mouse over link */
 .navLink:hover {
-  color: black;
+  transition: 0.2s linear;
+  color: #dedede;
   text-decoration: none;
 }
 /* selected link */
 .navLink:active {
-  color: black;
+  color: #dedede;
   text-decoration: none;
 }
-
-
-
 
 
 #countdownOverlay
@@ -101,6 +105,70 @@ main
 
 }
 
+/* Info styles */
+ul.boneList {
+  list-style:none;
+  padding-left: 2em;
+  list-style-image: url(bone-solid.svg);
+}
+
+#mJu
+{
+  -webkit-animation: changeColor 5s linear infinite;
+  animation: changeColor 5s linear infinite;
+}
+@-webkit-keyframes changeColor {
+  0% { color: #f99; }
+  33% { color: #9f9; }
+  67% { color: #99f; }
+  100% { color: #f99; }
+}
+@keyframes changeColor {
+  0% { color: #f99; }
+  33% { color: #9f9; }
+  67% { color: #99f; }
+  100% { color: #f99; }
+}
+
+
+/* https://stackoverflow.com/questions/6410730/css-endless-rotation-animation */
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  -webkit-animation: rotating 2s ease-out infinite;
+  -moz-animation: rotating 2s ease-out infinite;
+  -ms-animation: rotating 2s ease-out infinite;
+  -o-animation: rotating 2s ease-out infinite;
+  animation: rotating 2s ease-out infinite;
+}
+
+
 /* text transition by me */
 @-webkit-keyframes textScaling /* Safari and Chrome */ {
   from {
@@ -137,6 +205,8 @@ main
   -o-animation: textScaling 1s ease-out infinite;
   animation: textScaling 1s ease-out infinite;
 }
+
+
 
 @media (max-width: 1001px)
 {

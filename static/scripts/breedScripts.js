@@ -29,18 +29,14 @@ game.numberOfChoices = 4;
 var secretDoggoList = {};
 game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
 
-// audio
-game.musicFinished = false;
-game.audioMuted = false;
-game.musicID;
-game.disableMusic = true;
-
 // timer
 game.gameTime = 91;
 game.timerValue = 0;
 game.timeLeft = 0;
 
-// Audio
+/* ## Audio ## */
+game.audioMuted = false;
+
 var correctSound = new Howl({
     src: 'static/audio/Correct.mp3',
     autoplay: false,
@@ -57,6 +53,26 @@ var click = new Howl({
     volume: 0.5
 });
 
+// Toggle sound
+var toggleSound = document.getElementById("toggleSound");
+var toggleSoundIcon = document.getElementById("toggleSoundIcon");
+toggleSound.addEventListener("click", function()
+{
+  if(game.audioMuted)
+  {
+    toggleSoundIcon.classList.remove("fa-volume-mute");
+    toggleSoundIcon.classList.add("fa-volume-up");
+    toggleSoundSpan.innerHTML = "Mute";
+    game.audioMuted = false;
+  }
+  else
+  {
+    toggleSoundIcon.classList.remove("fa-volume-up");
+    toggleSoundIcon.classList.add("fa-volume-mute");
+    toggleSoundSpan.innerHTML = "Unmute";
+    game.audioMuted = true;
+  }
+});
 
 // start the timer only when the page loads
 window.addEventListener("load", function()
@@ -1180,78 +1196,8 @@ if (screenWidth < 1001)
   }
 }
 
-/* AUDIO */
-// I've decided not to play music
-/*   'static/audio/Kai_Engel_-_07_-_Interception.mp3',
-  'static/audio/Kai_Engel_-_09_-_Homeroad.mp3',
-  'static/audio/Pictures_of_the_Floating_World_-_Waves.mp3',
-  'static/audio/Pictures_of_the_Floating_World_-_01_-_Bumbling.mp3'
-  */
-var MUSIC_LIST =
-[
-  '/static/audio/bones-2.wav'
-]
 
-var track = MUSIC_LIST[Math.floor(Math.random() * MUSIC_LIST.length)];
 
-var sound = new Howl({
-    src: track,
-    autoplay: false,
-    volume: 0.5,
-    onend: function() {
-      game.musicFinished = true;
-    }
-});
-
-// Toggle sound
-var toggleSound = document.getElementById("toggleSound");
-toggleSound.addEventListener("click", function()
-{
-  if(game.audioMuted)
-  {
-    toggleSound.classList.remove("fa-volume-mute");
-    toggleSound.classList.add("fa-volume-up");
-    game.audioMuted = false;
-    if(!game.disableMusic)
-    {
-      game.musicID = sound.play();
-    }
-  }
-  else
-  {
-    toggleSound.classList.remove("fa-volume-up");
-    toggleSound.classList.add("fa-volume-mute");
-    game.audioMuted = true;
-    if(!game.disableMusic)
-    {
-      sound.pause(game.musicID);
-    }
-  }
-})
-
-// making sure music is playing
-if(!game.disableMusic)
-{
-  var soundCheck = setInterval(musicCheck, 1000);
-}
-
-function musicCheck()
-{
-  if (game.musicFinished && game.audioMuted == false)
-  {
-    track = MUSIC_LIST[Math.floor(Math.random() * MUSIC_LIST.length)];
-    sound = new Howl({
-        src: track,
-        autoplay: false,
-        volume: 0.5,
-        onend: function() {
-          game.musicFinished = true;
-        }
-    });
-    game.musicID = sound.play();
-    game.musicFinished = false;
-  }
-}
 function sendData(data)
 {
   dataJSON = JSON.stringify(data)

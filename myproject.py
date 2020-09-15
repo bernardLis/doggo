@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import json
 import requests
@@ -67,7 +68,7 @@ def index():
 
     dogs = loadDogs(2)
     readyDogs = prepareDogs(dogs)
-
+    
     return render_template("index.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
 
 @app.route("/breedQuiz", methods=["GET"])
@@ -180,6 +181,7 @@ def loadDogs(n):
     # api call
     call = "https://dog.ceo/api/breeds/image/random/" + str(n)
     response = requests.get(call)
+    print("response", response)
     json_response = response.json()
     dogsFromApi = json_response['message']
 

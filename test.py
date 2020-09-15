@@ -4,7 +4,8 @@ import requests
 import sys
 import json
 from cs50 import SQL
-
+import os
+import random
 
 
 ALL_BREEDS = ['Affenpinscher', 'African', 'Airedale', 'Akita', 'Appenzeller', 'Australian Shepherd', 'Basenji', 'Beagle', 'Bluetick', 'Borzoi', 'Bouvier', 'Boxer', 'Brabancon', 'Briard',
@@ -22,13 +23,14 @@ ALL_BREEDS = ['Affenpinscher', 'African', 'Airedale', 'Akita', 'Appenzeller', 'A
 'Terrier Sealyham', 'Terrier Silky', 'Terrier Tibetan', 'Terrier Toy', 'Terrier Westhighland', 'Terrier Wheaten', 'Terrier Yorkshire', 'Vizsla', 'Waterdog Spanish', 'Weimaraner',
 'Whippet', 'Wolfhound Irish']
 
-
-longestBreed = ""
-maxLength = 0
-
-for breed in ALL_BREEDS:
-    if len(breed) > maxLength:
-        longestBreed = breed
-        maxLength = len(breed)
-
-print(longestBreed)
+#! /usr/bin/env python
+# getting random file from a directory
+# https://stackoverflow.com/questions/701402/best-way-to-choose-a-random-file-from-a-directory
+def getRandomFile(dir):
+    n=0
+    random.seed();
+    for root, dirs, files in os.walk(dir):
+      for name in files:
+        n=n+1
+        if random.uniform(0, n) < 1: rfile=os.path.join(root, name)
+    return rfile
