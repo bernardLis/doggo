@@ -9,8 +9,9 @@ html, body
 {
   cursor: pointer;
   width: 200px;
+  height: 60px;
   border: 1px solid #6b6b6b;
-  padding: 1rem 0;
+  padding: 0.8rem 0.5rem;
   border-radius: 5px;
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10+ and Edge */
@@ -267,6 +268,6 @@ html, body
   .breedButton
   {
     width: 140px;
-    padding: 0.8rem 0rem;
+    padding: 0.8rem 0.5rem;
   }
 }
