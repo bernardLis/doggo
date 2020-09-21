@@ -11,11 +11,18 @@
 {% block main %}
   <div id="countdownOverlay">
     <div class="overlayContent">
+      <div class="mx-auto" id="boneCircleContainer"></div>
+      <p class="" id="countdownTooltip"></p>
+    </div>
+  </div>
+{#
+  <div id="countdownOverlay">
+    <div class="overlayContent">
       <h1 class="" id="countdownMsg"></h1>
       <p class="" id="countdownTooltip"></p>
     </div>
   </div>
-
+#}
   <div id="game">
     <div id="scoreDashboard" class="d-flex justify-content-around">
 
@@ -34,11 +41,6 @@
           <span class="ml-3 " id="streakDisplay"><i style="color: #C2714F;" class="rotating fas fa-bone"></i></span>
         </div>
       </div>
-
-      <div class="flex-sm-column my-auto width150 text-center">
-        <i class="fa fa-volume-up" id="toggleSound"></i>
-      </div>
-
 
     </div>
 
@@ -68,6 +70,43 @@
       <button class="breedButton my-1 mx-1" id="button3"><i style="color: #B33951;" class="rotating fas fa-bone"></i></button>
       <button class="breedButton my-1 mx-1" id="button4"><i style="color: #91C7B1;" class="rotating fas fa-bone"></i></button>
     </div>
+
+    {#
+    <div id="utilityButtons" class="d-flex justify-content-center my-4">
+
+      <button class="myButton mx-2" data-target="#shareModal" data-toggle="modal" id="shareButton">
+        <i class="mr-2 fas fa-share-alt"></i>
+        Share
+      </button>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Share this pupper!</h5>
+          </div>
+          <div class="modal-body">
+            <input onClick="this.setSelectionRange(0, this.value.length)" id="shareInput" readonly></input>
+            <div id="copyShareLinkDiv" class="myTooltip">
+              <button class="myButton" id="copyShareLinkButton" data-clipboard-target="#shareInput">
+                <i id="copyShareLinkIcon" class="my-auto fas fa-clipboard"></i>
+              </button>
+              <span id="copyShareLinktt" class="myTooltiptext">Copy link!</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="myButton" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    #}
+
   </div>
 
   <div id="hscoreEntryState" class="hidden pl-2">
@@ -81,6 +120,8 @@
     <hr/>
 
     <form class="" id="hscoreEntry" action="/hscoreEntry" method="post">
+      {{ form.csrf_token }}
+
       <h5> Submit your high score: </h5>
 
       <div class="form-group">

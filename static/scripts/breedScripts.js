@@ -95,13 +95,14 @@ function gameStartUp(breeds, timer)
   var gameResetButton = document.getElementById("gameReset");
   gameResetButton.innerHTML = "";
   gameResetButton.disabled = true;
+  /*
   for(var i = 0; i < game.numberOfChoices; i++)
   {
     var bone = getABone();
     bone.classList.add("rotating");
     gameResetButton.appendChild(bone);
   }
-
+  */
   // arrays for storing doggos
   correctDoggos = [];
   incorrectDoggos = [];
@@ -110,14 +111,11 @@ function gameStartUp(breeds, timer)
   var overlay = document.getElementById("countdownOverlay");
   overlay.style.width = "100%";
 
-  var msg = document.getElementById("countdownMsg");
   var tooltip = document.getElementById("countdownTooltip");
-  var msgText = "Woof! ";
 
   // choosing the tooltip message from TOOLTIP_MESSAGES
   var tooltipN = Math.floor(Math.random() * game.unseenTooltips.length);
   var ttmessage = game.unseenTooltips[tooltipN];
-  tooltip.innerHTML = ttmessage;
   // making sure user sees all tooltips before I start recycling them
   game.unseenTooltips.splice(tooltipN, 1);
   if (game.unseenTooltips.length == 0)
@@ -125,10 +123,12 @@ function gameStartUp(breeds, timer)
     game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
   }
 
+  // TODO: add shared doggo message!
+
   var streakDisplay = document.getElementById("streakDisplay");
   var scoreDisplay = document.getElementById("scoreDisplay");
   // countdown duration
-  var n = 3;
+  var n = 2;
   var interval = setInterval(countdown, 1000);
   function countdown()
   {
@@ -136,10 +136,7 @@ function gameStartUp(breeds, timer)
     if (n == 0)
     {
       overlay.style.width = "0%";
-      msg.innerHTML = "";
       tooltip.innerHTML = "";
-      msg.classList.remove("textScaling");
-
       clearInterval(interval);
     }
     // starting the timer and counters
@@ -148,27 +145,25 @@ function gameStartUp(breeds, timer)
       timer(game.gameTime); //61 works well for a minute
       streakDisplay.innerHTML = "0";
       scoreDisplay.innerHTML = "0";
-
-      msg.innerHTML = msgText.repeat(n);
       n--;
     }
     // setting up the breed buttons
     else if (n == 2)
     {
-      breeds();
+      tooltip.innerHTML = ttmessage;
 
-      msg.innerHTML = msgText.repeat(n);
+      breeds();
+      // bones circle animation start-up
+      createBoneCircle();
+      animateBoneCircle();
+      countdownSound.play();
+
       n--;
     }
     // setting up the countdown
     else
     {
-      msg.innerHTML = msgText.repeat(n);
-
-      //adding the animation
-      msg.classList.add("textScaling");
       n--;
-
     }
   }
 }
@@ -783,27 +778,6 @@ function prepareTheNewGameFn()
   game.nCorrect = 0;
   game.nIncorrect = 0;
 
-  // adding placeholder bones
-  var bones = [];
-  for (var i = 0; i < 3; i++)
-  {
-    // create bone element with a random color
-    var bone = getABone();
-    bone.classList.add("rotating");
-    bones.push(bone);
-  }
-  var scoreDisplay = document.getElementById("scoreDisplay");
-  var streakDisplay = document.getElementById("streakDisplay");
-  var timerDisplay = document.getElementById("timerDisplay");
-
-  scoreDisplay.innerHTML = "";
-  streakDisplay.innerHTML = "";
-  timerDisplay.innerHTML = "";
-
-  scoreDisplay.appendChild(bones[0]);
-  streakDisplay.appendChild(bones[1]);
-  timerDisplay.appendChild(bones[2]);
-
   // prep the first doggo
   var dogContainer = document.getElementById("dog-container");
   var currentDoggo = dogContainer.children[0];
@@ -820,6 +794,28 @@ var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
+  timerDisplay.innerHTML = "01:31"
+  // no access to game.bla vartiables?
+  gameTimer(5); //61 works well for a minute
+  streakDisplay.innerHTML = "0";
+  scoreDisplay.innerHTML = "0";
+
+  for (var i = 0; i < 4; i++)
+  {
+    // getting the breed buttons
+    var str = "button" + (i + 1);
+    var button = document.getElementById(str);
+    // setting their html
+    button.innerHTML = "";
+    // reseting their color
+    button.style.backgroundColor = "rgb(248, 249, 250)";
+    button.style.borderColor = "rgb(107, 107, 107)";
+
+    button.disabled = false;
+  }
+
+  setBreedButtons();
+
   var game = document.getElementById("game");
   var hscoreEntryState = document.getElementById("hscoreEntryState");
 
@@ -844,29 +840,6 @@ function newGame()
   // hide the success message
   var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
   submitHscoreSuccess.classList.add("hidden");
-
-  // Appending placeholder bones to dog breed buttons
-  // for some reason game.numberOfChoices does not work here - it's undefined.
-  for (var i = 0; i < 4; i++)
-  {
-    // getting the breed buttons
-    var str = "button" + (i + 1);
-    var button = document.getElementById(str);
-    // setting their html
-    button.innerHTML = "";
-    // reseting their color
-    button.style.backgroundColor = "rgb(248, 249, 250)";
-    button.style.borderColor = "rgb(107, 107, 107)";
-
-    // create bone element with a random color
-    var bone = getABone();
-    bone.classList.add("rotating");
-    button.appendChild(bone);
-    button.disabled = false;
-  }
-
-  // starting new timer
-  gameStartUp(setBreedButtons, gameTimer);
 }
 
 
@@ -907,7 +880,6 @@ function throwBones(boneN)
     {
       boneAnimationL(boneEl);
     }
-
     // remove bone elements from the document after 0.9 sec
     setTimeout(function()
     {
@@ -1167,6 +1139,9 @@ function subForm(e){
        }
    });
 }
+
+
+
 
 /* MEDIA */
 

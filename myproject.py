@@ -9,14 +9,19 @@ import redis
 from pprint import pprint
 from random import choice
 from cs50 import SQL
+from tempfile import mkdtemp
+
 from datetime import date, datetime, timedelta
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, request, url_for
 from flask_session import Session
-from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
 from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 
 from helpers import apology
 
@@ -36,7 +41,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Make session data persistent
 # https://pythonise.com/series/learning-flask/flask-session-object
-# TEMP secret key for sessions
+# TEMP secret key for sessions & csrf
 app.config["SECRET_KEY"] = "APACHE"
 app.config.from_object(__name__)
 
@@ -49,6 +54,10 @@ app.config['SESSION_REDIS'] = redis.from_url('redis://localhost:6379')
 db = SQL("sqlite:///doggoDB.db")
 
 Session(app)
+
+# flask-wtforms for csfr check
+class MyForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
 
 #### displaying pages ####
 @app.route("/test", methods=["GET"])
@@ -84,7 +93,10 @@ def breedQuiz():
         dogs = loadDogs(1)
         readyDogs = prepareDogs(dogs)
 
-        return render_template("breedQuiz.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
+        # to csrf validate the submit hscore form
+        form = MyForm()
+
+        return render_template("breedQuiz.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS, form=form)
 
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
@@ -164,7 +176,6 @@ def info():
     return render_template("info.html")
 
 #### loading dogs ####
-
 @app.route("/loadDogs", methods=["POST"])
 def loadDogs(n):
 
@@ -219,7 +230,6 @@ def loadDogsCall():
     return jsonify(readyDogs)
 
 #### data collection ####
-
 @app.route("/collectData", methods=["POST"])
 def collectData():
     data = request.get_json()
@@ -257,9 +267,7 @@ def collectHotDogSummaryShareData():
 
     return jsonify("", 204)
 
-
 #### highscores ####
-
 @app.route("/hscoreEntry", methods=["POST"])
 def hscoreEntry():
     # getting form info
@@ -294,7 +302,6 @@ def deleteHSEntry():
     return render_template("hsAdmin.html", hscores=hscores)
 
 #### errors ####
-
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):
@@ -306,7 +313,6 @@ for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
 #### helpers ####
-
 def prepareDogs(dogs):
     for key in dogs:
         # preping dogDict and sending it to the client
@@ -356,6 +362,8 @@ def caesarShift(string, key):
 
     return cipherString
 
-
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    return jsonify(e.description)
 
 ALL_BREEDS = ['Chihuahua', 'Japanese Spaniel', 'Maltese Dog', 'Pekinese', 'Shih Tzu', 'Blenheim Spaniel', 'Papillon', 'Toy Terrier', 'Rhodesian Ridgeback', 'Afghan Hound', 'Basset', 'Beagle', 'Bloodhound',  'Bluetick', 'Black And Tan Coonhound', 'Walker Hound', 'English Foxhound', 'Redbone', 'Borzoi', 'Irish Wolfhound', 'Italian Greyhound', 'Whippet', 'Ibizan Hound', 'Norwegian Elkhound', 'Otterhound', 'Saluki', 'Scottish Deerhound', 'Weimaraner', 'Staffordshire Bullterrier', 'American Staffordshire Terrier', 'Bedlington Terrier', 'Border Terrier', 'Kerry Blue Terrier', 'Irish Terrier', 'Norfolk Terrier', 'Norwich Terrier', 'Yorkshire Terrier', 'Wire Haired Fox Terrier', 'Lakeland Terrier', 'Sealyham Terrier', 'Airedale', 'Cairn', 'Australian Terrier', 'Dandie Dinmont', 'Boston Bull', 'Miniature Schnauzer', 'Giant Schnauzer', 'Standard Schnauzer', 'Scotch Terrier', 'Tibetan Terrier', 'Silky Terrier', 'Soft Coated Wheaten Terrier', 'West Highland White Terrier', 'Lhasa', 'Flat Coated Retriever', 'Curly Coated Retriever', 'Golden Retriever', 'Labrador Retriever', 'Chesapeake Bay Retriever', 'German Short Haired Pointer', 'Vizsla', 'English Setter', 'Irish Setter', 'Gordon Setter', 'Brittany Spaniel', 'Clumber', 'English Springer', 'Welsh Springer Spaniel', 'Cocker Spaniel', 'Sussex Spaniel', 'Irish Water Spaniel', 'Kuvasz', 'Schipperke', 'Groenendael', 'Malinois', 'Briard', 'Kelpie', 'Komondor', 'Old English Sheepdog', 'Shetland Sheepdog', 'Collie', 'Border Collie', 'Bouvier Des Flandres', 'Rottweiler', 'German Shepherd', 'Doberman', 'Miniature Pinscher', 'Greater Swiss Mountain Dog', 'Bernese Mountain Dog', 'Appenzeller', 'Entlebucher', 'Boxer', 'Bull Mastiff', 'Tibetan Mastiff', 'French Bulldog', 'Great Dane', 'Saint Bernard', 'Eskimo Dog', 'Malamute', 'Siberian Husky', 'Affenpinscher', 'Basenji', 'Pug', 'Leonberg', 'Newfoundland', 'Great Pyrenees', 'Samoyed', 'Pomeranian', 'Chow', 'Keeshond', 'Brabancon Griffon', 'Pembroke', 'Cardigan', 'Toy Poodle', 'Miniature Poodle', 'Standard Poodle', 'Mexican Hairless', 'Dingo', 'Dhole', 'African Hunting Dog']

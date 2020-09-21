@@ -30,6 +30,8 @@
 
           <td>
             <form class="" id="deleteEntry" action="/deleteHSEntry" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
               <input name="userid" class="hidden" value=" {{score["userid"]}} " id="form-usrid"></input>
 
               <button type="submit" class="btn btn-danger deleteButton" id="">delete</button>

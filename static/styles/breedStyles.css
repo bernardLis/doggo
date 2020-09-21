@@ -3,17 +3,22 @@ html, body
 {
     max-width: 100%;
 }
-
+.hidden
+{
+  display: none;
+}
 
 .breedButton
 {
   cursor: pointer;
   width: 200px;
   height: 60px;
+  text-align: center;
+  vertical-align: middle;
   border: 1px solid #6b6b6b;
-  padding: 0.8rem 0.5rem;
   border-radius: 5px;
-  -webkit-user-select: none; /* Safari */
+  -webkit-user-select: none; /* Safari   //padding: 0.8rem 0.5rem;
+*/
   -ms-user-select: none; /* IE 10+ and Edge */
   user-select: none; /* Standard syntax */
 }
@@ -32,40 +37,6 @@ html, body
   filter: brightness(105%);
   transform: scale(0.98);
   transition: all .2s linear;
-}
-
-#countdownOverlay
-{
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: rgba(0,0,0, 0.7);
-  overflow-x: hidden;
-  transition: 0.5s;
-}
-
-.overlayContent
-{
-  position: relative;
-  top: 25%;
-  width: 100%;
-  text-align: center;
-  margin-top: 30px;
-}
-
-#countdownMsg
-{
-  height: 2rem;
-  font-size: 2rem;
-  color: white;
-}
-#countdownTooltip
-{
-  margin-top: 5rem;
-  color: white;
 }
 
 .width150
@@ -133,7 +104,6 @@ html, body
   color: #fff;
   text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
 }
-
 
 .center
 {
@@ -232,8 +202,7 @@ html, body
   .breedButton
   {
     width: 160px;
-    font-size: 0.8rem;
-    padding: 1rem 0;
+    font-size: 1rem;
   }
   .breedButton:hover
   {
@@ -265,9 +234,17 @@ html, body
 }
 @media (max-width: 321px)
 {
+  #countdownMsg
+  {
+    font-size: 1rem;
+  }
+  .currentDoggo
+  {
+    height: 350px;
+  }
   .breedButton
   {
     width: 140px;
-    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
   }
 }

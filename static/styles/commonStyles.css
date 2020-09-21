@@ -55,6 +55,56 @@ main
   text-decoration: none;
 }
 
+.myButton
+{
+  width: 100px;
+  padding: 0.4rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.myButton:hover
+{
+  filter: brightness(95%);
+  transform: scale(1.02);
+  transition: all .2s linear;
+}
+.myButton:active
+{
+  filter: brightness(105%);
+  transform: scale(0.98);
+  transition: all .2s linear;
+}
+
+
+#shareButton
+{
+  width: 120px;
+}
+#summaryButton
+{
+  width: 120px;
+}
+
+#shareModal, #shareSummaryModal
+{
+  padding: 0;
+  overflow: hidden;
+}
+#shareInput, #shareSummaryInput
+{
+  width: 250px;
+}
+#copyShareLinkButton, #copyShareSummaryLinkButton
+{
+  width: 2rem;
+  padding-top: 0;
+  padding-bottom :0;
+}
+#copyShareLinkIcon
+{
+}
+
+
 
 #countdownOverlay
 {
