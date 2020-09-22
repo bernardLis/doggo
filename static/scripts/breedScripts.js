@@ -29,6 +29,12 @@ game.numberOfChoices = 4;
 var secretDoggoList = {};
 game.unseenTooltips = TOOLTIP_MESSAGES.slice(0);
 
+// share
+game.shareID = null;
+game.summaryShareID = null;
+game.shareLinkIsUptodate = false;
+game.shareSummaryLinkIsUptodate = false;
+
 // timer
 game.gameTime = 91;
 game.timerValue = 0;
@@ -172,34 +178,50 @@ function setBreedButtons()
 {
   breedsForButtons = []
 
-  // getting breed of the current doggo
   var doggoNumber = "doggo-number-" + game.currentDoggo
   var doggoElement = document.getElementById(doggoNumber);
   currentDoggoBreed = doggoElement.getAttribute("data-breed");
   game.currentDoggoBreed = currentDoggoBreed;
   var decryptedBreed = caesarShift(currentDoggoBreed, -4);
-  breedsForButtons.push(decryptedBreed);
+  console.log("game.currentDoggoBreed", game.currentDoggoBreed);
 
-  // https://stackoverflow.com/questions/9792927/javascript-array-search-and-remove-string
-  // making sure I only get one occurance of each breed in buttons
-  let arr = ALL_BREEDS;
-  arr = arr.filter(e => e !== decryptedBreed);
-
-  // getting 3 random doggo breeds from the list
-  for (var i = 0; i < game.numberOfChoices - 1; i++)
+  if (sharedChoice1 != null)
   {
-    var b = arr[Math.floor(Math.random() * arr.length)];
+    breedsForButtons.push(sharedChoice1);
+    breedsForButtons.push(sharedChoice2);
+    breedsForButtons.push(sharedChoice3);
+    breedsForButtons.push(sharedChoice4);
 
-    // making sure I only get one occurance of each breed in buttons
-    arr = arr.filter(e => e !== b);
-
-    breedsForButtons.push(b);
+    sharedChoice1 = null;
+    sharedChoice2 = null;
+    sharedChoice3 = null;
+    sharedChoice4 = null;
   }
+  else
+  {
+    breedsForButtons.push(decryptedBreed);
 
-  // shuffle the array
-  shuffle(breedsForButtons);
-  // twice
-  shuffle(breedsForButtons);
+    // https://stackoverflow.com/questions/9792927/javascript-array-search-and-remove-string
+    // making sure I only get one occurance of each breed in buttons
+    let arr = ALL_BREEDS;
+    arr = arr.filter(e => e !== decryptedBreed);
+
+    // getting 3 random doggo breeds from the list
+    for (var i = 0; i < game.numberOfChoices - 1; i++)
+    {
+      var b = arr[Math.floor(Math.random() * arr.length)];
+
+      // making sure I only get one occurance of each breed in buttons
+      arr = arr.filter(e => e !== b);
+
+      breedsForButtons.push(b);
+    }
+
+    // shuffle the array
+    shuffle(breedsForButtons);
+    // twice
+    shuffle(breedsForButtons);
+  }
 
   // adding breeds to buttons
   for (var i = 0; i < game.numberOfChoices; i++)
@@ -254,7 +276,7 @@ function doggoBreedCheck()
   }
 
   // sending user's guess to the server
-  sendData(dataToSend);
+  sendData(dataToSend, 'collectBreedQuizData');
 
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var doggoElement = document.getElementById(doggoNumber);
@@ -473,6 +495,9 @@ function doggoBreedCheck()
 // showing the next doggo
 function nextDoggo()
 {
+  // update share link on next doggo
+  game.shareLinkIsUptodate = false
+
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var nextDoggo = "doggo-number-" + (game.currentDoggo + 1);
 
@@ -842,6 +867,49 @@ function newGame()
   submitHscoreSuccess.classList.add("hidden");
 }
 
+/* ## Share ## */
+
+var shareButton = document.getElementById("shareButton");
+shareButton.addEventListener("click", shareTheDog)
+
+function shareTheDog()
+{
+  // create share ID, send data to databse
+  if (game.shareLinkIsUptodate == false)
+  {
+    game.shareID = generateID();
+    var link = secretDoggoList[game.currentDoggo];
+
+    var breedButtons = document.getElementsByClassName("breedButton");
+    var choice1 = breedButtons[0].innerHTML;
+    var choice2 = breedButtons[1].innerHTML;
+    var choice3 = breedButtons[2].innerHTML;
+    var choice4 = breedButtons[3].innerHTML;
+
+    sendShareData(game.shareID, link, choice1, choice2, choice3, choice4);
+    game.shareLinkIsUptodate = true;
+  }
+
+
+  // update the input with the link
+  var shareInput = document.getElementById("shareInput");
+  shareInput.value = "http://127.0.0.1:5000/bq/s/" + game.shareID;
+}
+
+var copyShareLinkDiv = document.getElementById("copyShareLinkDiv");
+var copyShareLinkButton = document.getElementById("copyShareLinkButton");
+var copyShareLinktt = document.getElementById("copyShareLinktt");
+var clipboardjs = new ClipboardJS('#copyShareLinkButton');
+clipboardjs.on('success', function(e)
+{
+  copyShareLinktt.innerHTML = "Copied!";
+});
+
+copyShareLinkDiv.addEventListener("mouseleave", function(){
+  copyShareLinktt.innerHTML = "Copy link!";
+});
+
+
 
 // animating flying bones on streaks
 function throwBones(boneN)
@@ -1140,11 +1208,7 @@ function subForm(e){
    });
 }
 
-
-
-
 /* MEDIA */
-
 // For devices with screen width of less than 1000px
 if (screenWidth < 1001)
 {
@@ -1171,14 +1235,33 @@ if (screenWidth < 1001)
   }
 }
 
+function sendShareData(id, link, choice1, choice2, choice3, choice4)
+{
+  var dataToSend = {
+    id: "",
+    link: "",
+    choice1: "",
+    choice2: "",
+    choice3: "",
+    choice4: "",
+  }
+  dataToSend.id = id;
+  dataToSend.link = link;
+  dataToSend.choice1 = choice1;
+  dataToSend.choice2 = choice2;
+  dataToSend.choice3 = choice3;
+  dataToSend.choice4 = choice4;
+  var path = '/collectBreedQuizShareData';
+  sendData(dataToSend, path);
+}
 
 
-function sendData(data)
+function sendData(data, path)
 {
   dataJSON = JSON.stringify(data)
   $.ajax({
     type : "POST",
-    url : '/collectData',
+    url : path,
     dataType: "json",
     data: dataJSON,
     contentType: 'application/json;charset=UTF-8',

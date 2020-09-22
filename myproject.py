@@ -83,6 +83,20 @@ def index():
 @app.route("/breedQuiz", methods=["GET"])
 def breedQuiz():
 
+    # check if the user came for shared link => has a shared dog in the session
+    if "sharedDog" in session:
+        readyDogs = session.get('sharedDog')
+        form = MyForm()
+
+        choices = []
+        choices.append(session.get('choice1'))
+        choices.append(session.get('choice2'))
+        choices.append(session.get('choice3'))
+        choices.append(session.get('choice4'))
+
+        return render_template("breedQuiz.html", dogs=readyDogs, form=form, ALL_BREEDS=ALL_BREEDS, choices=choices)
+
+    else:
         # clearing the session
         session.clear()
         # remember session even over browser restarts?
@@ -97,6 +111,36 @@ def breedQuiz():
         form = MyForm()
 
         return render_template("breedQuiz.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS, form=form)
+
+@app.route("/bq/s/<shareID>", methods=["GET"])
+def sharedBreedQuiz(shareID):
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
+    # grab the shared dog from the db
+    dbData = db.execute("SELECT * FROM breedQuizShares WHERE shareID=(?)", (shareID))
+
+    # add it to shown dogs for the session
+    session["shownDogs"].append(dbData[0]["link"])
+
+    # prep the dog
+    doggoList = {}
+    doggoList[0] = []
+    doggoList[0].append(dbData[0]["link"]);
+    readyDogs = prepareDogs(doggoList)
+
+    # add it to session so breed quiz route can grab it
+    session["sharedDog"] = readyDogs
+    session["choice1"] = dbData[0]["choice1"]
+    session["choice2"] = dbData[0]["choice2"]
+    session["choice3"] = dbData[0]["choice3"]
+    session["choice4"] = dbData[0]["choice4"]
+
+    return redirect(url_for('breedQuiz'))
 
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
@@ -230,14 +274,24 @@ def loadDogsCall():
     return jsonify(readyDogs)
 
 #### data collection ####
-@app.route("/collectData", methods=["POST"])
-def collectData():
+@app.route("/collectBreedQuizData", methods=["POST"])
+def collectBreedQuizData():
     data = request.get_json()
 
     db.execute("INSERT INTO guesses (link, choice1, choice2, choice3, choice4, userGuess) VALUES (?, ?, ?, ?, ?, ?)",
                     (data["link"], data["choice1"], data["choice2"], data["choice3"], data["choice4"], data["userGuess"]))
 
     return jsonify("", 204)
+
+@app.route("/collectBreedQuizShareData", methods=["POST"])
+def collectBreedQuizShareData():
+    data = request.get_json()
+
+    db.execute("INSERT INTO breedQuizShares (shareID, link, choice1, choice2, choice3, choice4) VALUES (?, ?, ?, ?, ?, ?)",
+                    (data["id"], data["link"], data["choice1"], data["choice2"], data["choice3"], data["choice4"]))
+
+    return jsonify("", 204)
+
 
 @app.route("/collectHotDogData", methods=["POST"])
 def collectHotDogData():
