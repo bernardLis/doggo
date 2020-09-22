@@ -183,7 +183,6 @@ function setBreedButtons()
   currentDoggoBreed = doggoElement.getAttribute("data-breed");
   game.currentDoggoBreed = currentDoggoBreed;
   var decryptedBreed = caesarShift(currentDoggoBreed, -4);
-  console.log("game.currentDoggoBreed", game.currentDoggoBreed);
 
   if (sharedChoice1 != null)
   {
@@ -893,7 +892,7 @@ function shareTheDog()
 
   // update the input with the link
   var shareInput = document.getElementById("shareInput");
-  shareInput.value = "http://127.0.0.1:5000/bq/s/" + game.shareID;
+  shareInput.value = "https://doggo.fans/bq/s/" + game.shareID;
 }
 
 var copyShareLinkDiv = document.getElementById("copyShareLinkDiv");

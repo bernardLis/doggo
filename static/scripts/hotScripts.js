@@ -569,7 +569,7 @@ function shareTheDog()
 
   // update the input with the link
   var shareInput = document.getElementById("shareInput");
-  shareInput.value = "http://127.0.0.1:5000/hotdog/s/" + game.shareID;
+  shareInput.value = "https://doggo.fans/hotdog/s/" + game.shareID;
 }
 
 var copyShareLinkDiv = document.getElementById("copyShareLinkDiv");
@@ -758,7 +758,7 @@ function shareSummaryFn()
   }
 
   var shareSummaryInput = document.getElementById("shareSummaryInput");
-  shareSummaryInput.value = "http://127.0.0.1:5000/hotdog/sm/" + game.summaryShareID;
+  shareSummaryInput.value = "https://doggo.fans/hotdog/sm/" + game.summaryShareID;
 
   function createEntry(doggo, vote)
   {
