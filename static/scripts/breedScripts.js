@@ -36,7 +36,7 @@ game.shareLinkIsUptodate = false;
 game.shareSummaryLinkIsUptodate = false;
 
 // timer
-game.gameTime = 91;
+game.gameTime = 61;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -818,9 +818,9 @@ var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
-  timerDisplay.innerHTML = "01:31"
+  timerDisplay.innerHTML = "01:01"
   // no access to game.bla vartiables?
-  gameTimer(5); //61 works well for a minute
+  gameTimer(61); //61 works well for a minute
   streakDisplay.innerHTML = "0";
   scoreDisplay.innerHTML = "0";
 
@@ -849,6 +849,9 @@ function newGame()
 
   // clearing doggo piles
   removeElements("doggoPile");
+
+  // resetting the game summary link
+  game.shareSummaryLinkIsUptodate = false;
 
   // resetting the score in hscoreEntryState
   document.getElementById("db-score").innerHTML = 0;
@@ -907,6 +910,91 @@ clipboardjs.on('success', function(e)
 copyShareLinkDiv.addEventListener("mouseleave", function(){
   copyShareLinktt.innerHTML = "Copy link!";
 });
+
+// share game summary
+var shareSummaryButton = document.getElementById("shareSummaryButton");
+shareSummaryButton.addEventListener("click", shareSummaryFn)
+function shareSummaryFn()
+{
+  if (game.shareSummaryLinkIsUptodate == false)
+  {
+    // generate ID
+    game.summaryShareID = generateID();
+
+    // I want to send a list of objects to flask, each object will hold id, link and direction (correct/notcorrect)
+    var listOfEntries = [];
+
+    // iterate on doggo arrays and create entries
+    console.log("correctDoggos", correctDoggos);
+    console.log("incorrectDoggos", incorrectDoggos);
+
+    var correctDoggosLen = correctDoggos.length;
+    var incorrectDoggosLen = incorrectDoggos.length;
+
+    for (var i = 0; i < correctDoggosLen; i++)
+    {
+      var doggo = correctDoggos[i];
+      var entry = createEntry(doggo, 1)
+      listOfEntries.push(entry)
+    }
+
+    for (var i = 0; i < incorrectDoggosLen; i++)
+    {
+      var doggo = incorrectDoggos[i];
+      var entry = createEntry(doggo, 0)
+      listOfEntries.push(entry)
+    }
+
+    // sending data to flask
+    sendSummaryShareData(listOfEntries);
+
+    var formScore = document.getElementById("form-score");
+    var score = formScore.value;
+    sendSummaryShareScoreData(score);
+
+    // setting flag to not run this function if nothing is changed
+    game.shareSummaryLinkIsUptodate = true;
+  }
+
+  var shareSummaryInput = document.getElementById("shareSummaryInput");
+  shareSummaryInput.value = "https://doggo.fans/bq/sm/" + game.summaryShareID;
+
+  function createEntry(doggo, direction)
+  {
+    var entry =
+    {
+      id: "",
+      link: "",
+      direction: ""
+    }
+    entry.id = game.summaryShareID;
+
+    var doggoId  = doggo.id;
+    var splitString = doggoId.split("doggo-number-");
+    var id = splitString[1];
+    entry.link = secretDoggoList[id];
+
+    entry.direction = direction;
+
+    console.log("entry", entry);
+    return entry
+  }
+}
+
+// summary share modal functionality
+var copyShareSummaryLinkDiv = document.getElementById("copyShareSummaryLinkDiv");
+var copyShareSummaryLinkButton = document.getElementById("copyShareSummaryLinkButton");
+var copyShareSummaryLinktt = document.getElementById("copyShareSummaryLinktt");
+var clipboardjs = new ClipboardJS('#copyShareSummaryLinkButton');
+clipboardjs.on('success', function(e)
+{
+  copyShareSummaryLinktt.innerHTML = "Copied!";
+});
+
+copyShareSummaryLinkDiv.addEventListener("mouseleave", function(){
+  copyShareLinktt.innerHTML = "Copy link!";
+});
+
 
 
 
@@ -1254,6 +1342,30 @@ function sendShareData(id, link, choice1, choice2, choice3, choice4)
   sendData(dataToSend, path);
 }
 
+function sendSummaryShareData(listOfEntries)
+{
+  var path = '/collectBreedQuizSummaryShareData'
+  sendData(listOfEntries, path)
+}
+
+function sendSummaryShareScoreData(score)
+{
+  var dataToSend = {
+    id: "",
+    score: ""
+  }
+  dataToSend.id = game.summaryShareID;
+  dataToSend.score = score
+
+  var path = '/collectBreedQuizSummaryShareScoreData'
+  sendData(dataToSend, path)
+}
+
+function sendSummaryShareData(listOfEntries)
+{
+ var path = '/collectBreedQuizSummaryShareData'
+ sendData(listOfEntries, path)
+}
 
 function sendData(data, path)
 {

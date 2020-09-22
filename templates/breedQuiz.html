@@ -15,14 +15,7 @@
       <p class="" id="countdownTooltip"></p>
     </div>
   </div>
-{#
-  <div id="countdownOverlay">
-    <div class="overlayContent">
-      <h1 class="" id="countdownMsg"></h1>
-      <p class="" id="countdownTooltip"></p>
-    </div>
-  </div>
-#}
+
   <div id="game">
     <div id="scoreDashboard" class="d-flex justify-content-around">
 
@@ -115,6 +108,38 @@
     <div id="correctDoggoPile" class="row ml-2 d-flex"></div>
     <p id="pNIncorrect">You will guess these 0 doggos next time:</p>
     <div id="incorrectDoggoPile" class="row ml-2 d-flex"></div>
+
+    <button class="myButton mx-2" data-target="#shareSummaryModal" data-toggle="modal" id="shareSummaryButton">
+      <i class="mr-2 fas fa-share-alt"></i>
+      Share
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="shareSummaryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Share this summary!</h5>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">Link to the summary:</p>
+            <input onClick="this.setSelectionRange(0, this.value.length)" id="shareSummaryInput" readonly></input>
+            <div id="copyShareSummaryLinkDiv" class="myTooltip">
+              <button class="myButton" id="copyShareSummaryLinkButton" data-clipboard-target="#shareSummaryInput">
+                <i id="copyShareSummaryLinkIcon" class="my-auto fas fa-clipboard"></i>
+              </button>
+              <span id="copyShareSummaryLinktt" class="myTooltiptext">Copy link!</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="myButton" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <hr/>
 
     <form class="" id="hscoreEntry" action="/hscoreEntry" method="post">

@@ -142,6 +142,24 @@ def sharedBreedQuiz(shareID):
 
     return redirect(url_for('breedQuiz'))
 
+@app.route("/bq/sm/<shareID>", methods=["GET"])
+def sharedBQSummary(shareID):
+
+    # clearing the session
+    session.clear()
+    # remember session even over browser restarts?
+    session.permanent = False
+    # create a shown doggos object in the session
+    session['shownDogs'] = ["a dog"]
+
+    # grab the shared dog from the db
+    dbData = db.execute("SELECT link, direction FROM breedQuizSummaryShares WHERE summaryShareID=(?)", (shareID))
+    score = db.execute("SELECT score FROM breedQuizSummarySharesScore WHERE summaryShareID=(?)", (shareID))
+    print("dbData", dbData)
+    print("scire", score)
+
+    return render_template("breedQuizSM.html", dbData=dbData, score=score)
+
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
 
@@ -292,6 +310,24 @@ def collectBreedQuizShareData():
 
     return jsonify("", 204)
 
+@app.route("/collectBreedQuizSummaryShareData", methods=["POST"])
+def collectBreedQuizSummaryShareData():
+    data = request.get_json()
+
+    for entry in data:
+        db.execute("INSERT INTO breedQuizSummaryShares (summaryShareID, link, direction) VALUES (?, ?, ?)",
+        (entry["id"], entry["link"], entry["direction"]))
+
+    return jsonify("", 204)
+
+@app.route("/collectBreedQuizSummaryShareScoreData", methods=["POST"])
+def collectBreedQuizSummaryShareScoreData():
+    data = request.get_json()
+
+    db.execute("INSERT INTO breedQuizSummarySharesScore (summaryShareID, score) VALUES (?, ?)",
+                    (data["id"], data["score"]))
+
+    return jsonify("", 204)
 
 @app.route("/collectHotDogData", methods=["POST"])
 def collectHotDogData():
