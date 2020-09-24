@@ -157,6 +157,11 @@ html, body
   right: 50px;
 }
 
+/*shared summary styles*/
+#playTheGame
+{
+  width: 200px;
+}
 
 /* text transition by me */
 

@@ -155,10 +155,29 @@ def sharedBQSummary(shareID):
     # grab the shared dog from the db
     dbData = db.execute("SELECT link, direction FROM breedQuizSummaryShares WHERE summaryShareID=(?)", (shareID))
     score = db.execute("SELECT score FROM breedQuizSummarySharesScore WHERE summaryShareID=(?)", (shareID))
-    print("dbData", dbData)
-    print("scire", score)
 
-    return render_template("breedQuizSM.html", dbData=dbData, score=score)
+    # adding the dog breed and counting correct/incorrect doggos
+    correctCount = 0
+    incorrectCount = 0
+    for dog in dbData:
+        if dog['direction'] == 1:
+            correctCount += 1
+        else:
+            incorrectCount += 1
+
+        dogLink = dog['link'].split("/")
+        breedStr = re.split(r'[-_]', dogLink[4])
+        breed = ""
+        for i, str in enumerate(breedStr):
+            if i == (len(breedStr) - 1):
+                breed = breed + breedStr[i].capitalize()
+            elif i != 0:
+                breed = breed + breedStr[i].capitalize() + " "
+        dog['breed'] = breed
+
+    print("correctCount", correctCount)
+    print("incorrectCount", incorrectCount)
+    return render_template("breedQuizSM.html", dbData=dbData, score=score, correctCount=correctCount, incorrectCount=incorrectCount)
 
 @app.route("/hotdog", methods=["GET"])
 def hotdog():

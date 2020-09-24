@@ -9,7 +9,7 @@ game.audioMuted = false;
 var click = new Howl({
     src: 'static/audio/click.wav',
     autoplay: false,
-    volume: 0.5
+    volume: 0.1
 });
 var accept = new Howl({
     src: 'static/audio/Collect_Point_00.wav',

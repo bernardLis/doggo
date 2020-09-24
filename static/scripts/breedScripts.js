@@ -36,7 +36,7 @@ game.shareLinkIsUptodate = false;
 game.shareSummaryLinkIsUptodate = false;
 
 // timer
-game.gameTime = 61;
+game.gameTime = 91;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -56,7 +56,17 @@ var inCorrectSound = new Howl({
 var click = new Howl({
     src: 'static/audio/click.wav',
     autoplay: false,
-    volume: 0.2
+    volume: 0.1
+});
+var shareSound = new Howl({
+    src: 'static/audio/share.wav',
+    autoplay: false,
+    volume: 1
+});
+var submitSound = new Howl({
+    src: 'static/audio/submit.wav',
+    autoplay: false,
+    volume: 1
 });
 
 // Toggle sound
@@ -99,16 +109,9 @@ function gameStartUp(breeds, timer)
 {
   // disable the game reset button and add the placeholder bone
   var gameResetButton = document.getElementById("gameReset");
-  gameResetButton.innerHTML = "";
+  //gameResetButton.innerHTML = "";
   gameResetButton.disabled = true;
-  /*
-  for(var i = 0; i < game.numberOfChoices; i++)
-  {
-    var bone = getABone();
-    bone.classList.add("rotating");
-    gameResetButton.appendChild(bone);
-  }
-  */
+
   // arrays for storing doggos
   correctDoggos = [];
   incorrectDoggos = [];
@@ -238,7 +241,10 @@ function setBreedButtons()
     if (screenWidth > 1000)
     {
       button.addEventListener("mouseenter", function(){
-        click.play();
+        if(!game.audioMuted)
+        {
+          click.play();
+        }
       });
     }
 
@@ -496,6 +502,8 @@ function nextDoggo()
 {
   // update share link on next doggo
   game.shareLinkIsUptodate = false
+  // something is bugged and I need to set it to false in the game state...
+  game.shareSummaryLinkIsUptodate = false;
 
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var nextDoggo = "doggo-number-" + (game.currentDoggo + 1);
@@ -818,12 +826,13 @@ var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
-  timerDisplay.innerHTML = "01:01"
+  timerDisplay.innerHTML = "01:31"
   // no access to game.bla vartiables?
-  gameTimer(61); //61 works well for a minute
+  gameTimer(91); //61 works well for a minute
   streakDisplay.innerHTML = "0";
   scoreDisplay.innerHTML = "0";
 
+  // resetting the breed buttons
   for (var i = 0; i < 4; i++)
   {
     // getting the breed buttons
@@ -837,7 +846,6 @@ function newGame()
 
     button.disabled = false;
   }
-
   setBreedButtons();
 
   var game = document.getElementById("game");
@@ -849,6 +857,8 @@ function newGame()
 
   // clearing doggo piles
   removeElements("doggoPile");
+  correctDoggos = [];
+  incorrectDoggos = [];
 
   // resetting the game summary link
   game.shareSummaryLinkIsUptodate = false;
@@ -867,6 +877,13 @@ function newGame()
   // hide the success message
   var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
   submitHscoreSuccess.classList.add("hidden");
+
+  // resetting restart button look
+  gameResetButton.innerHTML = "";
+  var img = document.createElement("img");
+  img.src = "static/img/Shepherdrun.gif"
+  gameResetButton.appendChild(img);
+  gameResetButton.disabled = true;
 }
 
 /* ## Share ## */
@@ -876,6 +893,10 @@ shareButton.addEventListener("click", shareTheDog)
 
 function shareTheDog()
 {
+  if (!game.audioMuted)
+  {
+    shareSound.play();
+  }
   // create share ID, send data to databse
   if (game.shareLinkIsUptodate == false)
   {
@@ -889,9 +910,10 @@ function shareTheDog()
     var choice4 = breedButtons[3].innerHTML;
 
     sendShareData(game.shareID, link, choice1, choice2, choice3, choice4);
+
+    // flag to keep the same link if nothing is changed
     game.shareLinkIsUptodate = true;
   }
-
 
   // update the input with the link
   var shareInput = document.getElementById("shareInput");
@@ -916,6 +938,12 @@ var shareSummaryButton = document.getElementById("shareSummaryButton");
 shareSummaryButton.addEventListener("click", shareSummaryFn)
 function shareSummaryFn()
 {
+  // play a sound
+  if (!game.audioMuted)
+  {
+    shareSound.play();
+  }
+
   if (game.shareSummaryLinkIsUptodate == false)
   {
     // generate ID
@@ -923,10 +951,6 @@ function shareSummaryFn()
 
     // I want to send a list of objects to flask, each object will hold id, link and direction (correct/notcorrect)
     var listOfEntries = [];
-
-    // iterate on doggo arrays and create entries
-    console.log("correctDoggos", correctDoggos);
-    console.log("incorrectDoggos", incorrectDoggos);
 
     var correctDoggosLen = correctDoggos.length;
     var incorrectDoggosLen = incorrectDoggos.length;
@@ -958,27 +982,6 @@ function shareSummaryFn()
 
   var shareSummaryInput = document.getElementById("shareSummaryInput");
   shareSummaryInput.value = "https://doggo.fans/bq/sm/" + game.summaryShareID;
-
-  function createEntry(doggo, direction)
-  {
-    var entry =
-    {
-      id: "",
-      link: "",
-      direction: ""
-    }
-    entry.id = game.summaryShareID;
-
-    var doggoId  = doggo.id;
-    var splitString = doggoId.split("doggo-number-");
-    var id = splitString[1];
-    entry.link = secretDoggoList[id];
-
-    entry.direction = direction;
-
-    console.log("entry", entry);
-    return entry
-  }
 }
 
 // summary share modal functionality
@@ -994,9 +997,6 @@ clipboardjs.on('success', function(e)
 copyShareSummaryLinkDiv.addEventListener("mouseleave", function(){
   copyShareLinktt.innerHTML = "Copy link!";
 });
-
-
-
 
 // animating flying bones on streaks
 function throwBones(boneN)
@@ -1089,7 +1089,6 @@ function boneAnimationL(bone) {
         transform: " translate3d(" + getRndInteger(5, screenWidth / 2 - 5) + "px, " + getRndInteger(200, 400) + "px, 0px) rotate(" + getRndInteger(0,540) + "deg)"
       }
     ];
-
   }
  
   bone.animProps =
@@ -1181,6 +1180,10 @@ dbUser.addEventListener("input", function(){
 })
 
 function subForm(e){
+  if (!game.audioMuted)
+  {
+    submitSound.play();
+  }
     e.preventDefault();
 
     // naively validating score
@@ -1320,6 +1323,27 @@ if (screenWidth < 1001)
       width150Elements[i].classList.add("width20");
     }
   }
+}
+
+// entry to send game summary data to db
+function createEntry(doggo, direction)
+{
+  var entry =
+  {
+    id: "",
+    link: "",
+    direction: ""
+  }
+  entry.id = game.summaryShareID;
+
+  var doggoId  = doggo.id;
+  var splitString = doggoId.split("doggo-number-");
+  var id = splitString[1];
+  entry.link = secretDoggoList[id];
+
+  entry.direction = direction;
+
+  return entry
 }
 
 function sendShareData(id, link, choice1, choice2, choice3, choice4)
@@ -1563,7 +1587,6 @@ function animateResultCount(number, target, elem) {
         }, 30);
     }
 }
-
 
 // doggo breeds list
 ALL_BREEDS = ['Chihuahua', 'Japanese Spaniel', 'Maltese Dog', 'Pekinese', 'Shih Tzu', 'Blenheim Spaniel', 'Papillon', 'Toy Terrier', 'Rhodesian Ridgeback', 'Afghan Hound', 'Basset', 'Beagle', 'Bloodhound',  'Bluetick', 'Black And Tan Coonhound', 'Walker Hound', 'English Foxhound', 'Redbone', 'Borzoi', 'Irish Wolfhound', 'Italian Greyhound', 'Whippet', 'Ibizan Hound', 'Norwegian Elkhound', 'Otterhound', 'Saluki', 'Scottish Deerhound', 'Weimaraner', 'Staffordshire Bullterrier', 'American Staffordshire Terrier', 'Bedlington Terrier', 'Border Terrier', 'Kerry Blue Terrier', 'Irish Terrier', 'Norfolk Terrier', 'Norwich Terrier', 'Yorkshire Terrier', 'Wire Haired Fox Terrier', 'Lakeland Terrier', 'Sealyham Terrier', 'Airedale', 'Cairn', 'Australian Terrier', 'Dandie Dinmont', 'Boston Bull', 'Miniature Schnauzer', 'Giant Schnauzer', 'Standard Schnauzer', 'Scotch Terrier', 'Tibetan Terrier', 'Silky Terrier', 'Soft Coated Wheaten Terrier', 'West Highland White Terrier', 'Lhasa', 'Flat Coated Retriever', 'Curly Coated Retriever', 'Golden Retriever', 'Labrador Retriever', 'Chesapeake Bay Retriever', 'German Short Haired Pointer', 'Vizsla', 'English Setter', 'Irish Setter', 'Gordon Setter', 'Brittany Spaniel', 'Clumber', 'English Springer', 'Welsh Springer Spaniel', 'Cocker Spaniel', 'Sussex Spaniel', 'Irish Water Spaniel', 'Kuvasz', 'Schipperke', 'Groenendael', 'Malinois', 'Briard', 'Kelpie', 'Komondor', 'Old English Sheepdog', 'Shetland Sheepdog', 'Collie', 'Border Collie', 'Bouvier Des Flandres', 'Rottweiler', 'German Shepherd', 'Doberman', 'Miniature Pinscher', 'Greater Swiss Mountain Dog', 'Bernese Mountain Dog', 'Appenzeller', 'Entlebucher', 'Boxer', 'Bull Mastiff', 'Tibetan Mastiff', 'French Bulldog', 'Great Dane', 'Saint Bernard', 'Eskimo Dog', 'Malamute', 'Siberian Husky', 'Affenpinscher', 'Basenji', 'Pug', 'Leonberg', 'Newfoundland', 'Great Pyrenees', 'Samoyed', 'Pomeranian', 'Chow', 'Keeshond', 'Brabancon Griffon', 'Pembroke', 'Cardigan', 'Toy Poodle', 'Miniature Poodle', 'Standard Poodle', 'Mexican Hairless', 'Dingo', 'Dhole', 'African Hunting Dog']

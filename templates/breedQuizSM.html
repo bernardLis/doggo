@@ -11,32 +11,52 @@
 {% block main %}
   <div id="summaryState">
 
-    <h5 class="pileText" id="">I have guessed these doggos correctly:</h5>
-    <div id="correctDoggoPile" class="row ml-2 d-flex">
-      {% for entry in dbData:%}
-        {% if entry["direction"] == 1: %}
-          <a target="_blank" href="{{ entry["link"] }}">
-            <img class="doggoPile" src={{ entry["link"] }}></img>
-          </a>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <h5 class="pileText mt-4" id="">Haaa... are these even dogs?</h5>
-    <div id="incorrectDoggoPile" class="row ml-2 d-flex">
-      {% for entry in dbData:%}
-        {% if entry["direction"] == 0: %}
-        <a target="_blank" href="{{ entry["link"] }}">
-          <img class="doggoPile" src={{ entry["link"] }}></img>
-        </a>
-        {% endif %}
-      {% endfor %}
-    </div>
+    {% if correctCount > 0 %}
+      {% if correctCount == 1 %}
+        <h5 class="pileText" id="">I have guessed 1 doggo correctly:</h5>
+      {% else %}
+        <h5 class="pileText" id="">I have guessed {{correctCount}} doggos correctly:</h5>
+      {% endif %}
+
+      <div id="correctDoggoPile" class="row ml-2 d-flex">
+        {% for entry in dbData:%}
+          {% if entry["direction"] == 1: %}
+            <div class="doggoPile">
+              <a target="_blank" href="{{ entry["link"] }}">
+                <img class="doggoPile" src={{ entry["link"] }}></img>
+              </a>
+              <p class="doggoPileText">{{entry["breed"]}}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if incorrectCount > 0 %}
+      {% if incorrectCount == 1 %}
+        <h5 class="pileText" id="">I will guess this 1 doggo next time:</h5>
+      {% else %}
+        <h5 class="pileText mt-4" id="">I will guess these {{incorrectCount}} doggos next time:</h5>
+      {% endif %}
+      <div id="incorrectDoggoPile" class="row ml-2 d-flex">
+        {% for entry in dbData:%}
+          {% if entry["direction"] == 0: %}
+            <div class="doggoPile">
+              <a target="_blank" href="{{ entry["link"] }}">
+                <img class="doggoPile" src={{ entry["link"] }}></img>
+              </a>
+              <span class="doggoPileText">{{entry["breed"]}}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <hr/>
 
     <h6> I have scored {{ score[0]['score'] }}. Can you beat my score?</h6>
-    <button id="PlayTheGame" onclick="window.open('/breedQuiz','_self');" class="myButton">
-      <i class="mr-2 fas fa-bone"></i>
-      Play Breed Quiz
+    <button id="playTheGame" onclick="window.open('/breedQuiz','_self');" class="myButton">
+      <i class="mr-2 fas fa-paw"></i>
+      Play Dog Breed Quiz
     </button>
 
   </div>
