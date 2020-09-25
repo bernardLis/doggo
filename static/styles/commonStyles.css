@@ -134,7 +134,15 @@ main
   height: 200px;
   position: relative;
 }
+#waitingDoggo
+{
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: 51px;
 
+  position: absolute;
+}
 .boneCircleBone
 {
   font-size: 2rem;

@@ -1,9 +1,12 @@
-// BONE CIRCLE!!
+
+
 var countdownSound = new Howl({
     src: 'static/audio/countdown.wav',
     autoplay: false,
     volume: 1
 });
+
+// BONE CIRCLE!!
 
 // https://stackoverflow.com/questions/10152390/dynamically-arrange-some-elements-around-a-circle
 function createBoneCircle()

@@ -50,6 +50,12 @@ var nextSound = new Howl({
     autoplay: false,
     volume: 1
 });
+var click = new Howl({
+    src: 'static/audio/click.wav',
+    autoplay: false,
+    volume: 1
+});
+
 
 // Toggle sound
 var toggleSound = document.getElementById("toggleSound");
@@ -71,6 +77,19 @@ toggleSound.addEventListener("click", function()
     game.audioMuted = true;
   }
 });
+
+// buttons make noise
+var buttons = document.getElementsByTagName('button');
+for (let i = 0; i < buttons.length; i++)
+{
+  if(!game.audioMuted)
+  {
+    buttons[i].addEventListener("mouseenter", function(){
+      click.play();
+    })
+  }
+}
+
 
 /* ## Game Startup ## */
 
@@ -168,6 +187,7 @@ function gameStartUp()
     {
       overlay.style.width = "0%";
       tooltip.innerHTML = "";
+      waitingDoggo.classList.add("hidden");
       clearInterval(interval);
     }
     // starting the timer and counters
@@ -179,6 +199,7 @@ function gameStartUp()
     else if (n == 2)
     {
       n--;
+      waitingDoggo.classList.remove("hidden");
       // bones circle animation start-up
       createBoneCircle();
       animateBoneCircle();

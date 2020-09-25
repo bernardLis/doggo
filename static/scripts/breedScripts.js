@@ -36,7 +36,7 @@ game.shareLinkIsUptodate = false;
 game.shareSummaryLinkIsUptodate = false;
 
 // timer
-game.gameTime = 91;
+game.gameTime = 5;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -48,15 +48,15 @@ var correctSound = new Howl({
     autoplay: false,
     volume: 1
 });
+var threeInTheRow = new Howl({
+    src: 'static/audio/three.wav',
+    autoplay: false,
+    volume: 1
+});
 var inCorrectSound = new Howl({
     src: 'static/audio/Negative.wav',
     autoplay: false,
     volume: 1
-});
-var click = new Howl({
-    src: 'static/audio/click.wav',
-    autoplay: false,
-    volume: 0.1
 });
 var shareSound = new Howl({
     src: 'static/audio/share.wav',
@@ -68,6 +68,17 @@ var submitSound = new Howl({
     autoplay: false,
     volume: 1
 });
+var tryAgain = new Howl({
+    src: 'static/audio/tryAgain.wav',
+    autoplay: false,
+    volume: 1
+});
+var click = new Howl({
+    src: 'static/audio/click.wav',
+    autoplay: false,
+    volume: 1
+});
+
 
 // Toggle sound
 var toggleSound = document.getElementById("toggleSound");
@@ -89,6 +100,19 @@ toggleSound.addEventListener("click", function()
     game.audioMuted = true;
   }
 });
+
+// buttons make noise
+var buttons = document.getElementsByTagName('button');
+for (let i = 0; i < buttons.length; i++)
+{
+  if(!game.audioMuted)
+  {
+    buttons[i].addEventListener("mouseenter", function(){
+      click.play();
+    })
+  }
+}
+
 
 // start the timer only when the page loads
 window.addEventListener("load", function()
@@ -136,6 +160,7 @@ function gameStartUp(breeds, timer)
 
   var streakDisplay = document.getElementById("streakDisplay");
   var scoreDisplay = document.getElementById("scoreDisplay");
+  var waitingDoggo = document.getElementById("waitingDoggo");
   // countdown duration
   var n = 2;
   var interval = setInterval(countdown, 1000);
@@ -146,6 +171,7 @@ function gameStartUp(breeds, timer)
     {
       overlay.style.width = "0%";
       tooltip.innerHTML = "";
+      waitingDoggo.classList.add("hidden");
       clearInterval(interval);
     }
     // starting the timer and counters
@@ -162,6 +188,7 @@ function gameStartUp(breeds, timer)
       tooltip.innerHTML = ttmessage;
 
       breeds();
+      waitingDoggo.classList.remove("hidden");
       // bones circle animation start-up
       createBoneCircle();
       animateBoneCircle();
@@ -291,17 +318,17 @@ function doggoBreedCheck()
 
   if (encryptedBreed == game.currentDoggoBreed)
   {
-    // play sound if audio is not muted
-    if(!game.audioMuted)
-    {
-      correctSound.play();
-    }
-
     // giving player more bones on higher streaks
     animateResultCount(game.streak, (game.streak + 1), streakDisplay);
 
     game.streak += 1;
     boneN = game.streak * 5
+
+    // play sound if audio is not muted
+    if(!game.audioMuted && game.streak % 3 != 0)
+    {
+      correctSound.play();
+    }
 
     // animating the score (bone) count
     animateResultCount(game.score, (game.score + boneN), scoreDisplay);
@@ -345,6 +372,11 @@ function doggoBreedCheck()
     {
       if (game.streak % 3 == 0)
       {
+        if(!game.audioMuted)
+        {
+          threeInTheRow.play();
+        }
+
         var messageParTxt = " + 5 sec";
         var messagePar = document.getElementById("messageParagraph");
         if (messagePar != null)
@@ -502,8 +534,6 @@ function nextDoggo()
 {
   // update share link on next doggo
   game.shareLinkIsUptodate = false
-  // something is bugged and I need to set it to false in the game state...
-  game.shareSummaryLinkIsUptodate = false;
 
   var doggoNumber = "doggo-number-" + game.currentDoggo;
   var nextDoggo = "doggo-number-" + (game.currentDoggo + 1);
@@ -826,14 +856,18 @@ var gameResetButton = document.getElementById("gameReset");
 gameResetButton.addEventListener("click", newGame)
 function newGame()
 {
+  if(!game.audioMuted)
+  {
+    submitSound.play();
+  }
   timerDisplay.innerHTML = "01:31"
   // no access to game.bla vartiables?
-  gameTimer(91); //61 works well for a minute
+  gameTimer(game.gameTime); //61 works well for a minute
   streakDisplay.innerHTML = "0";
   scoreDisplay.innerHTML = "0";
 
   // resetting the breed buttons
-  for (var i = 0; i < 4; i++)
+  for (var i = 0; i < game.numberOfChoices; i++)
   {
     // getting the breed buttons
     var str = "button" + (i + 1);
@@ -848,11 +882,11 @@ function newGame()
   }
   setBreedButtons();
 
-  var game = document.getElementById("game");
+  var gameContainer = document.getElementById("game");
   var hscoreEntryState = document.getElementById("hscoreEntryState");
 
   // showing the game
-  game.classList.remove("hidden");
+  gameContainer.classList.remove("hidden");
   hscoreEntryState.classList.add("hidden");
 
   // clearing doggo piles
@@ -1180,122 +1214,124 @@ dbUser.addEventListener("input", function(){
 })
 
 function subForm(e){
-  if (!game.audioMuted)
+  e.preventDefault();
+
+  // naively validating score
+  var score = document.getElementById("form-score").value;
+  if (score > 4500)
   {
-    submitSound.play();
+    subFormButton.innerHTML = "Are you a cheater?";
+    subFormButton.disabled;
+    subButtonDiv = document.getElementById("subButtonWrapper");
+    var cheaterDiv = document.createElement("div");
+    subButtonDiv.appendChild(cheaterDiv)
+    var yes = document.createElement("button");
+    yes.innerHTML = "Yes.";
+    yes.type = "button";
+    var a = document.createElement("a");
+    a.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    a.appendChild(yes);
+    cheaterDiv.appendChild(a);
+
+    var no = document.createElement("button");
+    no.innerHTML = "No";
+    no.type = "button";
+    no.addEventListener("click", function(){
+      var p = document.createElement("p");
+      p.innerHTML = "Ok, you can submit your score. I promise it won't load viruses to your computer.";
+      cheaterDiv.appendChild(p);
+
+      var cheaterSubmit = document.createElement("button");
+      cheaterSubmit.innerHTML = "I am not a cheater and I want to submit my score.";
+
+      cheaterDiv.appendChild(cheaterSubmit);
+    })
+    cheaterDiv.appendChild(no);
+
+    return;
   }
-    e.preventDefault();
 
-    // naively validating score
-    var score = document.getElementById("form-score").value;
-    if (score > 4500)
-    {
-      subFormButton.innerHTML = "Are you a cheater?";
-      subFormButton.disabled;
-      subButtonDiv = document.getElementById("subButtonWrapper");
-      var cheaterDiv = document.createElement("div");
-      subButtonDiv.appendChild(cheaterDiv)
-      var yes = document.createElement("button");
-      yes.innerHTML = "Yes.";
-      yes.type = "button";
-      var a = document.createElement("a");
-      a.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-      a.appendChild(yes);
-      cheaterDiv.appendChild(a);
+  // validating username
+  var usr = dbUser.value.toLowerCase();
+  if (usr.length == 0)
+  {
+    userMsg.innerHTML = "Enter your nickname!";
+    userMsg.style.color = "#F8333C";
+    return;
+  }
+  if (usr.includes("hitler"))
+  {
+    userMsg.innerHTML = "No.";
+    userMsg.style.color = "#F8333C";
+    return;
+  }
+  else
+  {
+    userMsg.innerHTML = "";
+  }
 
-      var no = document.createElement("button");
-      no.innerHTML = "No";
-      no.type = "button";
-      no.addEventListener("click", function(){
-        var p = document.createElement("p");
-        p.innerHTML = "Ok, you can submit your score. I promise it won't load viruses to your computer.";
-        cheaterDiv.appendChild(p);
+  // validating fav dog breed
+  var favBreed = document.getElementById("favBreed");
+  if (favBreed.value.length == 0)
+  {
+    breedMsg.innerHTML = "It's going to be Chihuahua then!";
+    breedMsg.style.color = "#F8333C";
+    favBreed.value = "Chihuahua";
+  }
+  else
+  {
+    breedMsg.innerHTML = "";
+  }
 
-        var cheaterSubmit = document.createElement("button");
-        cheaterSubmit.innerHTML = "I am not a cheater and I want to submit my score.";
+  // send data to the database
+  var url=$(this).closest('form').attr('action'),
+  data=$(this).closest('form').serialize();
+  $.ajax({
+      url: url,
+      type: 'post',
+      data: data,
+      beforeSend: function(xhr, settings) {
+        //https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain)
+        {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
 
-        cheaterDiv.appendChild(cheaterSubmit);
-      })
-      cheaterDiv.appendChild(no);
+        // disable the inputs
+        dbUser.disabled = "true";
+        document.getElementById("favBreed").disabled = "true";
+        subFormButton.disabled = "true";
+        subFormButton.innerHTML = "";
 
-      return;
-    }
+        // animate the bone
+        var img = document.createElement("img");
+        img.src = "static/img/pies-export.gif"
+        subFormButton.appendChild(img);
+      },
 
-    // validating username
-    var usr = dbUser.value.toLowerCase();
-    if (usr.length == 0)
-    {
-      userMsg.innerHTML = "Enter your nickname!";
-      userMsg.style.color = "#F8333C";
-      return;
-    }
-    if (usr.includes("hitler"))
-    {
-      userMsg.innerHTML = "No.";
-      userMsg.style.color = "#F8333C";
-      return;
-    }
-    else
-    {
-      userMsg.innerHTML = "";
-    }
+      success: function() {
+        // show the success message
+        setTimeout( function() {
+          // hide the button and prep it
+          subFormButton.classList.add("hidden");
+          var c = subFormButton.childNodes;
+          c[0].parentNode.removeChild(c[0]);
+          subFormButton.innerHTML = "Submit";
 
-    // validating fav dog breed
-    var favBreed = document.getElementById("favBreed");
-    if (favBreed.value.length == 0)
-    {
-      breedMsg.innerHTML = "It's going to be Chihuahua then!";
-      breedMsg.style.color = "#F8333C";
-      favBreed.value = "Chihuahua";
-    }
-    else
-    {
-      breedMsg.innerHTML = "";
-    }
+          var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
+          submitHscoreSuccess.classList.remove("hidden");
 
-    // send data to the database
-    var url=$(this).closest('form').attr('action'),
-    data=$(this).closest('form').serialize();
-    $.ajax({
-        url: url,
-        type: 'post',
-        data: data,
-        beforeSend: function(xhr, settings) {
-          //https://flask-wtf.readthedocs.io/en/stable/csrf.html?fbclid=IwAR25LkK-Hw3ii8UuL-tD-GVVVYcve8XqMNV8VM1TB0Gh-JxQcBVcpSmH2BU
-          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain)
+          if (!game.audioMuted)
           {
-            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            submitSound.play();
           }
 
-          // disable the inputs
-          dbUser.disabled = "true";
-          document.getElementById("favBreed").disabled = "true";
-          subFormButton.disabled = "true";
-          subFormButton.innerHTML = "";
+        }, 1500);
 
-          // animate the bone
-          var bone = getABone();
-          bone.classList.add("rotating");
-          subFormButton.appendChild(bone);
-        },
-
-        success: function() {
-          // show the success message
-          setTimeout( function() {
-            // hide the button and prep it
-            subFormButton.classList.add("hidden");
-            var c = subFormButton.childNodes;
-            c[0].parentNode.removeChild(c[0]);
-            subFormButton.innerHTML = "Submit";
-
-            var submitHscoreSuccess = document.getElementById("submitHscoreSuccess");
-            submitHscoreSuccess.classList.remove("hidden");
-          }, 1500);
-
-         // remove the breed error message if it exists
-         setTimeout( function() { breedMsg.innerHTML = "";}, 2500);
-       }
-   });
+       // remove the breed error message if it exists
+       setTimeout( function() { breedMsg.innerHTML = "";}, 2500);
+     }
+ });
 }
 
 /* MEDIA */

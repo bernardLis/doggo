@@ -9,7 +9,7 @@ game.audioMuted = false;
 var click = new Howl({
     src: 'static/audio/click.wav',
     autoplay: false,
-    volume: 0.1
+    volume: 1
 });
 var accept = new Howl({
     src: 'static/audio/Collect_Point_00.wav',
@@ -67,6 +67,20 @@ for (var i = 0; i < len; i++)
     }, 300);
   });
 }
+
+/* ## Audio ## */
+// buttons make noise
+var buttons = document.getElementsByTagName('button');
+for (let i = 0; i < buttons.length; i++)
+{
+  if(!game.audioMuted)
+  {
+    buttons[i].addEventListener("mouseenter", function(){
+      click.play();
+    })
+  }
+}
+
 
 /* ## Media ## */
 // For devices with screen width of less than 1000px
