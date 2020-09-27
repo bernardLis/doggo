@@ -149,13 +149,7 @@ main
   position: absolute;
 }
 
-#countdownMsg
-{
-  height: 2rem;
-  font-size: 2rem;
-  color: white;
-}
-#countdownTooltip
+#countdownTooltip, #overlayMsgTop
 {
   margin-top: 5rem;
   color: white;

@@ -36,7 +36,7 @@ game.shareLinkIsUptodate = false;
 game.shareSummaryLinkIsUptodate = false;
 
 // timer
-game.gameTime = 5;
+game.gameTime = 91;
 game.timerValue = 0;
 game.timeLeft = 0;
 
@@ -75,6 +75,11 @@ var tryAgain = new Howl({
 });
 var click = new Howl({
     src: 'static/audio/click.wav',
+    autoplay: false,
+    volume: 1
+});
+var congratulations = new Howl({
+    src: 'static/audio/congratulations.wav',
     autoplay: false,
     volume: 1
 });
@@ -263,17 +268,6 @@ function setBreedButtons()
     button.value = breedsForButtons[i];
     button.style.backgroundColor = "#f8f9fa";
     button.style.borderColor = "#6b6b6b";
-
-    // clickclacking on hover on dekstop
-    if (screenWidth > 1000)
-    {
-      button.addEventListener("mouseenter", function(){
-        if(!game.audioMuted)
-        {
-          click.play();
-        }
-      });
-    }
 
     // checking the answer on button click
     button.addEventListener("click", doggoBreedCheck);
@@ -712,8 +706,35 @@ function finishTheGameFn()
   var gameContainer = document.getElementById("game");
   gameContainer.classList.add("hidden");
 
+  // I want to display a condogulations with sound and score
+  var overlay = document.getElementById("countdownOverlay");
+  var overlayMsgTop = document.getElementById("overlayMsgTop");
+  var overlayMsgBot = document.getElementById("countdownTooltip");
+  var doggoGif = document.getElementById("waitingDoggo");
+
+  overlay.style.width = "100%";
+  overlayMsgTop.innerHTML = "CONDOGULATIONS!"
+  overlayMsgBot.innerHTML = "You have scored: " + game.score;
+  doggoGif.src = "static/img/Shepherdbark.gif";
+  doggoGif.classList.remove("hidden");
+
+  // ugh, my sound design skills...
+  if (!game.audioMuted)
+  {
+    congratulations.play();
+  }
+
+  // and then display hscoreEntry
   var hscoreEntryState = document.getElementById("hscoreEntryState");
-  hscoreEntryState.classList.remove("hidden");
+
+  setTimeout(function(){
+    overlay.style.width = "0%";
+    overlayMsgTop.innerHTML = "";
+    overlayMsgBot.innerHTML = "";
+    doggoGif.classList.add("hidden");
+
+    hscoreEntryState.classList.remove("hidden");
+  }, 2000);
 
   // show score
   var dbScore = document.getElementById("db-score");
@@ -884,10 +905,15 @@ function newGame()
 
   var gameContainer = document.getElementById("game");
   var hscoreEntryState = document.getElementById("hscoreEntryState");
+  var overlay = document.getElementById("countdownOverlay");
 
   // showing the game
-  gameContainer.classList.remove("hidden");
   hscoreEntryState.classList.add("hidden");
+  overlay.style.width = "100%";
+  setTimeout(function(){
+     overlay.style.width = "0%";
+     gameContainer.classList.remove("hidden");
+   }, 500);
 
   // clearing doggo piles
   removeElements("doggoPile");
