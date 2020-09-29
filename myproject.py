@@ -80,6 +80,7 @@ def index():
 
     return render_template("index.html", dogs=readyDogs, ALL_BREEDS=ALL_BREEDS)
 
+#### breed quiz ####
 @app.route("/breedQuiz", methods=["GET"])
 def breedQuiz():
 
@@ -165,20 +166,13 @@ def sharedBQSummary(shareID):
         else:
             incorrectCount += 1
 
-        dogLink = dog['link'].split("/")
-        breedStr = re.split(r'[-_]', dogLink[4])
-        breed = ""
-        for i, str in enumerate(breedStr):
-            if i == (len(breedStr) - 1):
-                breed = breed + breedStr[i].capitalize()
-            elif i != 0:
-                breed = breed + breedStr[i].capitalize() + " "
-        dog['breed'] = breed
+        dog['breed'] = getBreedFromLink(dog['link'])
 
     print("correctCount", correctCount)
     print("incorrectCount", incorrectCount)
     return render_template("breedQuizSM.html", dbData=dbData, score=score, correctCount=correctCount, incorrectCount=incorrectCount)
 
+#### hot dog ####
 @app.route("/hotdog", methods=["GET"])
 def hotdog():
 
@@ -255,6 +249,86 @@ def highscores():
 def info():
 
     return render_template("info.html")
+
+#### creating hot profiles ####
+@app.route("/hotprofile", methods=["POST"])
+def hotprofile():
+    # profiles
+    profile = {
+        'small': 0,
+        'sumSmall': 0,
+        'medium': 0,
+        'sumMedium': 0,
+        'big': 0,
+        'sumBig': 0,
+        'shortHair': 0,
+        'sumShortHair': 0,
+        'longHair': 0,
+        'sumLongHair': 0
+    }
+
+    # data factory!
+    data = request.get_json()
+
+    hotDogs = data[0]
+    for dog in hotDogs:
+        # get the breed from the link
+        breed = getBreedFromLink(dog)
+        dbData = db.execute("SELECT size, hair FROM breedCharacteristics WHERE breed=(?)",
+                            (breed))
+        breedChars = dbData[0]
+
+        # size profile
+        if breedChars['size'] == 0:
+            profile['small'] += 1
+            profile['sumSmall'] += 1
+
+        elif breedChars['size'] == 1:
+            profile['medium'] += 1
+            profile['sumMedium'] += 1
+
+        else:
+            profile['big'] += 1
+            profile['sumBig'] += 1
+
+        # hair profile
+        if breedChars['hair'] == 0:
+            profile['shortHair'] += 1
+            profile['sumShortHair'] += 1
+
+        else:
+            profile['longHair'] += 1
+            profile['sumLongHair'] += 1
+
+    notDogs = data[1]
+    for dog in notDogs:
+        # get the breed from the link
+        breed = getBreedFromLink(dog)
+        dbData = db.execute("SELECT size, hair FROM breedCharacteristics WHERE breed=(?)",
+                            (breed))
+        breedChars = dbData[0]
+
+        # size profile
+        if breedChars['size'] == 0:
+            profile['small'] -= 1
+            profile['sumSmall'] += 1
+        elif breedChars['size'] == 1:
+            profile['medium'] -= 1
+            profile['sumMedium'] += 1
+        else:
+            profile['big'] -= 1
+            profile['sumBig'] += 1
+
+        # hair profile
+        if breedChars['hair'] == 0:
+            profile['shortHair'] -= 1
+            profile['sumShortHair'] += 1
+
+        else:
+            profile['longHair'] -= 1
+            profile['sumLongHair'] += 1
+
+    return jsonify(profile, 204)
 
 #### loading dogs ####
 @app.route("/loadDogs", methods=["POST"])
@@ -422,17 +496,24 @@ for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
 #### helpers ####
+
+def getBreedFromLink(link):
+    # preping dogDict and sending it to the client
+    dogLink = link.split("/")
+    breedStr = re.split(r'[-_]', dogLink[4])
+    breed = ""
+    for i, str in enumerate(breedStr):
+        if i == (len(breedStr) - 1):
+            breed = breed + breedStr[i].capitalize()
+        elif i != 0:
+            breed = breed + breedStr[i].capitalize() + " "
+
+    return breed
+
 def prepareDogs(dogs):
     for key in dogs:
         # preping dogDict and sending it to the client
-        dogLink = dogs[key][0].split("/")
-        breedStr = re.split(r'[-_]', dogLink[4])
-        breed = ""
-        for i, str in enumerate(breedStr):
-            if i == (len(breedStr) - 1):
-                breed = breed + breedStr[i].capitalize()
-            elif i != 0:
-                breed = breed + breedStr[i].capitalize() + " "
+        breed = getBreedFromLink(dogs[key][0])
 
         # Encrypt doggo breed
         encryptedBreed = caesarShift(breed, 4)

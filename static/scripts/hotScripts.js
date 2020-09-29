@@ -629,11 +629,17 @@ function showSummary()
   var hotDoggoPile = document.getElementById("hotDoggoPile");
   var notHotDoggoPile = document.getElementById("notHotDoggoPile");
 
+  // arrays I will be sending to the server to create profiles
+  let hotDogs = [];
+  let notDogs = [];
+
   for (var i = 0; i < hotDoggosLen; i++)
   {
     var doggo = hotDoggos[i];
     doggo = prepDoggo(doggo)
     hotDoggoPile.appendChild(doggo);
+
+    hotDogs.push(doggo.href);
   }
 
   for (var i = 0; i < notHotDoggosLen; i++)
@@ -641,7 +647,12 @@ function showSummary()
     var doggo = notHotDoggos[i];
     doggo = prepDoggo(doggo)
     notHotDoggoPile.appendChild(doggo);
+
+    notDogs.push(doggo.href);
   }
+
+  // posting profile data to the server, on success creating profiles
+  postProfileData(hotDogs, notDogs)
 
   // add text
   var pHotPile = document.getElementById("pHotPile");
@@ -736,6 +747,9 @@ function backToGameFn()
   var summaryState = document.getElementById("summaryState");
   gameState.classList.remove("hidden");
   summaryState.classList.add("hidden");
+
+  // remove profile canvas
+  removeElements("profileCanvas");
 }
 
 // share game summary
@@ -865,6 +879,94 @@ function sendData(data, path)
     data: dataJSON,
     contentType: 'application/json;charset=UTF-8',
   });
+}
+
+
+// sending profile data to flask and creating profiles with data I have received back
+async function postProfileData(arr1, arr2)
+{
+  let data = [arr1, arr2]
+  let dataJSON = JSON.stringify(data)
+  $.ajax({
+  	type : "POST",
+  	url : '/hotprofile',
+    data: dataJSON,
+  	dataType: "json",
+  	contentType: 'application/json;charset=UTF-8',
+  	success: function (data)
+    {
+      // this gets exectured only if I get the protfile data from the server
+      createProfiles(data)
+  	}
+	});
+}
+
+//TODO:HERE
+function createProfiles(data)
+{
+  let profile = data[0];
+  let smallVal = profile['small'] / profile['sumSmall'];
+  let mediumVal = profile['medium'] / profile['sumMedium'];
+  let bigVal = profile['big'] / profile['sumBig'];
+  let shortHairVal = profile['shortHair'] / profile['sumShortHair'];
+  let longHairVal = profile['longHair'] / profile['sumLongHair'];
+
+  let divSmall = document.getElementById("profileSmall");
+  let divMedium = document.getElementById("profileMedium");
+  let divBig = document.getElementById("profileBig");
+  let divShortHair = document.getElementById("profileShortHair");
+  let divLongHair = document.getElementById("profileLongHair");
+
+  let smallCanv = profileCanvas(smallVal);
+  let mediumCanv = profileCanvas(mediumVal);
+  let bigCanv = profileCanvas(bigVal);
+  let shortHairCanv = profileCanvas(shortHairVal);
+  let longHairCanv = profileCanvas(longHairVal);
+
+  divSmall.appendChild(smallCanv);
+  divMedium.appendChild(mediumCanv);
+  divBig.appendChild(bigCanv);
+  divShortHair.appendChild(shortHairCanv);
+  divLongHair.appendChild(longHairCanv);
+}
+
+function profileCanvas(val)
+{
+  let canvas = document.createElement('canvas');
+  canvas.classList.add("profileCanvas")
+
+  let width = 200;
+  canvas.width = width;
+  canvas.height = 25;
+
+  // val may be from -1 to 1
+  var notpx;
+  var hotpx;
+
+  if (val < 0)
+  {
+    notpx = width/2 + (-val * width);
+    hotpx = width - notpx;
+  }
+  else if (val > 0)
+  {
+    hotpx = width/2 + val * width;
+    notpx = width - hotpx;
+  }
+  else
+  {
+    hotpx = width/2
+    notpx = width - hotpx;
+  }
+
+  let ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#F07F83";
+  ctx.fillRect(0, 0, notpx, 25);
+
+  ctx.fillStyle = "#55DDAB";
+  ctx.fillRect(notpx, 0, hotpx, 25);
+
+  return canvas
 }
 
 // loading and appending doggos

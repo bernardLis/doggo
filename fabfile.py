@@ -31,7 +31,7 @@ def zip_files():
 
     # files
     zf.write('myproject.py')
-    #zf.write('doggoDB.db')
+    zf.write('doggoDB.db')
     zf.write('helpers.py')
     zf.write('requirements.txt')
 
