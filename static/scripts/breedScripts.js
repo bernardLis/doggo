@@ -195,7 +195,8 @@ function gameStartUp(breeds, timer)
       breeds();
       waitingDoggo.classList.remove("hidden");
       // bones circle animation start-up
-      createBoneCircle();
+      let container = document.getElementById('boneCircleContainer');
+      createBoneCircle(container);
       animateBoneCircle();
       countdownSound.play();
 

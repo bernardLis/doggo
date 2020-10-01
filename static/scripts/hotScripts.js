@@ -201,7 +201,8 @@ function gameStartUp()
       n--;
       waitingDoggo.classList.remove("hidden");
       // bones circle animation start-up
-      createBoneCircle();
+      let container = document.getElementById('boneCircleContainer');
+      createBoneCircle(container);
       animateBoneCircle();
       // starting vote tutorial, so it fires right after the countdown;
       startVoteTutorial();
@@ -742,7 +743,6 @@ function backToGameFn()
   }
 
   // else just going back to the game
-
   var gameState = document.getElementById("gameState");
   var summaryState = document.getElementById("summaryState");
   gameState.classList.remove("hidden");
@@ -750,6 +750,14 @@ function backToGameFn()
 
   // remove profile canvas
   removeElements("profileCanvas");
+
+  let profileLoadingPlaceholder = document.getElementById("profileLoadingPlaceholder");
+  let profileContainer = document.getElementById("profileContainer");
+  let loadingTextDots = document.getElementById("loadingTextDots");
+
+  profileLoadingPlaceholder.classList.remove("hidden");
+  profileContainer.classList.add("hidden");
+  loadingTextDots.innerHTML = "";
 }
 
 // share game summary
@@ -904,6 +912,7 @@ async function postProfileData(arr1, arr2)
 //TODO:HERE
 function createProfiles(data)
 {
+
   let profile = data[0];
   let smallVal = profile['small'] / profile['sumSmall'];
   let mediumVal = profile['medium'] / profile['sumMedium'];
@@ -928,6 +937,35 @@ function createProfiles(data)
   divBig.appendChild(bigCanv);
   divShortHair.appendChild(shortHairCanv);
   divLongHair.appendChild(longHairCanv);
+
+  var loadingTextDots = document.getElementById("loadingTextDots");
+  var loadingGif = document.getElementById("loadingGif");
+  var dotsInterval = setInterval(addDots, 50);
+  var dotsN = 0;
+  function addDots()
+  {
+    let dot = "."
+    let dogLeft = 40 + dotsN * 4;
+    loadingTextDots.innerHTML = dot.repeat(dotsN);
+    loadingGif.style.left = dogLeft + "px";
+    dotsN++;
+
+    if (dotsN > 40)
+    {
+      clearDots();
+    }
+  }
+  let profileLoadingPlaceholder = document.getElementById("profileLoadingPlaceholder");
+  function clearDots()
+  {
+    profileLoadingPlaceholder.classList.add("hidden");
+    clearInterval(dotsInterval);
+  }
+
+  let profileContainer = document.getElementById("profileContainer");
+  setTimeout(function(){
+    profileContainer.classList.remove("hidden");
+  }, 2100)
 }
 
 function profileCanvas(val)

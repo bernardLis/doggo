@@ -175,6 +175,29 @@ html,body
 .pileText
 {
 }
+#profileLoadingPlaceholder
+{
+  position: relative;
+}
+#loadingGif
+{
+  position: relative;
+  left: 40px;
+}
+#loadingText
+{
+  position: absolute;
+  bottom: 0;
+  margin: 0 0 0 1rem;
+  padding: 0;
+  line-height: 1.5;
+  display: inline-block;
+}
+
+#profileDiv
+{
+  height: 350px;
+}
 .profileTxt
 {
   margin-bottom: 0;

@@ -533,6 +533,7 @@ def prepareHotDogs(dogs):
 
     return dogs
 
+
 def caesarShift(string, key):
     k = key
     plainString = string

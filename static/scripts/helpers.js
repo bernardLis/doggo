@@ -9,9 +9,9 @@ var countdownSound = new Howl({
 // BONE CIRCLE!!
 
 // https://stackoverflow.com/questions/10152390/dynamically-arrange-some-elements-around-a-circle
-function createBoneCircle()
+function createBoneCircle(container)
 {
-  var container = document.getElementById('boneCircleContainer');
+  var container = container
   var positionInfo = container.getBoundingClientRect();
   var width = positionInfo.width;
   var height = positionInfo.height;

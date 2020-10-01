@@ -1,16 +1,3 @@
-from pprint import pprint
-from random import choice
-import requests
-import sys
-import json
-from cs50 import SQL
-import os
-import random
-import re
-from cs50 import SQL
-
-db = SQL("sqlite:///doggoDB.db")
-
 def calculateHotAverages():
     avgProfile = {
         'small': 0,
@@ -89,21 +76,5 @@ def calculateHotAverages():
         'avgShortHair': avgProfile['shortHair']/avgProfile['sumShortHair'],
         'avgLongHair': avgProfile['longHair']/avgProfile['sumLongHair']
     }
+
     return avg
-
-def getBreedFromLink(link):
-    # preping dogDict and sending it to the client
-    dogLink = link.split("/")
-    breedStr = re.split(r'[-_]', dogLink[4])
-    breed = ""
-    for i, str in enumerate(breedStr):
-        if i == (len(breedStr) - 1):
-            breed = breed + breedStr[i].capitalize()
-        elif i != 0:
-            breed = breed + breedStr[i].capitalize() + " "
-
-    return breed
-
-
-
-calculateHotAverages()
